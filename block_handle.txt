@@ -1,0 +1,94 @@
+AST_change block_handle(gtree *t1, gtree *t2, vector<Mapping> &M)//t1,t2都是语句列指针
+{
+	AST_change changes;
+	changes.m.map1 = t1;
+	changes.m.map2 = t2;
+	int state_or_declare;
+	bool is_state;
+	if (t1->type == STATEMENT_LIST)
+	{
+		state_or_declare = STATEMENT;
+		is_state = true;
+	}
+	else
+	{
+		state_or_declare = DECLARATION;
+		is_state = false;
+	}
+	
+
+	//先判断是否所有子句都已match（若都match则已经不需要处理该语句块）
+	bool match = total_match(t1, t2, M);
+	if (match == true)
+	{
+		changes.m.map1 = NULL;
+		changes.m.map2 = NULL;
+		return changes;
+	}
+	//找到语句块的position_pair数列
+	vector<pair<int, int>> position_pair_list;
+	position_pair_list.push_back(make_pair(0, 0));//(0,0)作为阶梯起点
+
+	gtree *p1 = t1, *p2 = t2;
+	while (p1->type != state_or_declare)
+		p1 = p1->child;
+	while (p2->type != state_or_declare)
+		p2 = p2->child;
+	gtree *p2_start = p2;
+	int position1 = 1, position2 = 1;
+	while (p1->type == state_or_declare)
+	{
+		if (exist_in_M(p1, M))
+		{
+			gtree *theOther = extract_theOther_in_M(p1, M);
+			position2 = 1;
+			p2 = p2_start;
+			while (p2->type == state_or_declare)
+			{
+				if (p2 == theOther)
+				{
+					position_pair_list.push_back(make_pair(position1, position2));
+				}
+				position2++;
+				p2 = p2->parent->next;
+			}
+		}
+		position1++;
+		p1 = p1->parent->next;
+	}
+
+	//根据position_pair_list先找到移动的pair
+	vector<pair<int, int>> moves = process_move(position_pair_list);
+
+	vector<pair<int, int>> modify, add, del;
+	process_other(moves, position_pair_list, modify, add, del, position1, position2);
+
+	gtree *parent_statement1 = t1, *parent_statement2 = t2;
+	while (parent_statement1 != NULL && parent_statement1->type != state_or_declare)
+		parent_statement1 = parent_statement1->parent;
+	while (parent_statement2 != NULL && parent_statement2->type != state_or_declare)
+		parent_statement2 = parent_statement2->parent;
+	if (parent_statement1 != NULL && parent_statement2 != NULL)
+	{
+		if (parent_statement1->parent->type == ITERATION_STATEMENT || parent_statement1->parent->type == SELECTION_STATEMENT)
+		{
+			Mapping m;
+			m.map1 = parent_statement1->parent->parent;
+			m.map2 = parent_statement2->parent->parent;
+			M.push_back(m);
+		}
+		else
+		{
+			Mapping m;
+			m.map1 = parent_statement1;
+			m.map2 = parent_statement2;
+			M.push_back(m);
+		}
+	}
+
+	changes.move = moves;
+	changes.add = add;
+	changes.modify = modify;
+	changes.del = del;
+	return changes;
+}

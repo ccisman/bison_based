@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\cpn">
+      <UniqueIdentifier>{bf9a1f01-65ba-463e-869a-692befee0b8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\AST">
+      <UniqueIdentifier>{10ab5cd4-6fa7-447e-a546-608183766b15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\tinyxml">
+      <UniqueIdentifier>{49a6c660-8e9a-4511-b80d-12945871c06c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Product">
+      <UniqueIdentifier>{7206434c-93aa-45b4-85ce-3095f615a0a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\buchi">
+      <UniqueIdentifier>{fa6b04a2-7b5c-4a20-aab8-4d0d836b9c68}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cpn.cpp">
+      <Filter>源文件\cpn</Filter>
+    </ClCompile>
+    <ClCompile Include="RG.cpp">
+      <Filter>源文件\cpn</Filter>
+    </ClCompile>
+    <ClCompile Include="AST.cpp">
+      <Filter>源文件\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="AST_compare.cpp">
+      <Filter>源文件\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="lex.yy.cpp">
+      <Filter>源文件\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="y.tab.cpp">
+      <Filter>源文件\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="pre_process.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="evolution.cpp">
+      <Filter>源文件\cpn</Filter>
+    </ClCompile>
+    <ClCompile Include="changeAnalyse.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="product.cpp">
+      <Filter>源文件\Product</Filter>
+    </ClCompile>
+    <ClCompile Include="tinystr.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlerror.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlparser.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="xml2ltl.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="MC.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="源.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Data_Structures.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+    <ClCompile Include="Lexer.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+    <ClCompile Include="Syntax_Tree.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+    <ClCompile Include="TBA.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+    <ClCompile Include="TGBA.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+    <ClCompile Include="SBA.cpp">
+      <Filter>源文件\buchi</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cpn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AST_compare.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="y.tab.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Data_Structures.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Lexer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="product.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SBA.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Syntax_Tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TBA.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TGBA.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tinystr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="xml2ltl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

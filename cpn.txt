@@ -1,0 +1,2775 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include"cpn.h"
+#include"y.tab.h"
+
+string colorset[] = { "int","char","float","double","string" };
+
+int Arc::total_num = 0;
+int Place::total_num = 0;
+int Transition::total_num = 0;
+
+
+Arc::Arc(string s, string t, string v, bool s_P)
+{
+	source = s;
+	target = t;
+	V = v;
+	sourceP = s_P;
+	id_num = total_num++;
+
+}
+
+Place::Place(string n, string v_n, string colorset_t, bool c_P)
+{
+	name = n;
+	v_name = v_n;
+	colorset_tag = colorset_t;
+	controlP = c_P;
+	id_num = total_num++;
+	ispoint = false;
+}
+
+void Place::set_Place_value(int n)
+{
+	num[0] = n;
+	token_num = 1;
+}
+
+void Place::set_Place_value(double dec)
+{
+	decimal[0] = dec;
+	token_num = 1;
+}
+
+void Place::set_Place_value(string s)
+{
+	str = s;
+	token_num = 1;
+}
+
+Transition::Transition(string n, bool c_T, int current)
+{
+	name = n;
+	controlT = c_T;
+	current_P_num = current;
+	id_num = total_num++;
+}
+
+void Transition::set_C_Transition_value(string str)
+{
+	booleanExpression = str;
+}
+
+void Transition::set_V_Transition_value(string str)
+{
+	v_Expression = str;
+}
+
+C_Petri::C_Petri()
+{
+
+}
+
+void C_Petri::Add_Arc(Arc a)
+{
+	arc.push_back(a);
+	arcnum++;
+}
+
+void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
+{
+	int sourceid, targetid;
+	Arc a(source, target, V, sourceP);
+	for (vector<Arc>::iterator it = arc.begin(); it != arc.end(); it++)
+	{
+		if (it->source == source && it->target == target)
+		{
+
+			if (it->V == V)
+			{
+				//cout << "重复添加边" << source << "-->" << target << endl;
+				//arcnum--;
+				return;
+			}
+			else
+			{
+				//cout << "覆盖边" << source << "-->" << target << endl;
+				arc.erase(it);
+				arcnum--;
+				break;
+			}
+		}
+	}
+	if (sourceP)
+	{
+		int i, j;
+		for (i = 0; i < p_num; i++)
+		{
+			if (place[i].name == source)
+			{
+				sourceid = place[i].id_num;
+				break;
+			}
+		}
+		if (i == p_num)
+		{
+			cout << "can't find source:" << source << endl;
+			exit(1);
+		}
+		for (j = 0; j < t_num; j++)
+		{
+			if (transition[j].name == target)
+			{
+				targetid = transition[j].id_num;
+				break;
+			}
+		}
+		if (j == t_num)
+		{
+			cout << "can't find target:" << target << endl;
+			exit(1);
+		}
+	}
+	else
+	{
+		int i, j;
+		for (i = 0; i < p_num; i++)
+		{
+			if (place[i].name == target)
+			{
+				targetid = place[i].id_num;
+				break;
+			}
+		}
+		if (i == p_num)
+		{
+			cout << "can't find target!" << endl;
+			exit(1);
+		}
+		for (j = 0; j < t_num; j++)
+		{
+			if (transition[j].name == source)
+			{
+				sourceid = transition[j].id_num;
+				break;
+			}
+		}
+		if (j == t_num)
+		{
+			cout << "can't find source!" << endl;
+			exit(1);
+		}
+	}
+	a.sourceNum = sourceid;
+	a.targetNum = targetid;
+	Add_Arc(a);
+}
+
+void C_Petri::Add_Place(Place p)
+{
+	place.push_back(p);
+	p_num++;
+}
+
+void C_Petri::Add_Place(string name, string v_name, string colorset_tag, bool controlP, bool t, int n, double dec, string s, int array_size,bool ispoint)
+{
+	//	int judge = find_exist(place, v_name);
+	//	if (judge != 0)
+	//	{
+	//		char temp[5];
+	//		itoa(judge, temp, 10);
+	//		v_name = v_name + "@" + temp;
+	//	}
+	Place place(name, v_name, colorset_tag, controlP);
+	place.ispoint = ispoint;
+	if (!t)
+	{
+		//		place.token_num = 0;//表示未赋初值
+		if (colorset_tag == "")
+		{
+
+		}
+		else
+		{
+			switch (colorset_tag[colorset_tag.size() - 1])
+			{
+			case '1':
+			case '5':
+			case '6':
+				place.num = new int[array_size];
+				place.n_num = array_size;
+				break;
+			case '3':
+			case '4':
+				place.decimal = new double[array_size];
+				place.n_decimal = array_size;
+				break;
+			default:
+				break;
+			}
+		}
+		if (controlP == true)
+			place.token_num = 0;
+		else
+			place.token_num = 1;
+		Add_Place(place);
+	}
+	else
+	{
+		if (controlP == true)
+			place.token_num = 0;
+		else
+			place.token_num = 1;
+
+		switch (colorset_tag[colorset_tag.size() - 1])
+		{
+		case '1':
+		case '5':
+		case '6':
+			place.num = new int[array_size];
+			place.n_num = array_size;
+			place.set_Place_value(n);
+			break;
+		case '3':
+		case '4':
+			place.decimal = new double[array_size];
+			place.n_decimal = array_size;
+			place.set_Place_value(dec);
+			break;
+		default:
+			place.set_Place_value(s);
+			break;
+		}
+		Add_Place(place);
+	}
+}
+
+void C_Petri::Add_Transition(Transition t)
+{
+	transition.push_back(t);
+	t_num++;
+}
+
+void C_Petri::Add_Transition(string name, bool controlT, string s, int current)
+{
+	Transition t(name, controlT, current);
+	if (controlT)
+		t.set_C_Transition_value(s);
+	else
+		t.set_V_Transition_value(s);
+	Add_Transition(t);
+
+
+}
+
+string C_Petri::find_place(string t_name, string V)
+{
+	for (int i = 0; i < arcnum; i++)
+	{
+		if ((arc[i].sourceP == true) && (arc[i].target == t_name) && arc[i].V == V)
+		{
+			return arc[i].source;
+		}
+	}
+	cout << "can't find place" << endl;
+	return "";
+}
+
+bool C_Petri::Add_Place_enter(string name, string s)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].enter.push_back(s);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool C_Petri::Add_Place_enter(string name, vector<string> s)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].enter.insert(place[i].enter.end(), s.begin(), s.end());
+			return true;
+		}
+	}
+	return false;
+}
+
+bool C_Petri::Add_Place_exit(string name, string s)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].exit.push_back(s);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool C_Petri::Add_Place_exit(string name, vector<string> s)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].exit.insert(place[i].exit.end(), s.begin(), s.end());
+			return true;
+		}
+	}
+	return false;
+}
+
+vector<string> C_Petri::get_enter(string name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			return place[i].enter;
+		}
+	}
+	cout << "error in get_enter()" << endl;
+	exit(1);
+}
+
+vector<string> C_Petri::get_exit(string name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			return place[i].exit;
+		}
+	}
+	cout << "error in get_exit()" << endl;
+	exit(1);
+}
+
+int C_Petri::get_flag(string name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			return place[i].flag;
+		}
+	}
+	cout << "error in get_flag()" << endl;
+	exit(1);
+}
+
+bool C_Petri::get_call_last(string name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			return place[i].call_last;
+		}
+	}
+	cout << "error in get_call_last()" << endl;
+	exit(1);
+}
+
+vector<string> C_Petri::get_information(string name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			return place[i].information;
+		}
+	}
+	cout << "error in get_information()" << endl;
+	exit(1);
+}
+
+void C_Petri::set_flag(string name, int flag)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].flag = flag;
+			break;
+		}
+	}
+}
+
+void C_Petri::set_call_last(string name, bool flag)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].call_last = flag;
+			break;
+		}
+	}
+	cout << "error in set_call_last()" << endl;
+	exit(1);
+}
+
+void C_Petri::Add_information(string name, string information)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (name == place[i].name)
+		{
+			place[i].information.push_back(information);
+			break;
+		}
+	}
+}
+
+bool C_Petri::is_enable(string t_name)
+{
+	vector<string> all_P;
+	all_P = find_all_place(t_name);
+	for (unsigned int i = 0; i < all_P.size(); i++)
+	{
+		for (int j = 0; j < p_num; j++)
+		{
+			if (place[j].name == all_P[i])
+			{
+				if (place[j].token_num < 1)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	string guard_Expression;
+	for (int i = 0; i < t_num; i++)
+	{
+		if (transition[i].name == t_name)
+		{
+			guard_Expression = transition[i].booleanExpression;
+			break;
+		}
+	}
+	if (guard_Expression != "")
+	{
+		bool flag1 = guard(guard_Expression, t_name);
+		if (flag1 == true)
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+			return true;
+	}
+
+}
+
+vector<string> C_Petri::enable_T()
+{
+	vector<string> T;
+	for (int i = 0; i < t_num; i++)
+	{
+		if (is_enable(transition[i].name) == true)
+		{
+			T.push_back(transition[i].name);
+		}
+	}
+
+	return T;
+}
+
+int priority(char c)
+{
+	if (c == '#')
+		return -1;
+	else
+	{
+		switch (c)
+		{
+		case'(':
+			return 0;
+			break;
+		case '+':
+		case '-':
+		
+			return 1;
+			break;
+		case '*':
+		case '/':
+		case '%':
+			return 2;
+			break;
+		case '&':
+		case '|':
+			return 3;
+		case ')':
+		case '!':
+		case '@':
+			return 4;
+		}
+	}
+	cout << "priority error!" << endl;
+	return -2;
+}
+
+bool is_operator(char c)
+{
+	if (c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')' || c == '#' || c == '&' || c == '|' || c == '^' || c == '%' || c == '!' )
+	{
+		return true;
+	}
+	return false;
+}
+
+double process_get_value(vector<Place> place, int pos, int current,int array_num)
+{
+	Place *temp_p1 = &place[pos];
+	while (temp_p1->ispoint == true)
+	{
+		if (temp_p1->str == "")
+		{
+			cout << "point 未赋值!" << endl;
+			exit(1);
+		}
+		for (unsigned int i = 0; i < place.size(); i++)
+			if (place[i].name == temp_p1->str)
+			{
+				temp_p1 = &place[i];
+				break;
+			}
+	}
+	if (temp_p1->colorset_tag[temp_p1->colorset_tag.size() - 1] == '1' || temp_p1->colorset_tag[temp_p1->colorset_tag.size() - 1] == '5' || temp_p1->colorset_tag[temp_p1->colorset_tag.size() - 1] == '6')
+		return temp_p1->num[array_num];
+	else if (temp_p1->colorset_tag[temp_p1->colorset_tag.size() - 1] == '3' || temp_p1->colorset_tag[temp_p1->colorset_tag.size() - 1] == '4')
+		return temp_p1->decimal[array_num];
+	else
+	{
+		cout << "库所colortag出错!" << endl;
+		return -1;
+	}
+}
+
+double get_value(string s, vector<Place> place, int current)//通过变量名寻找变量库所value的值，未考虑数组
+{
+	int position = 0;
+	int array_num = 0;
+	for (unsigned int i = 0; i < s.length(); i++)
+	{
+		if (s[i] == '[')
+		{
+			position = i;
+			string temp_s;
+			for (unsigned int j = i + 1; j < s.length(); j++)
+			{
+				if (s[j] == ']')
+					break;
+				temp_s += s[j];
+			}
+			array_num = int(change_and_cal(temp_s, place, current));
+			break;
+		}
+	}
+	if (position != 0)
+		s = s.substr(0, position);
+
+	if (s[0] >= '0'&&s[0] <= '9' || (s[0] == '-'&&s[1] >= '0'&&s[1] <= '9'))
+	{
+		stringstream ss;
+		ss << s;
+		double temp;
+		ss >> temp;
+		return temp;
+	}
+
+	for (int i = current < int(place.size()) ? current - 1 : int(place.size()) - 1; i >= 0; i--)
+	{
+		string name = place[i].name;
+		name = name.substr(1);
+		int name_num = atoi(name.c_str());
+		if (name_num < current)
+		{
+			vector<string> v;
+			SplitString(place[i].v_name, v, "@");
+			if (s == v[v.size() - 1])
+			{
+				double value = process_get_value(place, i, current, array_num);
+				return value;
+			}
+		}
+	}
+	cout << "get_value error!" << endl;
+	exit(1);
+}
+
+double cal(double top_1, double top_2, char c)
+{
+	if (c == '+')
+		return top_1 + top_2;
+	else if (c == '-')
+		return top_1 - top_2;
+	else if (c == '*')
+		return top_1 * top_2;
+	else if (c == '/')
+		return top_1 / top_2;
+	else if (c == '&')
+		return int(top_1) & int(top_2);
+	else if (c == '|')
+		return int(top_1) | int(top_2);
+	else if (c == '^')
+		return int(top_1) ^ int(top_2);
+	else if (c == '%')
+		return int(top_1) % int(top_2);
+	else if (c == '!')
+	{
+		if (top_1 - 0 < 1e-6)
+			return 1;
+		else
+			return 0;
+	}
+	else if (c == '@')
+		return -top_1;
+	else
+		return -1;
+}
+
+bool is_unary(char c)
+{
+	if (c == '!' || c == '@')
+		return true;
+	else
+		return false;
+}
+
+void process_stack(stack<double> &Stack, stack<char> &Stack_c)
+{
+	char c = Stack_c.top();
+	Stack_c.pop();
+	if (!is_unary(c))
+	{
+		double top_1 = Stack.top();
+		Stack.pop();
+		double top_2 = Stack.top();
+		Stack.pop();
+		double res = cal(top_2, top_1, c);
+		Stack.push(res);
+	}
+	else
+	{
+		double top_1 = Stack.top();
+		Stack.pop();
+		double res = cal(top_1, top_1, c);
+		Stack.push(res);
+	}
+}
+
+double change_and_cal(string s, vector<Place> place, int current)//将中缀式s转换成后缀式并且将变量进行代换
+{
+	if (s == "" || s == "executed")
+		return 0;
+	string temp_s;
+
+
+	stack<double> Stack;
+	stack<char> Stack_c;
+	Stack_c.push('#');
+	s.append(1, '#');
+	bool ignore = false;
+	for (unsigned int i = 0; i < s.length(); i++)
+	{
+		if (s[i] == ' ')
+			continue;
+		if (s[i] == '[')
+			ignore = true;
+		if (s[i] == ']')
+			ignore = false;
+		if (is_operator(s[i]) == true && ignore == false)
+		{
+			if (temp_s != "")
+			{
+				double value = get_value(temp_s, place, current);
+				temp_s.clear();
+				Stack.push(value);
+			}
+			else if (s[i] == '-')
+			{
+				Stack_c.push('@');
+				continue;
+			}
+			if (s[i] == '(')
+			{
+				Stack_c.push(s[i]);
+			}
+			else if (s[i] == ')')
+			{
+				while (Stack_c.top() != '(')
+				{
+					process_stack(Stack, Stack_c);
+				}
+				Stack_c.pop();
+			}
+			else
+			{
+				while (priority(s[i]) <= priority(Stack_c.top()))
+				{
+					if (s[i] == '#' && Stack_c.top() == '#')
+					{
+						double result = Stack.top();
+						Stack.pop();
+						return result;
+					}
+					process_stack(Stack, Stack_c);
+
+				}
+				Stack_c.push(s[i]);
+			}
+		}
+		else
+			temp_s.append(1, s[i]);
+	}
+	cout << "change error!" << endl;
+	return -1;
+}
+
+bool C_Petri::guard_process(string booleanExpression, string T)//暂时只处理一个不等号
+{
+	vector<string> v;
+	int flag;
+	if (booleanExpression.find(">=") != string::npos)
+	{
+		flag = 0;//>=
+		SplitString(booleanExpression, v, ">=");
+	}
+	else if (booleanExpression.find("<=") != string::npos)
+	{
+		flag = 1;//<=
+		SplitString(booleanExpression, v, "<=");
+	}
+	else if (booleanExpression.find("<") != string::npos)
+	{
+		flag = 2;//<
+		SplitString(booleanExpression, v, "<");
+	}
+	else if (booleanExpression.find(">") != string::npos)
+	{
+		flag = 3;//>
+		SplitString(booleanExpression, v, ">");
+	}
+	else if (booleanExpression.find("==") != string::npos)
+	{
+		flag = 4;//==
+		SplitString(booleanExpression, v, "==");
+	}
+	else if (booleanExpression.find("!=") != string::npos)
+	{
+		flag = 5;//!=
+		SplitString(booleanExpression, v, "!=");
+	}
+	else
+		flag = 6;
+	if (flag == 6)
+	{
+		double value = change_and_cal(booleanExpression, place, get_current_P_num(T));
+		if (value - 0 < 1e-6)
+			return false;
+		else
+			return true;
+	}
+	if (v.size() == 2)
+	{
+		double left = change_and_cal(v[0], place, get_current_P_num(T));
+		double right = change_and_cal(v[1], place, get_current_P_num(T));
+		if (flag == 0)
+		{
+			if (left >= right)
+				return true;
+			else
+				return false;
+		}
+		else if (flag == 1)
+		{
+			if (left <= right)
+				return true;
+			else
+				return false;
+		}
+		else if (flag == 2)
+		{
+			if (left < right)
+				return true;
+			else
+				return false;
+		}
+		else if (flag == 3)
+		{
+			if (left > right)
+				return true;
+			else
+				return false;
+		}
+		else if (flag == 4)
+		{
+			if (left == right)
+				return true;
+			else
+				return false;
+		}
+		else if (flag == 5)
+		{
+			if (left != right)
+				return true;
+			else
+				return false;
+		}
+		else
+		{
+			cout << "guard error!" << endl;
+			exit(1);
+		}
+	}
+	else if (v.size() == 1)
+	{
+		double res = change_and_cal(v[0], place, get_current_P_num(T));
+		if (res - 0 < 1e-6)
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+		cout << "guard error! no expression!" << endl;
+		exit(1);
+	}
+}
+
+bool C_Petri::guard(string booleanExpression, string T)
+{
+	stack<bool> Stack;
+	stack<char> Stack_c;
+	string temp_s = "";
+	for (unsigned int i = 0; i < booleanExpression.length(); i++)
+	{
+		if (booleanExpression[i] == '&' || booleanExpression[i] == '|' )
+		{
+			if (booleanExpression[i] == '&' || booleanExpression[i] == '|')
+			{
+				i++;
+			}
+			if (booleanExpression[i] != '(')
+			{
+				bool value = guard_process(temp_s, T);
+				temp_s.clear();
+				Stack.push(value);
+			}
+
+		}
+		else
+			temp_s += booleanExpression[i];
+		if (booleanExpression[i] == '&' || booleanExpression[i] == '|')
+		{
+			while (!Stack_c.empty())
+			{
+				bool top_1 = Stack.top();
+				Stack.pop();
+				bool top_2 = Stack.top();
+				Stack.pop();
+				char c = Stack_c.top();
+				Stack_c.pop();
+				bool res;
+				if (c == '&')
+					res = top_1 && top_2;
+				else
+					res = top_1 || top_2;
+				Stack.push(res);
+			}
+			Stack_c.push(booleanExpression[i]);
+		}
+
+	}
+	if (Stack_c.empty())
+	{
+		return guard_process(temp_s, T);
+	}
+	else
+	{
+		if (!Stack.empty())
+		{
+			if (temp_s.length() != 0)
+			{
+				bool top_1 = Stack.top();
+				Stack.pop();
+				bool top_2 = guard_process(temp_s, T);
+				char c = Stack_c.top();
+				Stack_c.pop();
+				if (c == '&')
+					return top_1 && top_2;
+				else
+					return top_1 || top_2;
+			}
+			else
+			{
+				bool top_1 = Stack.top();
+				Stack.pop();
+				return top_1;
+			}
+		}
+		else
+		{
+			return guard_process(temp_s, T);
+		}
+
+	}
+}//a&&b||c&&(d||e)
+
+vector<string> C_Petri::find_all_place(string t_name)
+{
+	vector<string> v;
+
+	for (int i = 0; i < arcnum; i++)
+	{
+		if (arc[i].sourceP == true && arc[i].V != "#" && arc[i].V != "executed#")//隐式弧
+			if (arc[i].target == t_name)
+				v.push_back(arc[i].source);
+	}
+	return v;
+}
+
+string C_Petri::Delete_Arc(int num)
+{
+	int i = 0;
+	for (vector<Arc>::iterator it = arc.begin(); it != arc.end(); it++, i++)
+	{
+		if (i == num)
+		{
+			//			arc.erase(it);
+			//			arcnum--;
+			string temp = it->V;
+			if (it->V == "executed")
+				it->V = "executed#";
+			else
+				it->V = "#";
+			return temp;
+		}
+	}
+	return "";
+}
+
+string C_Petri::Delete_Arc(string source, string target)
+{
+	for (vector<Arc>::iterator it = arc.begin(); it != arc.end(); it++)
+	{
+		if (it->source == source && it->target == target)
+		{
+			//			arc.erase(it);
+			//			arcnum--;
+			string temp = it->V;
+			if (it->V == "executed")
+				it->V = "executed#";
+			else
+				it->V = "#";
+			return temp;
+		}
+	}
+	return "";
+}
+
+void C_Petri::Change_Arc(int num, string source, string target, string V, bool sourceP)
+{
+	for (int i = 0; i < arcnum; i++)
+	{
+		if (i == num)
+		{
+			arc[i].source = source;
+			arc[i].target = target;
+			arc[i].V = V;
+			arc[i].sourceP = sourceP;
+		}
+	}
+}
+
+void C_Petri::delete_all_connected_arc(string place)
+{
+	for (int i = 0; i < arcnum; i++)
+	{
+		if (arc[i].source == place || arc[i].target == place)
+		{
+			Delete_Arc(i);
+		}
+	}
+}
+
+int C_Petri::get_current_P_num(string T)
+{
+	for (int i = 0; i < t_num; i++)
+	{
+		if (transition[i].name == T)
+			return transition[i].current_P_num;
+	}
+	cout << "get_current_P_num error" << endl;
+	exit(1);
+}
+
+void C_Petri::set_point_flag(string p_name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (place[i].name == p_name)
+		{
+			place[i].ispoint = true;
+			return;
+		}
+	}
+}
+
+bool C_Petri::get_point_flag(string p_name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (place[i].name == p_name)
+		{
+			return place[i].ispoint;
+		}
+	}
+	cout << "get_point_flag error!" << endl;
+	exit(1);
+}
+
+void C_Petri::set_false_exit(string p_name,vector<string> false_exit)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (place[i].name == p_name)
+		{
+			place[i].false_exit = false_exit;
+			return;
+		}
+	}
+}
+
+vector<string> C_Petri::get_false_exit(string p_name)
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		if (place[i].name == p_name)
+		{
+			return place[i].false_exit;
+		}
+	}
+	cout << "get_false_exit error!" << endl;
+	exit(1);
+}
+
+int gen_P_num = 0, gen_T_num = 0;//生成库所和变迁名的下标
+bool control_P = true;
+bool control_T = true;
+bool t = false;
+bool sourceP = true;
+bool ispoint = false;
+int n1 = 0;
+int array_size;
+double d = 0.0;
+string tag = "";
+string V_name = "";
+string s = "";
+string P1 = "";
+string T = "";
+string V = "";
+
+
+string gen_P()
+{
+	string temp = "";
+	return temp + 'P' + to_string(gen_P_num++);
+
+}
+string gen_T()
+{
+	string temp = "";
+	return temp + 'T' + to_string(gen_T_num++);
+}
+string get_gen_P()
+{
+	string temp = "";
+	return temp + 'P' + to_string(gen_P_num);
+}
+void reset_gen()
+{
+	gen_P_num = 0;
+	gen_T_num = 0;
+}
+int find_P_exist(vector<Place> place, string s)//找库所中是否有v_name等于s的，并且返回有几个
+{
+	vector<string> v;
+	for (int i = place.size() - 1; i >= 0; i--)
+	{
+		v.clear();
+		SplitString(place[i].v_name, v, "#");
+		if (v[0] == s)
+		{
+			if (v.size() == 1)
+			{
+				return 1;
+			}
+			else
+			{
+				return atoi(v[1].c_str()) + 1;
+
+			}
+		}
+
+	}
+	return 0;
+}
+
+string find_executedP(C_Petri petri, string T)//给定变迁名，寻找指向它的执行库所，没有返回""
+{
+	for (int i = 0; i < petri.arcnum; i++)
+	{
+		if (petri.arc[i].V == "executed" && petri.arc[i].sourceP == true && petri.arc[i].target == T && petri.arc[i].V != "#")
+		{
+			for (int j = 0; j < petri.p_num; j++)
+			{
+				if (petri.place[j].name == petri.arc[i].source)
+					if (petri.place[j].v_name == "executedP")
+						return petri.arc[i].source;
+			}
+		}
+	}
+	return "";
+}
+string find_P_name(C_Petri petri, string v_name)//通过变量名v_name找库所名name
+{
+
+	for (int i = petri.p_num - 1; i >= 0; i--)
+	{
+		string s = petri.place[i].v_name;
+		vector<string> v;
+		SplitString(s, v, "@");
+
+		int pos = v.size() - 1;
+		if (pos >= 0 && v[pos] == v_name)
+			return petri.place[i].name;
+	}
+	cout << "can't find P" << endl;
+	return "";
+}
+string find_P_name_1(C_Petri petri, string v_name, int current)//通过变量名v_name找库所名name
+{
+
+	for (int i = current - 1; i >= 0; i--)
+	{
+		string s = petri.place[i].v_name;
+		vector<string> v;
+		SplitString(s, v, "@");
+
+		int pos = v.size() - 1;
+		if (pos >= 0 && v[pos] == v_name)
+			return petri.place[i].name;
+	}
+	cout << "can't find P" << endl;
+	return "";
+}
+string find_T_name(C_Petri petri, string v_name)//通过表达式名v_name找变迁名name
+{
+	for (int i = petri.t_num - 1; i >= 0; i--)
+	{
+		string s = petri.transition[i].v_Expression;
+		string s1 = petri.transition[i].booleanExpression;
+		if (s == v_name || s1 == v_name)
+			return petri.transition[i].name;
+	}
+	cout << "can't find T" << endl;
+	return "";
+}
+void create_connect(C_Petri &petri, string T, string express, int current)//给定变迁和表达式建立表达式中所有库所与变迁的联系
+{
+	string P2;
+	vector<string> v;
+	string V;
+	bool sourceP;
+	splitExpression(express, v);
+	for (unsigned int i = 0; i < v.size(); i++)
+	{
+		if (v[i][0] == '_' || (v[i][0] >= 'a'&&v[i][0] <= 'z'))
+		{
+			int position = 0;
+			for (unsigned int j = 0; j < v[i].length(); j++)
+			{
+				if (v[i][j] == '[')
+				{
+					position = j;
+					break;
+				}
+			}
+			if (position != 0)
+				v[i] = v[i].substr(0, position);
+			P2 = find_P_name_1(petri, v[i], current);
+			V = v[i];
+			sourceP = true;
+			petri.Add_Arc(P2, T, V, sourceP);
+			sourceP = false;
+			//			V = "";
+			petri.Add_Arc(T, P2, V, sourceP);
+		}
+	}
+}
+void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement建模，语句内部建模不需要考虑是否存在过程调用
+{
+	gtree *tr;
+	bool flag = false;
+	if (tree1->child->next->type == STATEMENT_LIST)//只有语句
+	{
+		tr = tree1->child->next;
+	}
+	else if (tree1->child->next->next->type == STATEMENT_LIST)//既有语句又有定义
+	{
+		tr = tree1->child->next->next;
+	}
+	else//只有定义
+	{
+		cout << "暂不处理只有定义的情况!" << endl;
+		exit(1);
+	}
+	while (tr->type != STATEMENT)
+		tr = tr->child;
+
+	vector<string> now;
+	vector<string> last;
+	while (tr)
+	{
+		now.clear();
+		if (tr->child->type == SELECTION_STATEMENT || tr->child->type == ITERATION_STATEMENT 
+			|| judge_assign_statement(tr) || judge_call_statement(tr))
+		{
+
+			bool control_P, t;
+			int n1 = 0;
+			double d = 0.0;
+			string tag;
+			string V = "", V_name = "";
+			string s = "";
+			string _P = find_P_name(petri, tr->place);
+			bool sourceP = false;
+
+
+			petri.Add_Arc(T, _P, V, sourceP);
+			if (judge_assign_statement(tr) || judge_call_statement(tr))//call仅仅占个位置
+			{
+				now.push_back(find_T_name(petri, tr->place));
+			}
+			else if (tr->child->type == SELECTION_STATEMENT)
+			{
+				vector<string> v;
+				//temp_P = find_P_name(petri, tr->place);
+				now = petri.get_enter(_P);
+			}
+			else if (tr->child->type == ITERATION_STATEMENT)
+			{
+				vector<string> v;
+				//temp_P = find_P_name(petri, tr->place);
+				now = petri.get_enter(_P);
+			}
+
+
+			if (last.size() != 0)
+			{
+				string newP = gen_P();
+				V_name = "executedP";
+				tag = "";
+				control_P = true;
+				t = false;
+				ispoint = false;
+				petri.Add_Place(newP, V_name, tag, control_P, t, n1, d, s, 0, ispoint);
+				V = "executed";
+				sourceP = false;
+				for (unsigned int i = 0; i < last.size(); i++)
+					petri.Add_Arc(last[i], newP, V, sourceP);
+
+				//break语句不继续连
+				//if (tr->child->type == break语句)
+				//	break;
+
+
+				sourceP = true;
+				for (unsigned int i = 0; i < now.size(); i++)
+					petri.Add_Arc(newP, now[i], V, sourceP);
+				if (tr->child->type == ITERATION_STATEMENT)//循环语句前有执行库所的问题
+				{
+					vector<string> false_exit = petri.get_false_exit(_P);
+					for (unsigned int i = 0; i < false_exit.size(); i++)
+					{
+						sourceP = false;
+						petri.Add_Arc(false_exit[i], newP, V, sourceP);
+					}
+				}
+
+			}
+			if (judge_assign_statement(tr) || judge_call_statement(tr))//call仅仅占个位置
+				last = now;
+			else if (tr->child->type == SELECTION_STATEMENT)
+			{
+				last = petri.get_exit(_P);
+			}
+			else if (tr->child->type == ITERATION_STATEMENT)//while语句的真实出口只有exit[-1]
+			{
+				last = petri.get_exit(_P);
+			}
+
+		}
+		if (tr->parent->next->type == STATEMENT)
+			tr = tr->parent->next;
+		else
+			break;
+		if (flag == true)
+			break;
+	}
+}
+void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement建模，语句外部建模需要考虑是否存在过程调用
+{
+	gtree  *tr;
+	int sum = 0;//用于区分begin是否连接到控制库所
+	for (int i = 0; i < petri.arcnum; i++)
+	{
+		if (petri.arc[i].sourceP == false && petri.arc[i].source == T)
+		{
+			sum++;
+			break;
+		}
+	}
+	bool flag = false;
+	if (tree1->child->next->type == STATEMENT_LIST)//只有语句
+	{
+		tr = tree1->child->next;
+	}
+	else if (tree1->child->next->next->type == STATEMENT_LIST)//既有语句又有定义
+	{
+		tr = tree1->child->next->next;
+	}
+	else//只有定义
+	{
+		cout << "暂不处理只有定义的情况!" << endl;
+		exit(1);
+	}
+	while (tr->type != STATEMENT)
+		tr = tr->child;
+	string now;
+	vector<string> last;
+	while (tr)
+	{
+
+
+		if (tr->child->type == SELECTION_STATEMENT || tr->child->type == ITERATION_STATEMENT 
+			|| judge_assign_statement(tr) || judge_call_statement(tr) )
+		{
+			
+
+			int n1 = 0;
+			double d = 0.0;
+			string tag;
+			string V = "", V_name = "";
+			string s = "";
+			string _P = find_P_name(petri,tr->place);
+			bool sourceP = false;
+			bool flag_call = false;
+			
+			if (judge_call_statement(tr))
+				flag_call = true;
+			else
+			{
+				flag_call = petri.get_flag(_P);
+			}
+
+			if (sum == 0)//第一条语句控制弧
+			{
+				if (flag_call == false)
+				{
+					V = "executed";
+
+					_P = find_P_name(petri, tr->place);
+					petri.Add_Arc(T, _P, V, sourceP);
+				}
+				sum++;
+			}
+			if (tr->child->type == SELECTION_STATEMENT || tr->child->type == ITERATION_STATEMENT || tr->child->type == JUMP_STATEMENT)
+			{
+				//now.clear();
+				//now.push_back(find_P_name(petri, tr->child->place));
+				//temp_P = find_P_name(petri, tr->place);
+				now = find_P_name(petri, tr->place);
+			}
+			else if (judge_assign_statement(tr) || judge_call_statement(tr))
+			{
+				//temp_P = find_P_name(petri, tr->place);
+				now = find_P_name(petri, tr->place);
+			}
+
+			if (last.size() != 0 && flag_call == false)
+			{
+				for (unsigned int i = 0; i < last.size(); i++)
+				{
+					V = "executed";
+					sourceP = false;
+					petri.Add_Arc(last[i], now, V, sourceP);
+				}
+
+			}
+
+			if (judge_assign_statement(tr) || judge_call_statement(tr))
+			{
+				last.clear();
+				last.push_back(find_T_name(petri, tr->place));
+			}
+			else if (tr->child->type == SELECTION_STATEMENT)
+			{
+				last = petri.get_exit(_P);
+			}
+			else if (tr->child->type == ITERATION_STATEMENT)//while语句的真实出口只有exit[-1]
+			{
+				last = petri.get_exit(_P);
+			}
+		}
+		if (tr->parent->next!=NULL && tr->parent->next->type == STATEMENT)
+			tr = tr->parent->next;
+		else
+			break;
+		if (flag != NULL)
+			break;
+	}
+}
+
+bool judge_bool(string s)
+{
+	bool ignore = false;
+	for (unsigned int i = 0; i < s.length() - 1; i++)
+	{
+		if (s[i] == '(')
+			ignore = true;
+		else if (s[i] == ')')
+			ignore = false;
+		if (ignore == false && (s[i] == '>' || s[i] == '<'))
+			return true;
+		if (ignore == false && (s[i] == '=' || s[i] == '!'))
+			if (s[i + 1] == '=')
+				return true;
+	}
+	return false;
+}
+
+string opposite(string s)
+{
+	if (s.find(">=") != string::npos)
+		string_replace(s, ">=", "<");
+	else if (s.find("<=") != string::npos)
+		string_replace(s, "<=", ">");
+	else if (s.find("<") != string::npos)
+		string_replace(s, "<", ">=");
+	else if (s.find(">") != string::npos)
+		string_replace(s, ">", "<=");
+	else if (s.find("==") != string::npos)
+		string_replace(s, "==", "!=");
+	else if (s.find("!=") != string::npos)
+		string_replace(s, "!=", "==");
+	else//不含比较符
+	{
+
+	}
+	if (s.find("&&") != string::npos)
+		string_replace(s, "&&", "||");
+	else if (s.find("||") != string::npos)
+		string_replace(s, "||", "&&");
+
+	return s;
+
+}
+string opposite_all(string s)
+{
+	if (!judge_bool(s))
+		return "!(" + s + ")";
+	vector<string> v;
+	vector<string>v1;
+	string temp_s;
+	string result;
+	for (unsigned int i = 0; i < s.size(); i++)
+	{
+		if (s[i] == '&')
+		{
+			v1.push_back("||");
+			v.push_back(temp_s);
+			temp_s.clear();
+			i += 2;
+		}
+		else if (s[i] == '|')
+		{
+			v1.push_back("&&");
+			v.push_back(temp_s);
+			temp_s.clear();
+			i += 2;
+		}
+		temp_s += s[i];
+	}
+	v.push_back(temp_s);
+	for (unsigned int i = 0; i < v.size(); i++)
+	{
+		v[i] = opposite(v[i]);
+	}
+	result = v[0];
+	for (unsigned int i = 0; i < v1.size(); i++)
+	{
+		result += v1[i] + v[i + 1];
+	}
+	return result;
+}
+
+gtree* find_last_sentence(gtree *node, bool &flag, bool &flag1)//node指向statement节点，返回找到的上一句statement节点的指针,上一句为父语句则flag为true,flag1为true代表else后的语句
+{
+	flag = false;
+	flag1 = false;
+	gtree *p = node;
+	gtree *test_else;
+	if (p->parent->type == SELECTION_STATEMENT)
+	{
+		test_else = p->parent->child;
+		while (test_else->next != p)
+			test_else = test_else->next;
+		if (test_else->type == REMAIN && test_else->place== "else")//else
+			flag1 = true;
+		else
+			flag1 = false;
+		flag = true;
+		return p->parent->parent;
+	}
+	else if (p->parent->type == ITERATION_STATEMENT)
+	{
+		flag = true;
+		flag1 = false;
+		return p->parent->parent;
+	}
+	else//由statement_list推出
+	{
+		gtree *p1 = p->parent->child;
+		
+		if (p1 == p)//第一句
+		{
+			gtree *temp_compound_expression = p;
+			while (temp_compound_expression->type != COMPOUND_STATEMENT)
+				temp_compound_expression = temp_compound_expression->parent;
+			if (temp_compound_expression->parent->type == FUNCTION_DEFINITION)
+				return NULL;
+			else
+			{
+				test_else = temp_compound_expression->parent->parent->child;
+				while (test_else->next != temp_compound_expression->parent)
+					test_else = test_else->next;
+				if (test_else->type == REMAIN && test_else->place == "else")//else
+					flag1 = true;
+				else
+					flag1 = false;
+				flag = true;
+				return temp_compound_expression->parent->parent->parent;
+			}
+		}
+		else//非第一句，则其实flag和flag1都无用
+		{
+			if (p1->child->type == STATEMENT)
+				p1 = p1->child;
+			else
+				p1 = p1->child->next;
+
+			//gtree *last_point = p1;
+			//while (1)
+			//{
+			//	if (p1->next->type != 语句 || p1->next->child->type == 表达式)
+			//		p1 = p1->next->next;
+			//	else
+			//	{
+			//		last_point = p1;
+			//		p1 = p1->next;
+			//	}
+			//	if (p1 == p)
+			//		break;
+			//}
+			return p1;
+		}
+	}
+
+}
+
+gtree* find_next_sentence(gtree *node)//node指向语句节点，返回找到的下一句具体语句节点的指针,若返回NULL表示该语句为函数中最后一句
+{
+	gtree *p = node;
+
+	if (p->parent->type == 循环语句)
+	{
+		return p->parent;
+	}
+	else if (p->parent->type == 语句列 && p->parent->parent->parent->type == 循环语句)
+	{
+		return p->parent->parent->parent;
+	}
+	while (p->next == NULL)
+	{
+		if (p->parent->type == 语句列)
+		{
+			if (p->parent->parent->type == 复合语句)
+				return NULL;
+			else
+				p = p->parent->parent->parent->parent;
+		}
+		else
+			p = p->parent->parent;
+	}
+	return p->next->child;
+}
+
+bool judge_inside(gtree *temp_statement)
+{
+	if (temp_statement->parent->type == SELECTION_STATEMENT || temp_statement->parent->type == ITERATION_STATEMENT)
+		return true;
+	else
+	{
+		gtree *temp_compound = temp_statement;
+		while (temp_compound->type != COMPOUND_STATEMENT)
+			temp_compound = temp_compound->parent;
+		if (temp_compound->parent->type == FUNCTION_DEFINITION)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+
+
+void process_declarator(gtree *declarator, C_Petri &petri, string tag, string base,bool para)//处理declarator，para代表形参中的declarator
+{
+	bool call_declare_flag = false;
+	gtree *identifier;
+	if (declarator->child->next == NULL)
+		identifier = declarator->child;
+	else
+		identifier = declarator->child->next;
+	while (identifier->type != IDENTIFIER)
+		identifier = identifier->child;
+	if (base != "")
+		V_name = base + '@' + identifier->place;
+	else
+		V_name = identifier->place;
+	control_P = false;
+
+	if (declarator->next == NULL || declarator->next->type != REMAIN || declarator->next->place != "=")//无初始化
+		t = false;
+	else//有初始化,暂不支持数组初始化
+	{
+		t = true;
+		gtree *init = declarator->next->next;
+		string temp_s;
+		if (init->child->type == ASSIGNMENT_EXPRESSION)
+			temp_s = init->child->place;
+		else
+		{
+			cout << "暂不支持数组初始化!" << endl;
+			exit(1);
+		}
+
+		t = true;
+		switch (tag[tag.size() - 1])
+		{
+		case '1':
+		case '5':
+		case '6':
+			n1 = int(change_and_cal(temp_s, petri.place, gen_P_num));
+			break;
+		case '3':
+		case '4':
+			d = change_and_cal(temp_s, petri.place, gen_P_num);
+			break;
+		case '2':
+			s = temp_s;
+			break;
+		default:
+			cout << "declarate type error!" << endl;
+			exit(1);
+			break;
+		}
+	}
+	if (declarator->child->type == POINTER)
+		ispoint = true;
+	else
+		ispoint = false;
+	bool array_flag = false;
+	if (identifier->parent->next != NULL && identifier->parent->next->type == REMAIN && identifier->parent->next->place == "[")//数组
+	{
+		array_flag = true;
+		if (identifier->parent->next->next->type == CONSTANT_EXPRESSION && para == false)
+			array_size = atoi(identifier->parent->next->next->child->place.c_str());
+		else if(identifier->parent->next->next->type == CONSTANT_EXPRESSION && para == true)
+			array_size = 1;
+		else
+		{
+			cout << "暂不支持数组大小不指定！" << endl;
+			exit(1);
+		}
+	}
+	else if (identifier->parent->next != NULL && identifier->parent->next->type == REMAIN && identifier->parent->next->place == "(")//函数声明
+		call_declare_flag = true;
+	else//非数组非函数声明
+	{
+		array_size = 1;
+	}
+	if (!call_declare_flag)
+	{
+		if (array_flag == true && para == true)
+			ispoint = true;
+
+		string _P = gen_P();
+		petri.Add_Place(_P, V_name, tag, control_P, t, n1, d, s, array_size, ispoint);
+	}
+
+}
+
+void process_declaration(gtree *declaration, C_Petri &petri, string base)
+{
+	if (declaration->child->next->type != INIT_DECLARATOR_LIST)
+	{
+		cout << "空定义，只有类型没有变量名!" << endl;
+		exit(1);
+	}
+	gtree *init_declarator = declaration->child->next;
+	tag = declaration->child->place;
+	while (init_declarator->type != INIT_DECLARATOR)
+		init_declarator = init_declarator->child;
+
+	process_declarator(init_declarator->child, petri, tag, base, false);
+	gtree *temp;
+	while (init_declarator->parent->next != NULL && init_declarator->parent->next->type == REMAIN && init_declarator->parent->next->place == ",")
+	{
+		init_declarator = init_declarator->parent;
+		temp = init_declarator->next->next;
+		process_declarator(temp->child, petri, tag, base, false);
+	}
+}
+
+void process_para_type_list(gtree *para_type_list, C_Petri &petri, string base_Vname)
+{
+	gtree *para_list;
+	if (para_type_list->child->next != NULL)//ELLIPSIS暂不考虑
+	{
+		cout << "ELLIPSIS暂不考虑！" << endl;
+		exit(1);
+	}
+	else
+		para_list = para_type_list->child;
+
+	gtree *para_declaration = para_list->child;
+	while (para_declaration->type != PARAMETER_DECLARATION)
+		para_declaration = para_declaration->child;
+	
+	tag = para_declaration->child->place;
+	if (para_declaration->child->next == NULL || para_declaration->child->next->type == ABSTRACT_DECLARATOR)
+	{
+		if (para_declaration->child->place == "7")
+			return;
+		cout << "抽象声明暂不考虑!" << endl;
+		exit(1);
+	}
+	process_declarator(para_declaration->child->next, petri, tag, base_Vname, true);
+
+	gtree *temp;
+	while (para_declaration->parent->next != NULL && para_declaration->parent->next->type == REMAIN && para_declaration->parent->next->place == ",")
+	{
+		para_declaration = para_declaration->parent;
+		temp = para_declaration->next->next;
+		tag = temp->child->place;
+		if (temp->child->next == NULL || temp->child->next->type == ABSTRACT_DECLARATOR)
+		{
+			if (temp->child->place == "7")
+				return;
+			cout << "抽象声明暂不考虑!" << endl;
+			exit(1);
+		}
+		process_declarator(temp->child->next, petri, tag, base_Vname, true);
+	}
+}
+
+bool judge_constructual_statement(gtree *last_statement)
+{
+	if (last_statement->child->type == ITERATION_STATEMENT || last_statement->child->type == SELECTION_STATEMENT
+		|| judge_assign_statement(last_statement) || judge_call_statement(last_statement))
+		return true;
+	else
+		return false;
+}
+
+gtree *get_real_laststatement(gtree *last_statement)//找到最后一个结构性语句（构建库所的语句），若全为非结构语句则返回NULL
+{
+	if (judge_constructual_statement(last_statement))
+		return last_statement;
+	else
+	{
+		gtree *find_last;
+		if (last_statement->parent->child->child->type == STATEMENT)
+			find_last = last_statement->parent->child->child;
+		else
+			find_last = last_statement->parent->child->child->next;
+		while (1)
+		{
+			if (judge_constructual_statement(find_last))
+				return find_last;
+			else
+			{
+				if (find_last->parent->child == find_last)
+					return NULL;
+				if (find_last->parent->child->child->type == STATEMENT)
+					find_last = find_last->parent->child->child;
+				else
+					find_last = find_last->parent->child->child->next;
+			}
+		}
+	}
+}
+
+vector<string> get_statement_exit(gtree *statement1, C_Petri &petri)
+{
+	string statement_P;
+	vector<string> temp_v1;
+	gtree *last_statement;
+	if (statement1->child->type == COMPOUND_STATEMENT)
+	{
+		if (statement1->child->child->next->type == STATEMENT_LIST)//只有语句没有定义
+		{
+			if (statement1->child->child->next->child->type == STATEMENT)
+			{
+				last_statement = statement1->child->child->next->child;
+				last_statement = get_real_laststatement(last_statement);
+			}
+			else
+			{
+				last_statement = statement1->child->child->next->child->next;
+				last_statement = get_real_laststatement(last_statement);
+				//temp_v1 = petri.get_exit(statement_P);
+			}
+		}
+		else if (statement1->child->child->next->type == DECLARATION_LIST && statement1->child->child->next->next->type == STATEMENT_LIST)//有语句有定义
+		{
+			if (statement1->child->child->next->next->child->type == STATEMENT)
+			{
+				last_statement = statement1->child->child->next->next->child;
+				last_statement = get_real_laststatement(last_statement);
+				//temp_v1 = petri.get_exit(statement_P);
+			}
+			else
+			{
+				last_statement = statement1->child->child->next->next->child->next;
+				last_statement = get_real_laststatement(last_statement);
+				//temp_v1 = petri.get_exit(statement_P);
+			}
+		}
+		else//只有定义
+		{
+			cout << "只有定义没有意义!" << endl;
+			exit(1);
+		}
+		if (last_statement != NULL)
+		{
+			statement_P = find_P_name(petri, last_statement->place);
+			temp_v1 = petri.get_exit(statement_P);
+		}
+		else
+		{
+			statement_P = find_P_name(petri, statement1->place);
+			temp_v1 = petri.get_enter(statement_P);
+		}
+	}
+	else if (statement1->child->type == ITERATION_STATEMENT || statement1->child->type == SELECTION_STATEMENT)//条件、循环语句
+	{
+		statement_P = find_P_name(petri, statement1->child->place);
+		temp_v1 = petri.get_exit(statement_P);
+	}
+	else if (judge_assign_statement(statement1))
+	{
+		statement_P = find_P_name(petri, statement1->child->child->child->place);
+		temp_v1 = petri.get_exit(statement_P);
+	}
+	return temp_v1;
+}
+
+void ast_to_cpn(C_Petri &petri, gtree *p)//func用于标记作用域
+{
+	if (p == NULL) return;
+	tag = "";
+	control_P = true;
+	control_T = true;
+	t = false;
+	sourceP = true;
+	n1 = 0;
+	d = 0.0;
+	V_name = "";
+	s = "";
+	P1 = "";
+	T = "";
+	V = "";
+	if (p->type == COMPOUND_STATEMENT)
+	{
+		p->record_P_num = gen_P_num;
+	}
+	else if (p->type == DECLARATION)
+	{
+		control_P = false;
+		//V_name = p->place;
+		//cout << p->place << endl;
+		//getchar();
+		gtree *p1 = p->parent;
+		string func = "";
+		while (p1 != NULL && p1->type != COMPOUND_STATEMENT)
+			p1 = p1->parent;
+		if (p1 != NULL)
+			func = p1->place;
+		process_declaration(p, petri, func);
+	}
+	else if (p->type == FUNCTION_DEFINITION)
+	{
+		string ret_tag;
+		if (p->child->type == DECLARATION_SPECIFIERS)
+		{
+			ret_tag = p->child->place;
+		}
+		else
+		{
+			cout << "暂不支持定义函数未定义返回类型!" << endl;
+			exit(1);
+		}
+
+		//函数begin的库所
+		control_P = true;
+		control_T = false;
+		tag = "";
+		t = false;
+		sourceP = true;
+
+		P1 = gen_P();
+		string begin_P = P1;
+		T = gen_T();
+		string func;
+		if (p->child->next->child->type == POINTER)
+			func = p->child->next->child->next->child->child->place;
+		else
+			func = p->child->next->child->child->child->place;
+		V_name = func + " begin";
+		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
+		s = func + " begin";
+
+		//transition加在后面，为了能够在函数中使用形参
+
+
+		if (p->child->next->child->type == POINTER)
+		{
+			//指针待处理
+		}
+		else
+		{
+			gtree *direct_declarator = p->child->next->child;
+			if (direct_declarator->child->next->type == REMAIN && direct_declarator->child->next->place == "(")//参数处理，添加形参库所
+			{
+				if (direct_declarator->child->next->next->type == PARAMETER_TYPE_LIST)
+				{
+					gtree *para_type_list = direct_declarator->child->next->next;//参数表
+
+					process_para_type_list(para_type_list, petri, func);
+				}
+				else//无参函数
+				{
+
+				}
+			}
+			else
+			{
+				cout << "函数定义缺少括号!" << endl;
+				exit(1);
+			}
+		}
+
+		string P2 = gen_P();
+		V_name = func + " end";
+		tag = ret_tag;
+		control_P = true;
+		t = false;
+		petri.Add_Place(P2, V_name, tag, control_P, t, n1, d, s, 0, false);
+		string P3;
+		if (tag[tag.size() - 1] != '7')//void返回类型
+		{
+			P3 = gen_P();
+			V_name = func + "_v";//func_v用于存放返回值
+			control_P = false;
+			t = false;
+			petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 1, false);//返回暂时不支持指针
+		}
+
+		petri.Add_Transition(T, control_T, s, gen_P_num - 1);//begin前有空格
+		petri.Add_Arc(begin_P, T, V, sourceP);
+
+	}
+	else if ((p->type == ASSIGNMENT_EXPRESSION && p->child->next != NULL) || p->type == SELECTION_STATEMENT || p->type == ITERATION_STATEMENT)//赋值语句或条件语句或循环语句
+	{
+		P1 = gen_P();
+		control_P = true;
+		t = false;
+		V_name = p->place;
+		int judge = find_P_exist(petri.place, V_name);
+		if (judge != 0)
+		{
+			char temp[5];
+			_itoa(judge, temp, 10);
+			V_name = V_name + "#" + temp;
+			p->place = V_name;
+			gtree *temp_p = p;
+			while (temp_p->type != STATEMENT)
+				temp_p = temp_p->parent;
+			temp_p->place = V_name;
+
+		}
+		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
+
+		if (p->type == SELECTION_STATEMENT || p->type == ITERATION_STATEMENT)
+		{
+			string T1 = gen_T();
+			string T2 = gen_T();
+			vector<string> v;
+			v.push_back(T1);
+			v.push_back(T2);
+			control_T = true;
+			petri.Add_Transition(T1, control_T, s, gen_P_num - 1);
+			petri.Add_Transition(T2, control_T, s, gen_P_num - 1);
+			petri.Add_Place_enter(P1, v);
+
+		}
+		else if (p->type == ASSIGNMENT_EXPRESSION && p->child->next != NULL)
+		{
+			string T1 = gen_T();
+			vector<string> v;
+			v.push_back(T1);
+
+			control_T = false;
+			petri.Add_Transition(T1, control_T, s, gen_P_num - 1);
+			petri.Add_Place_enter(P1, v);
+			petri.Add_Place_exit(P1, v);
+		}
+
+	}
+
+	ast_to_cpn(petri, p->child);
+
+	if (p->type == ASSIGNMENT_EXPRESSION && p->child->next != NULL)
+	{
+
+		//			int array_num = 0;
+		//			if (p->child->next->type == 左中括号)
+		//				array_num = int(change_and_cal(p->child->next->next->place, petri.place, gen_P_num));
+		P1 = find_P_name(petri, p->place);
+
+
+		vector<string> temp_v = petri.get_enter(P1);
+		T = temp_v[0];
+		control_T = false;
+		for (int i = 0; i < petri.p_num; i++)
+			if (petri.place[i].name == P1)
+			{
+				s = petri.place[i].v_name;
+				break;
+			}
+		//			s = p->place;
+					//之前建好变迁，补上bool表达式的值
+		for (int i = 0; i < petri.t_num; i++)
+		{
+			if (petri.transition[i].name == T)
+			{
+				petri.transition[i].v_Expression = s;
+				break;
+			}
+		}
+
+
+		sourceP = true;
+		V = "";
+		petri.Add_Arc(P1, T, V, sourceP);
+
+
+		create_connect(petri, T, p->place, petri.get_current_P_num(T));
+		
+		gtree *identifier = p;
+		while (identifier->type != IDENTIFIER)
+			identifier = identifier->child;
+		string P2 = find_P_name(petri, identifier->place);
+		//cout << "P2=" << (P2=="P0") << endl;
+
+		if (p->child->child->child->type == PRIMARY_EXPRESSION)//等号左侧只有一个主表达式
+			V = p->child->next->next->place + "$" + "0";
+		else if (p->child->child->child->next->type == REMAIN && p->child->child->child->next->place == "[")
+			V = p->child->next->next->place + "$" + identifier->parent->parent->next->next->place;
+		sourceP = false;
+		petri.Add_Arc(T, P2, V, sourceP);
+
+		//向语句中加入enter和exit
+//			petri.Add_Place_enter(P1, T);
+//			petri.Add_Place_exit(P1, T);
+
+	}
+	else if (p->type == SELECTION_STATEMENT)
+	{
+		if (p->child->type == SWITCH)//switch语句暂不处理
+		{
+			cout << "switch语句暂不处理!" << endl;
+			exit(1);
+		}
+		else
+		{
+			//默认程序正确
+			P1 = find_P_name(petri, p->place);
+
+
+			vector<string> temp_v = petri.get_enter(P1);
+			T = temp_v[0];
+			control_T = true;
+			s = p->child->next->next->place;
+			//之前建好变迁，补上bool表达式的值
+			for (int i = 0; i < petri.t_num; i++)
+			{
+				if (petri.transition[i].name == T)
+				{
+					petri.transition[i].booleanExpression = s;
+					break;
+				}
+			}
+			//		petri.Add_Transition(T, control_T, s);
+			string T1 = temp_v[1];
+			create_connect(petri, T, s, petri.get_current_P_num(T));
+			s = opposite_all(s);
+			for (int i = 0; i < petri.t_num; i++)
+			{
+				if (petri.transition[i].name == T1)
+				{
+					petri.transition[i].booleanExpression = s;
+					break;
+				}
+			}
+			//		petri.Add_Transition(T1, control_T, s);
+			create_connect(petri, T1, s, petri.get_current_P_num(T));
+			string T2 = "";
+			string T3 = "";
+			//string p2 = find_first_yuju(p->child->next->next->next->next);//找if里语句块的第一个表达式
+			//string P2 = find_P_name(petri,p2);
+			gtree *statement1 = p->child->next->next->next->next;//指向if跟的statement
+			string statement_P;
+			vector<string> temp_v1, temp_v2;//存放两个出口
+
+			temp_v1 = get_statement_exit(statement1, petri);
+
+			if (p->child->next->next->next->next->child->type == COMPOUND_STATEMENT)
+				inside_block(petri, p->child->next->next->next->next->child, T);
+
+			string t3;
+
+			if (p->child->next->next->next->next->next)
+			{
+				statement1 = p->child->next->next->next->next->next->next;
+				temp_v2 = get_statement_exit(statement1, petri);
+				if (p->child->next->next->next->next->next->next->child->type == COMPOUND_STATEMENT)
+					inside_block(petri, p->child->next->next->next->next->next->next->child, T1);
+			}
+			sourceP = true;
+			V = "";
+			petri.Add_Arc(P1, T, V, sourceP);
+			petri.Add_Arc(P1, T1, V, sourceP);
+
+			//向语句中加入enter和exit
+	//		petri.Add_Place_enter(P1, T);
+	//		petri.Add_Place_enter(P1, T1);
+			petri.Add_Place_exit(P1, temp_v1);
+			if (p->child->next->next->next->next->next)
+				petri.Add_Place_exit(P1, temp_v2);
+			else
+				petri.Add_Place_exit(P1, T1);
+		}
+	}
+	else if (p->type == ITERATION_STATEMENT)
+	{
+		if (p->child->type == DO)//switch语句暂不处理
+		{
+			cout << "do while 语句暂不处理!" << endl;
+			exit(1);
+		}
+		else
+		{
+			P1 = find_P_name(petri, p->place);
+
+
+			vector<string> temp_v = petri.get_enter(P1);
+			T = temp_v[0];
+			control_T = true;
+			string s = p->child->next->next->place;
+
+			//petri.Add_Transition(T, control_T, s);
+			//之前建好变迁，补上bool表达式的值
+			for (int i = 0; i < petri.t_num; i++)
+			{
+				if (petri.transition[i].name == T)
+				{
+					petri.transition[i].booleanExpression = s;
+					break;
+				}
+			}
+			string T1 = temp_v[1];
+			create_connect(petri, T, s, petri.get_current_P_num(T));
+			s = opposite_all(s);
+
+			//petri.Add_Transition(T1, control_T, s);
+			//之前建好变迁，补上bool表达式的值
+			for (int i = 0; i < petri.t_num; i++)
+			{
+				if (petri.transition[i].name == T1)
+				{
+					petri.transition[i].booleanExpression = s;
+					break;
+				}
+			}
+			create_connect(petri, T1, s, petri.get_current_P_num(T));
+			string T2 = "";
+			string T3 = "";
+			//string p2 = find_first_yuju(p->child->next->next->next->next);//找if里语句块的第一个表达式
+			//string P2 = find_P_name(petri,p2);
+			gtree *statement1 = p->child->next->next->next->next;//指向while跟的statement
+			string statement_P;
+			vector<string> temp_v1, temp_v2;//存放两个出口
+
+			temp_v1 = get_statement_exit(statement1, petri);
+
+			//区别while中是否有过程调用
+			int while_flag = petri.get_flag(P1);
+			vector<string> while_information = petri.get_information(P1);
+			for (unsigned int i = 0; i < temp_v1.size(); i++)
+			{
+				V = "executed";
+				sourceP = false;
+				if (while_flag == 1)//while条件中存在过程调用
+				{
+					for (unsigned int j = 0; j < while_information.size(); j++)
+						petri.Add_Arc(temp_v1[i], while_information[j], V, sourceP);
+					if (!judge_inside(p->parent))
+						;
+					else
+						petri.Add_Arc(temp_v1[i], P1, V, sourceP);
+				}
+				else
+					petri.Add_Arc(temp_v1[i], P1, V, sourceP);
+
+			}
+			if (p->child->next->next->next->next->child->type == COMPOUND_STATEMENT)
+				inside_block(petri, p->child->next->next->next->next->child, T);
+
+			sourceP = true;
+			V = "";
+			petri.Add_Arc(P1, T, V, sourceP);
+			petri.Add_Arc(P1, T1, V, sourceP);
+
+			//向语句中加入enter和exit
+		//	petri.Add_Place_enter(P1, T);
+		//	petri.Add_Place_enter(P1, T1);
+			petri.set_false_exit(P1, temp_v1);//这里temp_v1其实不是真实出口，只有T1是while语句的出口
+			petri.Add_Place_exit(P1, T1);
+		}
+	}
+	else if (p->type == FUNCTION_DEFINITION)
+	{
+		string identifier, func;
+		identifier = p->place;
+
+		func = identifier + " begin";
+		T = find_T_name(petri, func);
+
+		gtree *compound_statement = p->child;
+		while (compound_statement->type != COMPOUND_STATEMENT)
+			compound_statement = compound_statement->next;
+		inside_block1(petri, compound_statement, T);//处理和inside_block略有不同
+
+
+		vector<string> v;
+		string begin_place = find_P_name(petri, identifier + " begin");
+		v = petri.get_exit(begin_place);
+		//这里实现隐式return
+		//找第一层语句列中最后一句语句，并将其出口加入函数出口
+
+		gtree *statement_list = compound_statement->child;
+		while (statement_list!=NULL && statement_list->type != STATEMENT_LIST)
+			statement_list = statement_list->next;
+		if (statement_list == NULL)
+		{
+			cout << "仅有定义无语句!" << endl;
+			exit(1);
+		}
+		gtree *statement = statement_list;
+		while (statement->type != STATEMENT)
+			statement = statement->child;
+
+		bool already_return = false;
+
+		while (statement->parent != statement_list)
+		{
+			if (judge_return_statement(statement))
+			{
+				already_return = true;
+				break;
+			}
+			statement = statement->parent->next;
+		}
+		if (already_return == false)
+		{
+			if (judge_return_statement(statement))
+				;
+			else
+			{
+				vector<string> v1 = petri.get_exit(find_P_name(petri, statement->place));
+				v.insert(v.end(), v1.begin(), v1.end());
+			}
+		}
+
+
+		//构造返回库所的弧
+		for (int i = 0; i < petri.p_num; i++)
+		{
+			if (petri.place[i].name == begin_place)
+			{
+				string temp_P = petri.place[i].v_name;
+				string_replace(temp_P, " begin", " end");
+				for (int j = 0; j < petri.p_num; j++)
+				{
+					if (petri.place[j].v_name == temp_P)
+					{
+
+						for (unsigned int k = 0; k < v.size(); k++)
+						{
+							bool flag = false;
+							for (int q = 0; q < petri.arcnum; q++)
+							{
+								if (petri.arc[q].sourceP == false && petri.arc[q].source == v[k] && petri.arc[q].target == petri.place[j].name)
+								{
+									flag = true;
+									break;
+								}
+							}
+							if (flag == true)
+								break;
+							V = "executed";
+							sourceP = false;
+							petri.Add_Arc(v[k], petri.place[j].name, V, sourceP);
+						}
+
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+	else if (judge_call_postfix_expression(p))//函数调用前缀表达式
+	{
+		bool noreturn = false;
+		string last_sentence;
+		string last_func;
+		gtree *find_func = p;
+		string this_func_name;
+		string new_place;
+		while (find_func->type != FUNCTION_DEFINITION)
+			find_func = find_func->parent;
+
+		this_func_name = find_func->place;
+		last_func = find_P_name(petri, this_func_name + " begin");
+
+		//判断是否是语句块中
+		string inside = "";
+		gtree *temp_statement = p, *temp_expression = NULL;
+		bool flag_condition = false;
+
+		while (temp_statement->type != STATEMENT)
+		{
+			if (temp_statement->type == EXPRESSION)
+				temp_expression = temp_statement;
+			temp_statement = temp_statement->parent;
+		}
+
+		
+
+		if (judge_inside(temp_statement))
+			inside = "in";
+		else
+			inside = "";
+		
+
+		//找到上一条语句
+
+
+		//gtree *find_last = p;
+		//while (find_last->type != 语句)
+		//{
+		//	if (find_last->type == 条件组)
+		//		flag_condition = true;//flag_condition为真表示函数调用在条件组中
+		//	find_last = find_last->parent;
+		//}
+		if (temp_expression->parent->type == SELECTION_STATEMENT || temp_expression->parent->type == ITERATION_STATEMENT)
+			flag_condition = true;
+		bool last_father_flag, flag_else;
+
+		gtree *last_node = find_last_sentence(temp_statement, last_father_flag, flag_else);
+		if (last_node == NULL)
+			last_sentence = last_func;
+		else
+			last_sentence = find_P_name(petri, last_node->place);
+
+		////表示函数调用语句
+		if (flag_condition == false && temp_expression->child->type == ASSIGNMENT_EXPRESSION && temp_expression->child->child->type == CONDITIONAL_EXPRESSION)
+		{
+			noreturn = true;
+			new_place = gen_P();
+			control_P = true;
+			t = false;
+			V_name = p->place;
+			int judge = find_P_exist(petri.place, V_name);
+			if (judge != 0)
+			{
+				char temp[5];
+				_itoa(judge, temp, 10);
+				V_name = V_name + "#" + temp;
+				p->place = V_name;
+				temp_statement->place = V_name;
+			}
+			petri.Add_Place(new_place, V_name, tag, control_P, t, n1, d, s, 0, false);
+			string T1 = gen_T();
+			vector<string> v;
+			v.push_back(T1);
+
+			control_T = false;
+			petri.Add_Transition(T1, control_T, V_name, gen_P_num - 1);
+			petri.Add_Arc(new_place, T1, "", true);
+			petri.Add_Place_enter(new_place, v);
+			petri.Add_Place_exit(new_place, v);
+		}
+		gtree *temp_primary_expression = p;
+		while (temp_primary_expression->type != PRIMARY_EXPRESSION)
+			temp_primary_expression = temp_primary_expression->child;
+
+		string temp_identifier = temp_primary_expression->child->place;
+
+		//将语句带函数调用的标记设置
+		string temp_statement_P = find_P_name(petri, temp_statement->place);
+		petri.set_flag(temp_statement_P, true);
+
+		P1 = gen_P();
+		control_P = true;
+		t = false;
+		V_name = temp_identifier + "()";
+
+		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
+
+		T = gen_T();
+		control_T = false;
+		s = temp_identifier + "()";
+		petri.Add_Transition(T, control_T, s, gen_P_num - 1);
+
+		V = "";
+		sourceP = true;
+		petri.Add_Arc(P1, T, V, sourceP);
+		string P3;
+		if (inside == "")
+		{
+			//构造控制库所
+			P3 = gen_P();
+			control_P = true;
+			t = false;
+			V_name = temp_identifier + "()_c";
+
+			petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 0, false);
+		}
+
+		if (temp_expression->parent->type == ITERATION_STATEMENT && flag_condition == true)
+		{
+
+			for (int i = 0; i < petri.p_num; i++)
+			{
+				if (petri.place[i].v_name == temp_expression->parent->place)
+				{
+					petri.place[i].flag = 1;//1代表while语句条件内有函数调用
+					petri.place[i].information.push_back(P1);
+					if (inside == "")
+						petri.place[i].information.push_back(P3);
+					break;
+				}
+			}
+		}
+
+		//构造返回变迁
+		string T2 = "";
+		if (inside == "")
+		{
+			T2 = gen_T();
+			control_T = false;
+			s = temp_identifier + " end";
+			petri.Add_Transition(T2, control_T, s, gen_P_num - 1);
+			string temp_P = find_P_name(petri, s);
+
+			V = "";
+			sourceP = true;
+			petri.Add_Arc(temp_P, T2, V, sourceP);
+			petri.Add_Arc(P3, T2, V, sourceP);
+		}
+
+		string temp_s = temp_identifier + " begin";
+		string P4 = find_P_name(petri, temp_s);
+		V = "";
+		sourceP = false;
+		petri.Add_Arc(T, P4, V, sourceP);
+
+
+		//参数传递处理，暂不考虑重载
+		gtree *temp_tree = p->child->next->next;//值参数表->child
+		if (temp_tree->type == ARGUMENT_EXPRESSION_LIST)
+		{
+			vector<string> v;
+			gtree *temp_assignment_expression = temp_tree;
+			while (temp_assignment_expression->type != ASSIGNMENT_EXPRESSION)
+				temp_assignment_expression = temp_assignment_expression->child;
+
+			while (1)
+			{
+				string value = temp_assignment_expression->place;
+				v.push_back(value);
+				if (temp_assignment_expression->parent->next->next != NULL && temp_assignment_expression->parent->next->next->type == ASSIGNMENT_EXPRESSION)
+					temp_assignment_expression = temp_assignment_expression->parent->next->next;
+				else
+					break;
+			}
+			int sum = 0;
+			for (int i = 0; i < petri.p_num; i++)
+			{
+				string temp_s = petri.place[i].v_name;
+				vector<string> v1;
+				SplitString(temp_s, v1, "@");
+				if (v1[0] == temp_identifier)
+				{
+					V = v[sum++];
+					sourceP = false;
+					petri.Add_Arc(T, petri.place[i].name, V, sourceP);
+					sourceP = true;
+					petri.Add_Arc(petri.place[i].name, T, V, sourceP);
+
+					//这里
+					create_connect(petri, T, V, petri.get_current_P_num(T));
+				}
+			}
+		}
+
+		//跳转跳回处理
+
+
+
+		for (int i = 0; i < petri.p_num; i++)
+		{
+			if (petri.place[i].name == last_sentence)
+			{
+				//处理跳转部分
+				if (last_node == NULL)//先处理函数第一句函数调用语句
+				{
+					V = "";
+					string this_begin_T = find_T_name(petri, this_func_name + " begin");
+					petri.Add_Arc(this_begin_T, P1, V, false);
+					if (inside == "")
+						petri.Add_Arc(this_begin_T, P3, V, false);
+				}
+				else
+				{
+					//if (petri.place[i].v_name.find("while") == string::npos)//while语句真实出口只有一个
+					//{
+						if (last_father_flag == false)
+						{
+							for (unsigned int j = 0; j < petri.place[i].exit.size(); j++)
+							{
+								V = "";
+								sourceP = false;
+								petri.Add_Arc(petri.place[i].exit[j], P1, V, sourceP);
+								if (inside == "")
+									petri.Add_Arc(petri.place[i].exit[j], P3, V, sourceP);
+							}
+							petri.place[i].call_last = true;
+						}
+						else
+						{
+							V = "";
+							if (flag_else == false)//除了else后接语句，其余都是第一个入口跳转
+							{
+								petri.Add_Arc(petri.place[i].enter[0], P1, V, false);
+								if (inside == "")
+									petri.Add_Arc(petri.place[i].enter[0], P3, V, false);
+							}
+							else
+							{
+								petri.Add_Arc(petri.place[i].enter[1], P1, V, false);
+								if (inside == "")
+									petri.Add_Arc(petri.place[i].enter[1], P3, V, false);
+							}
+						}
+					//}
+					/*else
+					{
+						if (last_father_flag == false)
+						{
+							V = "";
+							sourceP = false;
+							petri.Add_Arc(petri.place[i].exit[petri.place[i].exit.size() - 1], P1, V, sourceP);
+							if (inside == "")
+								petri.Add_Arc(petri.place[i].exit[petri.place[i].exit.size() - 1], P3, V, sourceP);
+							petri.place[i].call_last = true;
+						}
+						else
+						{
+							V = "";
+							petri.Add_Arc(petri.place[i].enter[0], P1, V, false);
+							if (inside == "")
+								petri.Add_Arc(petri.place[i].enter[0], P3, V, false);
+						}
+					}*/
+				}
+				//跳回部分
+				string temp_P = temp_identifier + " end";
+				//last_call = find_T_name(petri, temp_P);
+
+				if (inside == "")
+				{
+					string T1 = find_T_name(petri, temp_P);
+
+					string  P2;
+					//temp_place = temp_p->child->place;
+					P2 = find_P_name(petri, temp_statement->place);
+					V = "";//暂时不设为执行弧
+					sourceP = false;
+					petri.Add_Arc(T1, P2, V, sourceP);
+					string_replace(temp_P, " end", " begin");
+					if (noreturn == false)
+					{
+						string call_P = find_P_name(petri, temp_P);
+						vector<string> v = petri.get_information(call_P);
+
+						string_replace(temp_P, " begin", "_v");
+						string v_P = find_P_name(petri, temp_P);
+						V = v[0];
+						sourceP = false;
+						petri.Add_Arc(T1, v_P, V, sourceP);
+						sourceP = true;
+						petri.Add_Arc(v_P, T1, V, sourceP);
+					}
+				}
+				else
+				{
+					//连接end库所到语句的enter
+
+					
+
+					string P2 = find_P_name(petri, temp_statement->place);
+					string P3 = find_P_name(petri, temp_P);
+					vector<string> v1 = petri.get_enter(P2);
+					for (unsigned k = 0; k < v1.size(); k++)
+					{
+						V = "";//暂时不设为执行弧
+						sourceP = true;
+						petri.Add_Arc(P3, v1[k], V, sourceP);
+					}
+					//连接被调用函数出口到_v库所
+					if (noreturn == false)
+					{
+						string_replace(temp_P, " end", " begin");
+						string call_P = find_P_name(petri, temp_P);
+						vector<string> v = petri.get_information(call_P);
+						vector<string> v2 = petri.get_exit(call_P);
+						string_replace(temp_P, " begin", "_v");
+						string v_P = find_P_name(petri, temp_P);
+						for (unsigned int k = 0; k < v2.size(); k++)
+						{
+							V = v[0];
+							sourceP = false;
+							petri.Add_Arc(v2[k], v_P, V, sourceP);
+							sourceP = true;
+							petri.Add_Arc(v_P, v2[k], V, sourceP);
+						}
+					}
+
+				}
+				break;
+			}
+		}
+	}
+	else if (judge_return_statement(p))//将return的表达式放在函数控制库所的information中，将return语句前一句的出口放在函数控制库所的exit中
+	{
+		//string last_sentence;
+		string last_func;
+		gtree *find_func = p->child;
+
+		while (find_func->type != FUNCTION_DEFINITION)
+			find_func = find_func->parent;
+
+		string identifier = find_func->place;
+		last_func = find_P_name(petri, identifier + " begin");
+		string expression;
+		if (p->child->child->next->type == EXPRESSION)
+			expression = p->child->child->next->place;
+		else
+			expression = "0";
+
+
+
+		//vector<string> v1;
+		//v1.push_back(expression);
+		petri.Add_information(last_func, expression);
+		//petri.Add_Place_enter(last_func, v1);//把返回值表达式放在函数控制库所的enter里面
+
+		gtree *temp_statement = p->child->parent;
+		vector<string> v2;
+		bool parent_flag, else_flag;
+		gtree *last_statement = find_last_sentence(temp_statement,parent_flag,else_flag);
+		if (last_statement == NULL)
+		{
+			string temp_s;
+
+			temp_s = find_T_name(petri, identifier + " begin");
+			v2.push_back(temp_s);
+			petri.Add_Place_exit(last_func, v2);
+		}
+		else 
+		{
+			if (parent_flag == true)
+			{
+				string parent_P = find_P_name(petri, temp_statement->parent->place);
+				vector<string> parent_enter = petri.get_enter(parent_P);//return语句上一句是父语句，则相应入口作为函数出口
+				if (else_flag == true)
+					v2.push_back(parent_enter[1]);
+				else
+					v2.push_back(parent_enter[0]);
+				petri.Add_Place_exit(last_func, v2);
+			}
+			else
+			{
+				string last_P = find_P_name(petri, last_statement->place);
+				v2 = petri.get_exit(last_P);
+				petri.Add_Place_exit(last_func, v2);
+			}
+		}
+		
+	}
+
+	ast_to_cpn(petri, p->next);
+}
+

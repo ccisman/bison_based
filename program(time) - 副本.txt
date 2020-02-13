@@ -1,0 +1,178 @@
+旧文件：even.c	新文件：even - new.c
+直接构建时间：6081
+变化影响分析时间：5132
+
+旧文件：new_bAnd1.c	新文件：new_bAnd1 - new.c
+直接构建时间：57021
+变化影响分析时间：57986
+
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：5518
+变化影响分析时间：5486
+
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：5526
+变化影响分析时间：5523
+
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：5524
+变化影响分析时间：5152
+
+旧文件：even.c	新文件：even - new.c
+直接构建时间：5517
+变化影响分析时间：5171
+
+旧文件：new_bAnd1.c	新文件：new_bAnd1 - new.c
+直接构建时间：55363
+变化影响分析时间：57922
+
+
+旧文件：new_zero_sum2.c	新文件：new_zero_sum2 - new.c
+直接构建时间：9136
+变化影响分析时间：8841
+
+旧文件：new_zero_sum2.c	新文件：new_zero_sum2 - new.c
+直接构建时间：9087
+变化影响分析时间：8833
+
+
+旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
+直接构建时间：17484
+变化影响分析时间：16937
+
+旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
+直接构建时间：17614
+旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
+旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
+直接构建时间：17821
+变化影响分析时间：17047
+
+旧文件：addsub_double_exact.c	新文件：addsub_double_exact - new.c
+直接构建时间：165
+变化影响分析时间：59
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：191
+变化影响分析时间：181
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：179
+变化影响分析时间：190
+
+
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：182
+变化影响分析时间：204
+
+旧文件：addsub_double_exact.c	新文件：addsub_double_exact - new.c
+直接构建时间：165
+变化影响分析时间：47
+
+
+旧文件：addsub_double_exact.c	新文件：addsub_double_exact - new.c
+直接构建时间：164
+变化影响分析时间：165
+
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：5665
+变化影响分析时间：6700
+
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：5597
+变化影响分析时间：6605
+
+旧文件：even.c	新文件：even - new.c
+直接构建时间：5577
+变化影响分析时间：6717
+
+旧文件：addsub_double_exact.c	新文件：addsub_double_exact - new.c
+直接构建时间：166
+变化影响分析时间：184
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：178
+变化影响分析时间：193
+
+旧文件：new_bAnd1.c	新文件：new_bAnd1 - new.c
+直接构建时间：55928
+变化影响分析时间：62064
+
+
+旧文件：new_bAnd4.c	新文件：new_bAnd4 - new.c
+直接构建时间：9503
+变化影响分析时间：78
+
+旧文件：new_bAnd4.c	新文件：new_bAnd4 - new.c
+直接构建时间：75801
+变化影响分析时间：78
+
+旧文件：new_zero_sum2.c	新文件：new_zero_sum2 - new.c
+直接构建时间：9352
+变化影响分析时间：9000
+
+旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
+直接构建时间：17972
+变化影响分析时间：16765
+
+旧文件：new_bAnd3.c	新文件：new_bAnd3 - new.c
+旧文件：new_bAnd3.c	新文件：new_bAnd3 - new.c
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+直接构建时间：55660
+变化影响分析时间：74583
+
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+直接构建时间：56164
+变化影响分析时间：74639
+
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+直接构建时间：6920
+变化影响分析时间：512935
+
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+直接构建时间：6800
+变化影响分析时间：7340
+
+旧文件：new_bAnd2.c	新文件：new_bAnd2 - new.c
+直接构建时间：56974
+变化影响分析时间：62232
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：385
+变化影响分析时间：348
+
+旧文件：new_bAnd1.c	新文件：new_bAnd1 - new.c
+直接构建时间：113609
+变化影响分析时间：135926
+
+旧文件：a.txt	新文件：b.txt
+直接构建时间：1756
+旧文件：a.txt	新文件：b.txt
+直接构建时间：1688
+旧文件：a.txt	新文件：b.txt
+直接构建时间：1589
+旧文件：a.txt	新文件：b.txt
+直接构建时间：1686
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11138
+旧文件：a.txt	新文件：b.txt
+直接构建时间：10164
+变化影响分析时间：9536
+
+旧文件：a.txt	新文件：b.txt
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11217
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11249
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11258
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11221
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11006
+旧文件：a.txt	新文件：b.txt
+直接构建时间：11140
+变化影响分析时间：12922
+
