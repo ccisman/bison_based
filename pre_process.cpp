@@ -254,26 +254,27 @@ void trans_some_function(string &s)
 	string nondet_int = "extern int __VERIFIER_nondet_int();";
 	string newnondet_int = "int __VERIFIER_nondet_int()\n\
 {\n\
-	nondet_num = nondet_num - 1;\n\
-	return nondet_num;\n\
+	nondet_num_int = nondet_num_int - 1;\n\
+	return nondet_num_int;\n\
 }\n";
-	string nondet_short = "extern short __VERIFIER_nondet_short(void);";
+	string nondet_short = "extern short __VERIFIER_nondet_short();";
+	string nondet_short1 = "extern short __VERIFIER_nondet_short(void);";
 	string newnondet_short = "short __VERIFIER_nondet_short()\n\
 {\n\
-	nondet_num = nondet_num - 1;\n\
-	return nondet_num;\n\
+	nondet_num_short = nondet_num_short - 1;\n\
+	return nondet_num_short;\n\
 }\n";
 	string nondet_long = "extern long __VERIFIER_nondet_long();";
 	string newnondet_long = "long __VERIFIER_nondet_long()\n\
 {\n\
-	nondet_num = nondet_num - 1;\n\
-	return nondet_num;\n\
+	nondet_num_long = nondet_num_long - 1;\n\
+	return nondet_num_long;\n\
 }\n";
 	string nondet_double = "extern double __VERIFIER_nondet_double();";
 	string newnondet_double = "double __VERIFIER_nondet_double()\n\
 {\n\
-	nondet_num = nondet_num - 1;\n\
-	return nondet_num;\n\
+	nondet_num_double = nondet_num_double - 1;\n\
+	return nondet_num_double;\n\
 }\n";
 	string_replace(s, err, newerr);
 	string_replace(s, err1, newerr);
@@ -283,9 +284,16 @@ void trans_some_function(string &s)
 	string_replace(s, assum, newassum);
 	string_replace(s, nondet_int, newnondet_int);
 	string_replace(s, nondet_short, newnondet_short);
+	string_replace(s, nondet_short1, newnondet_short);
 	string_replace(s, nondet_double, newnondet_double);
-	if (s.find("int nondet_num") == string::npos)
-		s = "int nondet_num=101;\n" + s;
+	if (s.find("int nondet_num_int") == string::npos&&s.find(newnondet_int) != string::npos)
+		s = "int nondet_num_int=101;\n" + s;
+	if (s.find("int nondet_num_short") == string::npos&&(s.find(newnondet_short) != string::npos||s.find(nondet_short1)))
+		s = "int nondet_num_short=101;\n" + s;
+	if (s.find("int nondet_num_long") == string::npos&&s.find(newnondet_long) != string::npos)
+		s = "int nondet_num_long=101;\n" + s;
+	if (s.find("int nondet_num_double") == string::npos&&s.find(newnondet_double) != string::npos)
+		s = "int nondet_num_double=101;\n" + s;
 }
 
 void pre_process(string &s)

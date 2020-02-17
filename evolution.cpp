@@ -39,12 +39,7 @@ void delete_last_executed(C_Petri &petri, string _P1)
 {
 	//	string _P1 = find_P_name(petri, v_name);
 	vector<string> v1 = petri.get_exit(_P1);
-	if (judge_while_P(petri, _P1))
-	{
-		string temp = v1[v1.size() - 1];
-		v1.clear();
-		v1.push_back(temp);
-	}
+	
 	bool flag = false;
 	for (int i = 0; i < petri.arcnum; i++)
 	{
@@ -107,10 +102,11 @@ void add_executed_1(C_Petri &petri, string P_last, string P_next)
 	vector<string> v1 = petri.get_exit(P_last);
 
 	//	vector<string> v2 = petri.get_enter(P2);
-
+	vector<string> enter_P = petri.get_enter_P(P_next);
 	for (unsigned int j = 0; j < v1.size(); j++)
 	{
-		petri.Add_Arc(v1[j], P_next, "executed", false);
+		for (unsigned i = 0; i < enter_P.size(); i++)
+			petri.Add_Arc(v1[j], enter_P[i], "executed", false);
 	}
 
 
@@ -235,7 +231,7 @@ void delete_all_arc()
 
 }
 
-void back_executed(C_Petri &petri, vector<string> last_T, vector<string> new_place_exit)//将last_T的出口库所对应的所有执行弧用new_place_exit的出口库所代替
+void back_executed(C_Petri &petri, vector<string> last_T, vector<string> new_place_exit)//将last_T的出口变迁对应的所有执行弧用new_place_exit的出口变迁代替
 {
 	for (int i = 0; i < petri.arcnum; i++)
 	{
@@ -256,7 +252,7 @@ void back_executed(C_Petri &petri, vector<string> last_T, vector<string> new_pla
 	}
 }
 
-void pre_executed(C_Petri &petri, vector<string> next_T, vector<string> new_place_enter)//将指向new_place_enter语句入口的所有执行弧删除，并指向下一条语句入口
+void pre_executed_1(C_Petri &petri, vector<string> next_T, vector<string> new_place_enter)//将指向new_place_enter语句入口的所有执行弧删除，并指向下一条语句入口
 {
 	for (int i = 0; i < petri.arcnum; i++)
 	{
@@ -315,10 +311,10 @@ void change_exit(C_Petri &petri, string father_P, vector<string>last_T, vector<s
 	}
 }
 
-void inside_add(C_Petri &petri, string father_place, gtree *father_tree, string new_place, gtree *newtree)
+void inside_add(C_Petri &petri, string father_place, gtree *father_tree, string new_place, gtree *newtree)//添加inside语句的特有弧
 {
 	vector<string> v = petri.get_enter(father_place);
-
+	int call_flag = petri.get_call_flag(new_place);
 	gtree *compound = newtree;
 	while (compound->type != COMPOUND_STATEMENT)
 		compound = compound->parent;
@@ -338,19 +334,30 @@ void inside_add(C_Petri &petri, string father_place, gtree *father_tree, string 
 			find_else = find_else->next;
 		}
 		if (else_flag == false)
-			petri.Add_Arc(v[0], new_place, "", false);
+		{
+			vector<string> temp = petri.get_enter_P(new_place);
+			for (unsigned int i = 0; i < temp.size(); i++)
+				petri.Add_Arc(v[0], temp[i], "", false);
+		}
 		else
-			petri.Add_Arc(v[1], new_place, "", false);
+		{
+			vector<string> temp = petri.get_enter_P(new_place);
+			for (unsigned int i = 0; i < temp.size(); i++)
+				petri.Add_Arc(v[1], temp[i], "", false);
+		}
 	}
 	else
 	{
-		petri.Add_Arc(v[0], new_place, "", false);
+
+		vector<string> temp = petri.get_enter_P(new_place);
+		for (unsigned int i = 0; i < temp.size(); i++)
+			petri.Add_Arc(v[0], temp[i], "", false);
 	}
 }
 
 void inside_delete(C_Petri &petri, string father_place, string delete_place)
 {
-	vector<string> v = petri.get_enter(father_place);
+	vector<string> v = petri.get_control_T(father_place);
 	for (unsigned int i = 0; i < v.size(); i++)
 	{
 		for (int j = 0; j < petri.arcnum; j++)
@@ -465,32 +472,25 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 			newtree->parent = new_statement_list->parent;
 		}
 	}
-	/*else
-	{
-		next_tree = t1->next;
-		t1->next = newtree;
-		newtree->parent = t1->parent;
-		newtree->next = next_tree;
-	}*/
+
 
 
 	//处理新语句的cpn构建
 	string new_place = get_gen_P();
 	ast_to_cpn(petri, newtree);//直接对statement进行建模
 
-	//若条件中含有函数调用或赋值语句中含有函数调用，则不需要加前向执行弧
-	bool pre_executed;//真表示前向已有执行弧（函数调用引入）
+	//这里处理函数调用语句新建的第一个库所不是语句的控制库所的问题
+	vector<string> temp_enter = petri.get_enter_P(new_place);
+	if (temp_enter.size() == 0)
+	{
+		int p_num = atoi(new_place.substr(1).c_str());
+		if (inside == true)
+			p_num++;
+		else
+			p_num += 2;
+		new_place = "P" + to_string(p_num);
+	}
 
-	//gtree *search;
-	//if (judge_assign_statement(newtree))
-	//{
-	//	search = newtree->child;
-	//}
-	//else
-	//{
-	//	search = newtree->child->child->next->next->child;//条件组
-	//}
-	pre_executed = newtree->contain_call_flag;
 
 	//修改执行弧
 	string father_place;
@@ -502,105 +502,32 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 		else
 			father_place = find_P_name(petri, father_tree->parent->place);//此处parent是避免重名，因为重名只改statement的place
 	}
-	//处理后一句有函数调用
-	if (islast == false)
-	{
-		//找调用库所
-		//gtree *search;
-		bool call=next_tree->contain_call_flag;
-		
-		//if (next_tree->child->type == 赋值语句)
-		//{
-		//	search = next_tree->child;
-		//	call = search_call(search);
-		//}
-		//else if (next_tree->child->type == 条件语句 || next_tree->child->type == 循环语句)
-		//{
-		//	search = next_tree->child->child->next->next->child;//条件组
-		//	call = search_call(search);
-		//}
-		//else
-		//	call = NULL;
 
-		if (call != false)
-		{
-			string call_func = next_tree->contain_call;
-			string next_P = find_P_name(petri, next_tree->place);
-			vector<string> next_enter_T = petri.get_enter(next_P);
-			int current;
-			if (next_enter_T.size() == 0)
-			{
-				cout << "error int evolution 492!" << endl;
-				exit(1);
-			}
-			else
-			{
-				for (int i = 0; i < petri.t_num; i++)
-					if (petri.transition[i].name == next_enter_T[0])
-						current = petri.transition[i].current_P_num;
-			}
-			string fun = call_func;
-			fun += "()";
-			string func_c = fun + "_c";
-			string call_P = find_P_name_1(petri, fun, current + 2);
-			string call_P_c = find_P_name_1(petri, func_c, current + 3);
-			//找上一语句出口
-			string last_P;
-			vector<string> last_T;
-			bool flag, flag1;
-			gtree *last_sentence = find_last_sentence(newtree, flag, flag1);
-			if (last_sentence != NULL)
-				last_P = find_P_name(petri, last_sentence->place);
-			else
-				last_P = find_P_name(petri, father_tree->place + " begin");
-			if (last_sentence != NULL && flag == false)
-				last_T = petri.get_exit(last_P);
-			else 
-			{
-				if (last_sentence != NULL)
-				{
-					vector<string> last_enter = petri.get_enter(last_P);
-					if (flag1 == true)
-						last_T.push_back(last_enter[1]);
-					else
-						last_T.push_back(last_enter[0]);
-				}
-				else
-				{
-					string func_T = find_T_name(petri, father_tree->place + " begin");
-					last_T.push_back(func_T);
-				}
-			}
-			
-			//last_T = petri.get_exit(last_P);
-
-			vector<string> new_exit = petri.get_exit(new_place);
-			change_call_enter(petri, last_T, new_exit, call_P);
-			if (call_P_c != "")
-				change_call_enter(petri, last_T, new_exit, call_P_c);
-		}
-	}
 
 	if (isfirst == true)
 	{
 		string next_P = find_P_name(petri, next_tree->place);
 		//前向弧
-		if (pre_executed == false)
+		//if (pre_executed == false)
+		//{
+		if (inside == true)
 		{
-			if (inside == true)
-			{
-				inside_add(petri, father_place, father_tree, new_place, newtree);
-			}
-			else
-			{
-				string func = father_tree->place;
-				string func_T = find_T_name(petri, func + " begin");
-				petri.Add_Arc(func_T, new_place, "", false);
-				petri.Delete_Arc(func_T, next_P);
-			}
-		}
-		else if (inside == true)
 			inside_add(petri, father_place, father_tree, new_place, newtree);
+		}
+		else
+		{
+			string func = father_tree->place;
+			string func_T = find_T_name(petri, func + " begin");
+			vector<string> new_place_enter_P = petri.get_enter_P(new_place);
+			vector<string> next_P_enter_P = petri.get_enter_P(next_P);
+			for (unsigned int i = 0; i < new_place_enter_P.size(); i++)
+				petri.Add_Arc(func_T, new_place_enter_P[i], "", false);
+			for (unsigned int i = 0; i < next_P_enter_P.size(); i++)
+				petri.Delete_Arc(func_T, next_P_enter_P[i]);
+		}
+		/*}
+		else if (inside == true)
+			inside_add(petri, father_place, father_tree, new_place, newtree);*/
 		//后向弧
 
 		//bool whileorif = false;
@@ -620,14 +547,7 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 		//后向弧
 		vector<string> last_T = petri.get_exit(last_P);
 		vector<string> new_place_exit = petri.get_exit(new_place);
-		/*if (last_tree->child->type == 循环语句)
-		{
-			real_exit(last_T);
-		}
-		if (newtree->child->type == 循环语句)
-		{
-			real_exit(new_place_exit);
-		}*/
+
 
 		back_executed(petri, last_T, new_place_exit);
 
@@ -656,34 +576,10 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 			{
 				/*if (last_tree->child->type == 循环语句)
 					whileorif = true;*/
-				if (pre_executed == false)
-					add_executed_1(petri, last_P, new_place);
+				//if (pre_executed == false)
+				add_executed_1(petri, last_P, new_place);
 			}
-		//}
-		/*else if (inside == true)
-		{
-			
-			inside_add(petri, father_place, father_tree, new_place, newtree);
-		}*/
-		if (next_tree != NULL && judge_return_statement(next_tree))
-		{
-			gtree *find_this_func = m.map1;
-			while (find_this_func->type != FUNCTION_DEFINITION)
-				find_this_func = find_this_func->parent;
-			string this_func_v_P = find_P_name(petri, find_this_func->place + "_v");
-			string value;
-			for (unsigned int i = 0; i < last_T.size(); i++)
-			{
-				value = petri.Delete_Arc(last_T[i], this_func_v_P);
-				value = petri.Delete_Arc(this_func_v_P, last_T[i]);
-			}
-			vector<string> this_exit_T = petri.get_exit(new_place);
-			for (unsigned int i = 0; i < this_exit_T.size(); i++)
-			{
-				petri.Add_Arc(this_exit_T[i], this_func_v_P, value, false);
-				petri.Add_Arc(this_func_v_P, this_exit_T[i], value, true);
-			}
-		}
+
 		//修改出口
 		if (islast == true && inside == true)
 			change_exit(petri, father_place, last_T, new_place_exit);
@@ -738,87 +634,7 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 	
 	string delete_place = find_P_name(petri, t1->place);
 	
-	//处理树的改变
-	
-	//bool iswhile = false;
-	
-	/*if (t1->child->type == 循环语句)
-		iswhile = true;*/
-	//bool *search;
-	//if (t1->child->type == 赋值语句)
-	//{
-	//	search = t1->child;
-	//}
-	//else
-	//{
-	//	search = t1->child->child->next->next->child;//条件组
-	//}
-	bool call = t1->contain_call_flag;
-	
-	if (call)
-	{
-		string call_func = t1->contain_call;
-		vector<string> enter_T = petri.get_enter(delete_place);
-		int current;
-		if (enter_T.size() == 0)
-		{
-			cout << "error int evolution 492!" << endl;
-			exit(1);
-		}
-		else
-		{
-			for (int i = 0; i < petri.t_num; i++)
-				if (petri.transition[i].name == enter_T[0])
-					current = petri.transition[i].current_P_num;
-		}
-		string fun = call_func;
-		fun += "()";
-		string func_c = fun + "_c";
-		string place = find_P_name_1(petri, fun, current + 2);
-		string place_c = find_P_name_1(petri, func_c, current + 3);
-		bool flag, flag1;
-		string last_call_P;
-		gtree *last_sentence = find_last_sentence(t1, flag, flag1);
-		if (last_sentence != NULL)
-			last_call_P = find_P_name(petri, last_sentence->place);
-		else
-			last_call_P = find_P_name(petri, father_tree->place + " begin");
-		
-		vector<string> v;
-		if (last_sentence != NULL && flag == false)
-		{
 
-			v = petri.get_exit(last_call_P);
-			for (unsigned int i = 0; i < v.size(); i++)
-			{
-				if (place_c != "")
-					petri.Delete_Arc(v[i], place_c);
-					//delete_all_arc(v[i], place_c);
-				petri.Delete_Arc(v[i], place);
-				//delete_all_arc(v[i], place);
-			}
-		}
-		else
-		{
-			if (last_sentence != NULL)
-			{
-				v = petri.get_enter(last_call_P);
-				for (unsigned int i = 0; i < v.size(); i++)
-				{
-					if (place_c != "")
-						petri.Delete_Arc(v[i], place_c);
-					petri.Delete_Arc(v[i], place);
-				}
-			}
-			else
-			{
-				string func_T = find_T_name(petri, father_tree->place + " begin");
-				petri.Delete_Arc(func_T, place);
-				if (place_c != "")
-					petri.Delete_Arc(func_T, place_c);
-			}
-		}
-	}
 
 	//处理语法树
 	if (isfirst == true)
@@ -839,11 +655,9 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 
 	//修改执行弧
 
-	//处理后一句有函数调用
-	bool next_call = false;
+
 	if (islast == false)
 	{
-		//找调用库所
 		if (isfirst == true)
 		{
 			gtree *temp = m.map1;
@@ -853,73 +667,6 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 		}
 		else
 			next_tree = last_tree->parent->next;
-		//gtree *search;
-		//if (next_tree->child->type == 赋值语句)
-		//{
-		//	search = next_tree->child;
-		//}
-		//else
-		//{
-		//	search = next_tree->child->child->next->next->child;//条件组
-		//}
-		bool call = next_tree->contain_call_flag;
-		
-		if (call != false)
-		{
-			string call_func = next_tree->contain_call;
-			next_call = true;
-			string next_P = find_P_name(petri, next_tree->place);
-			vector<string> next_enter_T = petri.get_enter(next_P);
-			int current;
-			if (next_enter_T.size() == 0)
-			{
-				cout << "error int evolution 492!" << endl;
-				exit(1);
-			}
-			else
-			{
-				for (int i = 0; i < petri.t_num; i++)
-					if (petri.transition[i].name == next_enter_T[0])
-						current = petri.transition[i].current_P_num;
-			}
-			string fun = call_func;
-			fun += "()";
-			string func_c = fun + "_c";
-			string call_P = find_P_name_1(petri, fun, current + 2);
-			string call_P_c = find_P_name_1(petri, func_c, current + 3);
-			//找上一语句出口
-			string last_P;
-			vector<string> last_T;
-			bool flag, flag1;
-			gtree *last_sentence = find_last_sentence(next_tree, flag, flag1);
-			if (last_sentence != NULL)
-				last_P = find_P_name(petri, last_sentence->place);
-			else
-				last_P = find_P_name(petri, father_tree->place + " begin");
-			if (last_sentence != NULL && flag == false)
-				last_T = petri.get_exit(last_P);
-			else
-			{
-				if (last_sentence != NULL)
-				{
-					vector<string> last_enter = petri.get_enter(last_P);
-					if (flag1 == true)
-						last_T.push_back(last_enter[1]);
-					else
-						last_T.push_back(last_enter[0]);
-				}
-				else 
-				{
-					last_T.push_back(father_tree->place + " begin");
-				}
-			}
-
-
-			vector<string> new_exit = petri.get_exit(delete_place);
-			change_call_enter(petri, new_exit, last_T, call_P);
-			if (call_P_c != "")
-				change_call_enter(petri, new_exit, last_T, call_P_c);
-		}
 	}
 
 	string father_place;
@@ -944,13 +691,24 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 			string func = father_tree->place;
 			string func_T = find_T_name(petri, func + " begin");
 			//前向弧
+			vector<string> enter_P = petri.get_enter_P(delete_place);
+			vector<string> next_enter_P = petri.get_enter_P(next_P);
 			for (int i = 0; i < petri.arcnum; i++)
 			{
-				if (petri.arc[i].source == func_T && petri.arc[i].target == delete_place)
+				if (petri.arc[i].source == func_T)
 				{
-					petri.arc[i].V += "#";
-					petri.Add_Arc(petri.arc[i].source, next_P, "", false);
-					break;
+					if (enter_P[0] == petri.arc[i].target)
+					{
+						petri.arc[i].V += "#";
+						for (unsigned int j = 0; j < next_enter_P.size(); j++)
+							petri.Add_Arc(petri.arc[i].source, next_enter_P[j], "", false);
+					}
+					else if (enter_P.size() == 2 && enter_P[1] == petri.arc[i].target)
+					{
+						petri.arc[i].V += "#";
+						for (unsigned int j = 0; j < next_enter_P.size(); j++)
+							petri.Add_Arc(petri.arc[i].source, next_enter_P[j], "", false);
+					}
 				}
 			}
 			//后向弧
@@ -961,7 +719,7 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 	else
 	{
 		string last_P = find_P_name(petri, last_tree->place);
-		vector<string> last_T = petri.get_exit(last_P);
+		//vector<string> last_T = petri.get_exit(last_P);
 		vector<string> delete_place_enter = petri.get_enter(delete_place);
 		vector<string> delete_place_exit = petri.get_exit(delete_place);
 		vector<string> last_exit = petri.get_exit(last_P);
@@ -973,6 +731,7 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 		//gtree *next_tree = NULL;
 		vector<string> next_enter;
 		string next_P;
+		
 		if (islast == false)
 		{
 			//next_tree = last_tree->next;
@@ -987,7 +746,7 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 			//后向弧
 			if (islast == false)
 			{
-				pre_executed(petri, next_enter, delete_place_enter);
+				pre_executed_1(petri, next_enter, delete_place_enter);
 				delete_last_executed(petri, delete_place);
 
 			}
@@ -1012,42 +771,28 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 
 				for (unsigned int i = 0; i < last_exit.size(); i++)
 				{
-					if (next_call == false)
-						petri.Add_Arc(last_exit[i], next_P, "executed", false);
-					petri.Delete_Arc(last_exit[i], delete_place);
+					//if (next_call == false)
+					vector<string> next_P_enter_P = petri.get_enter_P(next_P);
+					vector<string> delete_place_enter_P = petri.get_enter_P(delete_place);
+					for (unsigned int j = 0; j < next_P_enter_P.size(); j++)
+						petri.Add_Arc(last_exit[i], next_P_enter_P[j], "executed", false);
+					for (unsigned int j = 0; j < delete_place_enter_P.size(); j++)
+						petri.Delete_Arc(last_exit[i], delete_place_enter_P[j]);
 				}
 			}
 			else
 			{
 				for (unsigned int i = 0; i < last_exit.size(); i++)
 				{
+					vector<string> delete_place_enter_P = petri.get_enter_P(delete_place);
 					petri.Add_Arc(last_exit[i], func_end_P, "executed", false);
-					petri.Delete_Arc(last_exit[i], delete_place);
+					for (unsigned int j = 0; j < delete_place_enter_P.size(); j++)
+						petri.Delete_Arc(last_exit[i], delete_place_enter_P[j]);
 				}
 
 			}
 		}
 
-		if (next_tree != NULL && judge_return_statement(next_tree))
-		{
-			gtree *find_this_func = m.map1;
-			while (find_this_func->type != FUNCTION_DEFINITION)
-				find_this_func = find_this_func->parent;
-			string this_func_v_P = find_P_name(petri, find_this_func->place + "_v");
-			string value;
-			vector<string> this_exit_T = petri.get_exit(delete_place);
-			for (unsigned int i = 0; i < this_exit_T.size(); i++)
-			{
-				value = petri.Delete_Arc(this_exit_T[i], this_func_v_P);
-				value = petri.Delete_Arc(this_func_v_P, this_exit_T[i]);
-			}
-
-			for (unsigned int i = 0; i < last_T.size(); i++)
-			{
-				petri.Add_Arc(last_T[i], this_func_v_P, value, false);
-				petri.Add_Arc(this_func_v_P, last_T[i], value, true);
-			}
-		}
 	}
 
 	return delete_place;

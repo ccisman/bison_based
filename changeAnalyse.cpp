@@ -83,7 +83,7 @@ vector<string> forward_exist_T(C_Petri &petri, vector<string> change_T, string p
 		_P.pop();
 		for (int i = 0; i < petri.arcnum; i++)
 		{
-			if (petri.arc[i].sourceP == false && petri.arc[i].target == temp_P)
+			if (petri.arc[i].V != "executed#"&&petri.arc[i].V != "#"&&petri.arc[i].sourceP == false && petri.arc[i].target == temp_P)
 			{
 				if (exist_in(change_T, petri.arc[i].source))
 				{
@@ -98,15 +98,19 @@ vector<string> forward_exist_T(C_Petri &petri, vector<string> change_T, string p
 						{
 							for (int k = 0; k < petri.p_num; k++)
 							{
-								if (petri.place[k].name == petri.arc[j].source&&petri.place[k].controlP == true)
+								if (petri.place[k].controlP == true && petri.place[k].name == petri.arc[j].source)
 								{
 									if (!exist_in(P_done, petri.arc[j].source))
 									{
-										_P.push(petri.arc[j].source);
+										vector<string> enter_P = petri.get_enter_P(petri.arc[j].source);
+										for (unsigned int l = 0; l < enter_P.size(); l++)
+											_P.push(enter_P[l]);
 										P_done.push_back(petri.arc[j].source);
 									}
 									break;
 								}
+								else if (petri.place[k].controlP == false && petri.place[k].name == petri.arc[j].source)
+									break;
 							}
 
 						}
@@ -227,8 +231,9 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 
 	//P1.insert(P1.end(), P_read.begin(), P_read.end());//≤Â»ÎP_read
 
-	sort(P1.begin(), P1.end());
-	P1.erase(unique(P1.begin(), P1.end()), P1.end());
+	//sort(P1.begin(), P1.end());
+	//P1.erase(unique(P1.begin(), P1.end()), P1.end());
+
 	sort(T1.begin(), T1.end());
 	T1.erase(unique(T1.begin(), T1.end()), T1.end());
 
@@ -278,10 +283,18 @@ void post_process(C_Petri &petri, vector<string> change_P, vector<string> change
 			if (flag == false)
 			{
 				vector<string> temp_v = forward_exist_T(petri, change_T, change_P[i]);
+				bool flag = false;
 				for (unsigned int j = 0; j < temp_v.size(); j++)
 				{
 					Arc arc(temp_v[j], change_P[i], "executed", false);
-					change_Arc.push_back(arc);
+					for (int k = int(change_Arc.size() - 1); k >= 0; k--)
+						if (change_Arc[k].V=="executed" && change_Arc[k].source == arc.source && change_Arc[k].target == arc.target)
+						{
+							flag = true;
+							break;
+						}
+					if (flag == false)
+						change_Arc.push_back(arc);
 				}
 			}
 		}
@@ -398,7 +411,7 @@ C_Petri changeAnalyse(C_Petri &petri, vector<string> change_places)
 	//change_T.insert(change_T.end(), formula_T.begin(), formula_T.end());
 
 
-	back_forward_slicing(petri, change_places, change_P, change_T, change_Arc);
+ 	back_forward_slicing(petri, change_places, change_P, change_T, change_Arc);
 
 	post_process(petri, change_P, change_T, change_Arc);
 	sort_change(change_P, change_T);

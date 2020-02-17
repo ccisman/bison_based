@@ -1,56 +1,74 @@
+旧文件：addsub_double_exact.c	新文件：addsub_double_exact - new.c
+直接构建时间：480
+变化影响分析时间：417
+
+旧文件：addsub_float_exact.c	新文件：addsub_float_exact - new.c
+直接构建时间：422
+变化影响分析时间：448
 
 旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-直接构建时间：2099
-变化影响分析时间：1820
+直接构建时间：2413
+变化影响分析时间：2222
 
-旧文件：new_bAnd3.c	新文件：new_bAnd3 - new.c
-直接构建时间：71498
-变化影响分析时间：74049
+旧文件：bAnd1.c	新文件：bAnd1 - new.c
+直接构建时间：51685
+变化影响分析时间：59253
 
-旧文件：new_bor2.c	新文件：new_bor2 - new.c
-直接构建时间：118127
-变化影响分析时间：122256
+旧文件：bAnd2.c	新文件：bAnd2 - new.c
+直接构建时间：51049
+变化影响分析时间：58161
 
-旧文件：new_bor3.c	新文件：new_bor3 - new.c
-直接构建时间：118069
-变化影响分析时间：122416
+旧文件：bAnd3.c	新文件：bAnd3 - new.c
+直接构建时间：67242
+变化影响分析时间：72334
 
-旧文件：new_zero_sum1.c	新文件：new_zero_sum1 - new.c
-直接构建时间：4829
-变化影响分析时间：4361
+旧文件：bAnd4.c	新文件：bAnd4 - new.c
+直接构建时间：72234
+变化影响分析时间：208
 
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-直接构建时间：17966
-变化影响分析时间：19033
+旧文件：bAndOr1.c	新文件：bAndOr1 - new.c
+直接构建时间：39112
+变化影响分析时间：7175
 
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-直接构建时间：17839
-变化影响分析时间：17813
+旧文件：bor1.c	新文件：bor1 - new.c
+直接构建时间：117756
+变化影响分析时间：124497
 
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-直接构建时间：18087
-变化影响分析时间：707483
+旧文件：even.c	新文件：even - new.c
+直接构建时间：6556
+变化影响分析时间：7719
 
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-直接构建时间：17914
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-旧文件：new_zero_sum3.c	新文件：new_zero_sum3 - new.c
-直接构建时间：17579
-变化影响分析时间：16646
+旧文件：odd.c	新文件：odd - new.c
+直接构建时间：6585
+变化影响分析时间：7825
 
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-直接构建时间：2133
-变化影响分析时间：1833
+旧文件：zero_sum1.c	新文件：zero_sum1 - new.c
+直接构建时间：41184
+变化影响分析时间：37652
 
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-直接构建时间：2106
-变化影响分析时间：102516
+旧文件：zero_sum2.c	新文件：zero_sum2 - new.c
+直接构建时间：89732
+变化影响分析时间：89100
 
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-直接构建时间：2095
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-旧文件：arctan_Pade.c	新文件：arctan_Pade - new.c
-直接构建时间：2214
-变化影响分析时间：1871
+旧文件：zero_sum3.c	新文件：zero_sum3 - new.c
+直接构建时间：180689
+变化影响分析时间：168655
+
+旧文件：bor2.c	新文件：bor2 - new.c
+旧文件：bor2.c	新文件：bor2 - new.c
+旧文件：bor2.c	新文件：bor2 - new.c
+旧文件：bor2.c	新文件：bor2 - new.c
+直接构建时间：116247
+变化影响分析时间：122143
+
+旧文件：zero_sum3.c	新文件：zero_sum3 - new.c
+旧文件：zero_sum3.c	新文件：zero_sum3 - new.c
+直接构建时间：176895
+旧文件：zero_sum3.c	新文件：zero_sum3 - new.c
+直接构建时间：175613
+变化影响分析时间：171594
+
+旧文件：bAndOr1.c	新文件：bAndOr1 - new.c
+直接构建时间：39123
+变化影响分析时间：7186
 

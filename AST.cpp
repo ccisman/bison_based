@@ -320,6 +320,8 @@ gtree *&create_tree(string filename, bool flag)//flag为true代表需要预处理
 			cout << filename1 << "文件不存在" << endl;
 			exit(1);
 		}
+
+		
 	}
 	else
 	{
@@ -334,8 +336,8 @@ gtree *&create_tree(string filename, bool flag)//flag为true代表需要预处理
 	}
 	yyparse();
 	printtree(head);
-	//TraverseTree1(head);
-	//TraverseTree2(head);
+	if (flag == true)
+		TraverseTree2(head);
 	TraverseTree3(head);
 	//Traverse(head);
 

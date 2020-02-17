@@ -125,7 +125,7 @@ void occur_T(C_Petri &petri, string T)
 {
 	for (int i = 0; i < petri.arcnum; i++)
 	{
-		if (petri.arc[i].sourceP == true && petri.arc[i].V != "#" && petri.arc[i].V != "executed#")//隐式弧
+		if (petri.arc[i].sourceP == true && petri.arc[i].V != "#" && petri.arc[i].V != "executed#"&&petri.arc[i].V != "relation")//隐式弧
 		{
 			if (petri.arc[i].target == T)
 			{
@@ -150,20 +150,21 @@ void occur_T(C_Petri &petri, string T)
 		}
 		else
 		{
-			if (petri.arc[i].source == T && petri.arc[i].V != "#"&&petri.arc[i].V != "executed#")
+			if (petri.arc[i].source == T && petri.arc[i].V != "#"&&petri.arc[i].V != "executed#"&&petri.arc[i].V != "relation")
 			{
 				string target = petri.arc[i].target;
 				for (int j = 0; j < petri.p_num; j++)
 				{
 					if (petri.place[j].name == target)
 					{
-						if (petri.place[j].ispoint == true)//指针节点
+						if (petri.place[j].ispoint == true && petri.arc[i].V != "")//指针节点
 						{
+							int current = petri.get_current_P_num(T);
 							string arc_V = petri.arc[i].V;
-							string arc_P = find_P_name(petri, arc_V);
+							string arc_P = arc_V;// find_P_name_1(petri, arc_V, current + 1);
 							petri.place[j].str = arc_P;
 						}
-						else
+						else if (petri.place[j].ispoint == false)
 						{
 							if (petri.arc[i].V == "executed" || petri.arc[i].V == "")
 							{

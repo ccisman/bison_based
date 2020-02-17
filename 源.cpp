@@ -322,7 +322,7 @@ void intofile(C_Petri petri)
 	{
 		if (petri.arc[i].V != "#" && petri.arc[i].V != "executed#" && petri.arc[i].V != "executed")//隐式弧
 			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "}" << endl;
-		else if (petri.arc[i].V == "executed")
+		else if (petri.arc[i].V == "executed" || petri.arc[i].V == "relation")
 			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "[style=\"dashed\"]}" << endl;
 	}
 	out.close();
@@ -511,7 +511,7 @@ void DirectBuild(gtree *tree, string new_filename, C_Petri &petri, RG &rg)
 	create_CPN(petri, tree);
 
 	//************************输出cpn
-	//output_CPN(petri, "output");
+	output_CPN(petri, "output");
 
 	//************************生成可达图
 	vector<string> v;
@@ -555,7 +555,7 @@ void compare(string filename, string new_filename)
 	clock_t start, finish;
 
 	gtree *tree1 = create_tree(filename,true);
-	intofile_tree(tree1);
+	//intofile_tree(tree1);
 	gtree *tree2 = create_tree(new_filename, true);
 	C_Petri petri, petri_new;
 	RG rg, rg_new;
@@ -609,8 +609,8 @@ void compare(string filename, string new_filename)
 
 	C_Petri petri1;
 	petri1 = changeAnalyse(petri, change_places);
-
-	//output_CPN(petri1, "output");
+	
+	output_CPN(petri1, "output");
 
 	RG rg2(petri1); //定义可达图
 	create_RG(rg2);
@@ -625,22 +625,25 @@ void compare(string filename, string new_filename)
 
 int main()
 {
-	gtree *tree;
-	tree = create_tree("simple.txt", false);
-	intofile_tree(tree);
+	/*gtree *tree;
+	C_Petri petri;
+	RG rg;
+	tree = create_tree("test.c", true);
+	DirectBuild(tree, "just_finish.txt", petri, rg);
+	intofile_tree(tree);*/
 
 	vector<string> filelist;
 
 	string filename, new_filename;
 	get_names(origin_dirname + "*", filelist);
-	compare("arctan_Pade.c", "arctan_Pade - new.c");
-	/*for (unsigned int i = 0; i < filelist.size(); i++)
+	//compare("zero_sum1.c", "zero_sum1 - new.c");
+	for (unsigned int i = 0; i < filelist.size(); i++)
 	{
 		new_filename = filelist[i];
 		filename = new_filename;
 		string_replace(filename, " - new", "");
 		compare(filename, new_filename);
-	}*/
+	}
 	//get_names(origin_dirname + "*", filelist);
 	//ifstream out;
 	//for (unsigned int i = 0; i < filelist.size(); i++)

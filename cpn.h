@@ -53,11 +53,13 @@ public:
 
 	vector<string> enter;//标记开始变迁
 	vector<string> exit;//标记结尾变迁
+	vector<string> enter_P;//标记入口库所（包含函数调用的语句入口库所为()库所)
+	vector<string> control_T;//标记库所对应的控制变迁
 //	vector<string> c_transition;//记录条件语句和循环语句的控制变迁
 
-	int flag;//用于一些特殊标记,1代表while语句条件内有函数调用
-	vector<string> information;//statement库所若有函数调用，存放_c和_()的库所名，函数控制库所在information[0]中存return后接的表达式
-	bool call_last;//函数调用上一语句
+	int call_flag;//用于一些特殊标记,1代表while语句条件内有函数调用
+	vector<string> information;//while语句控制库所若有函数调用，存放_c和_()的库所名，用于循环
+	//bool call_last;//函数调用上一语句
 
 	Place(string n, string v_n, string colorset_t, bool c_P);
 	void set_Place_value(int num);
@@ -134,17 +136,22 @@ public:
 	vector<string> enable_T(); //返回网内所有可发生的变迁
 	vector<string> find_all_place(string t_name);//找变迁的所有前驱库所
 
-	int get_flag(string name);
-	void set_flag(string name, int flag);
+	int get_call_flag(string name);
+	void set_call_flag(string name, int flag);
 	vector<string> get_information(string name);
 	void Add_information(string name, string information);
-	bool get_call_last(string name);
-	void set_call_last(string name, bool call_last);
+	//bool get_call_last(string name);
+	//void set_call_last(string name, bool call_last);
 	int get_current_P_num(string T);
 	void set_point_flag(string p_name);
 	bool get_point_flag(string p_name);
 	void set_false_exit(string p_name, vector<string> false_exit);
 	vector<string> get_false_exit(string p_name);
+	void set_enter_P(string p_name, vector<string> enter_P);
+	vector<string> get_enter_P(string p_name);
+	void set_control_T(string p_name, vector<string> control_T);
+	vector<string> get_control_T(string p_name);
+	void clear_enter(string p_name);
 	void release();
 };
 
