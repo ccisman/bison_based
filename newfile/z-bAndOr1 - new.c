@@ -108,6 +108,10 @@ while( i<10-1){
   if(ret != ret2 || ret !=ret5){ 
     __VERIFIER_error();
   }
+  
+  if(ret_y != ret2_y || ret_y !=ret5_y){ 
+    __VERIFIER_error();
+  }
 
   return 1;
 }

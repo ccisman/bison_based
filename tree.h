@@ -18,7 +18,7 @@ using namespace std;
 //};
 
 static string dirname = ".\\rg\\";
-static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\test6\\";
+static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\combine_test\\";
 static string newfile_dirname = ".\\newfile\\";
 
 class gtree
@@ -49,7 +49,6 @@ public:
 
 gtree *&create_tree(string filename, bool flag);
 
-gtree* search_call(gtree *p);
 
 string get_gen_P();
 
@@ -59,4 +58,5 @@ bool judge_assign_statement(gtree *statement1);
 bool judge_call_postfix_expression(gtree *postfix_expression);
 bool judge_call_statement(gtree *statement1);
 bool judge_return_statement(gtree *statement1);
+bool judge_expression_statement(gtree *statement1);
 void pre_process(string &s);

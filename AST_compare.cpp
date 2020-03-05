@@ -90,11 +90,11 @@ bool theSame(gtree *t1, gtree *t2);
 
 bool Equal_Node(gtree *t1, gtree *t2)
 {
-	if (t1->place == "3" || t1->place == "2")
+	/*if (t1->place == "3" || t1->place == "2")
 	{
 		int a;
 		a = 1;
-	}
+	}*/
 	if (t1->type != t2->type)
 		return false;
 	string p1, p2;
@@ -387,8 +387,29 @@ vector<Mapping> find_container_mapping(vector<Mapping> &M)//找到所有包含相同项的
 
 bool total_match(gtree *t1, gtree *t2, vector<Mapping> &M)
 {
+	
 	gtree *p1 = t1, *p2 = t2;
-
+	/*if (t1->child->type == STATEMENT)
+	{
+		if (t1->child->child->type == SELECTION_STATEMENT || t1->child->child->type == ITERATION_STATEMENT)
+		{
+			gtree *statement1 = t1->child->child->child->next->next->next->next;
+			gtree *statement2 = t2->child->child->child->next->next->next->next;
+			bool f1, f2;
+			if (statement1->child->type == COMPOUND_STATEMENT)
+			{
+				gtree *statement_list1 = statement1->child->child;
+				while (statement_list1->type != STATEMENT_LIST)
+					statement_list1 = statement_list1->next;
+				gtree *statement_list2 = statement2->child->child;
+				while (statement_list2->type != STATEMENT_LIST)
+					statement_list2 = statement_list2->next;
+				f1 = total_match(statement_list1, statement_list2, M);
+				return f1;
+			}
+		}
+	}*/
+	
 	bool total_match = true;
 	while (p1->type != STATEMENT)
 		p1 = p1->child;
@@ -614,6 +635,13 @@ AST_change block_handle(gtree *t1, gtree *t2, vector<Mapping> &M)//t1,t2都是语句
 		bool match = total_match(t1, t2, M);
 		if (match == true)
 		{
+			if (t1->parent->parent->parent != NULL)
+			{
+				Mapping m;
+				m.map1 = t1->parent->parent->parent->parent;
+				m.map2 = t2->parent->parent->parent->parent;
+				M.push_back(m);
+			}
 			changes.m.map1 = NULL;
 			changes.m.map2 = NULL;
 			return changes;

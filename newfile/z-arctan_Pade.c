@@ -1,4 +1,5 @@
 int nondet_num_double=101;
+int nondet_num_short=101;
 void __VERIFIER_error()
 {
 	return;

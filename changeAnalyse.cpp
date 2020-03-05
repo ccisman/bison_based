@@ -24,6 +24,8 @@ void find_previous_P(C_Petri &petri, string T, vector<string> &v)//, vector<stri
 			/*if (exist_arc(petri, petri.arc[i].target, petri.arc[i].source, petri.arc[i].V))
 				v1.push_back(petri.arc[i].source);
 			else*/
+			if (petri.arc[i].type == 2 || petri.arc[i].type == 4)
+				continue;
 				v.push_back(petri.arc[i].source);
 		}
 		else if (petri.arc[i].sourceP == true && petri.arc[i].target == T && (petri.arc[i].V == "executed" || petri.arc[i].V == "executed#"))
@@ -54,6 +56,8 @@ void find_afterward_P(C_Petri &petri, string T,vector<string> &v)//,vector<strin
 			/*if (exist_arc(petri, petri.arc[i].target, petri.arc[i].source, petri.arc[i].V))
 				v1.push_back(petri.arc[i].target);
 			else*/
+			if (petri.arc[i].type == 1 || petri.arc[i].type == 2)
+				continue;
 				v.push_back(petri.arc[i].target);
 		}
 	}
@@ -83,7 +87,9 @@ vector<string> forward_exist_T(C_Petri &petri, vector<string> change_T, string p
 		_P.pop();
 		for (int i = 0; i < petri.arcnum; i++)
 		{
-			if (petri.arc[i].V != "executed#"&&petri.arc[i].V != "#"&&petri.arc[i].sourceP == false && petri.arc[i].target == temp_P)
+			
+			if (petri.arc[i].V != "executed#" && petri.arc[i].type != 6 &&
+				petri.arc[i].V != "#"&&petri.arc[i].sourceP == false && petri.arc[i].target == temp_P)
 			{
 				if (exist_in(change_T, petri.arc[i].source))
 				{
@@ -122,6 +128,8 @@ vector<string> forward_exist_T(C_Petri &petri, vector<string> change_T, string p
 	return T;
 }
 
+void slice_pre_process(C_Petri petri, vector<string> &change_places);
+
 void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &final_P, vector<string>&final_T, vector<Arc> &final_Arc)//变化前网petri,预处理后的库所数组place
 {
 	vector<string> P1, P2, P_done, T1, T2;// , P_read;
@@ -130,23 +138,38 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 	{
 		if (!exist_in(P_done, P1[i]))
 		{
+			//先判断是非为全局变量
+			bool global = petri.get_global(P1[i]);
+			if (global == true)
+			{
+				vector<string> tmp_change;
+				tmp_change.push_back(P1[i]);
+				slice_pre_process(petri, tmp_change);
+				for (unsigned int j = 1; j < tmp_change.size(); j++)
+					if (!exist_in(P1, tmp_change[j]))
+						P1.push_back(tmp_change[j]);
+			}
+
 			for (int j = 0; j < petri.arcnum; j++)
 			{
 				//不能是token不改变的变迁
 				/*if (exist_arc(petri, petri.arc[j].target, petri.arc[j].source, petri.arc[j].V))
 					continue;*/
+				
 				if (petri.arc[j].source == P1[i])
 				{
+					if (petri.arc[j].type == 1 || petri.arc[j].type == 2 || petri.arc[j].type == 5)
+						continue;
 					if (!exist_in(T1, petri.arc[j].target))//不在T1内
 					{
 
 						if (petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#")//不是执行弧
 						{
 							
-							for (int k = 0; k < petri.p_num; k++)
+							/*for (int k = 0; k < petri.p_num; k++)
 							{
 								if (petri.place[k].name == P1[i])
-								{
+								{*/
 
 									//if (petri.place[k].controlP == true)
 									//{
@@ -172,24 +195,26 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 										P_read.push_back(v1[q]);*/
 
 									//}
-									break;
+							/*		break;
 								}
 
-							}
+							}*/
 						}
 					}
 				}
 				else if (petri.arc[j].target == P1[i])
 				{
+					if (petri.arc[j].type == 2 || petri.arc[j].type == 3)
+						continue;
 					if (!exist_in(T1, petri.arc[j].source))//不在T1内
 					{
 						if (petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#")//不是执行弧
 						{
 							//不能是token不改变的库所
-							for (int k = 0; k < petri.p_num; k++)
+							/*for (int k = 0; k < petri.p_num; k++)
 							{
 								if (petri.place[k].name == P1[i])
-								{
+								{*/
 
 									//if (petri.place[k].controlP == true)
 									//{
@@ -214,10 +239,10 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 									/*for (unsigned int q = 0; q < v1.size(); q++)
 										P_read.push_back(v1[q]);*/
 									//}
-									break;
+							/*		break;
 								}
 
-							}
+							}*/
 						}
 					}
 				}
@@ -274,7 +299,7 @@ void post_process(C_Petri &petri, vector<string> change_P, vector<string> change
 		{
 			for (unsigned j = 0; j < change_Arc.size(); j++)
 			{
-				if (change_Arc[j].sourceP == false && change_Arc[j].target == change_P[i])
+				if (change_Arc[j].sourceP == false && change_Arc[j].target == change_P[i] && change_Arc[j].V == "executed")
 				{
 					flag = true;
 					break;
@@ -283,18 +308,23 @@ void post_process(C_Petri &petri, vector<string> change_P, vector<string> change
 			if (flag == false)
 			{
 				vector<string> temp_v = forward_exist_T(petri, change_T, change_P[i]);
-				bool flag = false;
+				bool flag1 = false;
 				for (unsigned int j = 0; j < temp_v.size(); j++)
 				{
 					Arc arc(temp_v[j], change_P[i], "executed", false);
+
+					//防止重复添加
 					for (int k = int(change_Arc.size() - 1); k >= 0; k--)
-						if (change_Arc[k].V=="executed" && change_Arc[k].source == arc.source && change_Arc[k].target == arc.target)
+						if (change_Arc[k].source == arc.source && change_Arc[k].target == arc.target)
 						{
-							flag = true;
+							flag1 = true;
 							break;
 						}
-					if (flag == false)
+					if (flag1 == false)
+					{
+						
 						change_Arc.push_back(arc);
+					}
 				}
 			}
 		}
@@ -337,6 +367,20 @@ void initial_changeAnalyse_cpn(C_Petri &petri1, C_Petri &petri, vector<string> c
 	{
 		cout << change_Arc[i].source << "------->" << change_Arc[i].target << endl;
 		petri1.arc.push_back(change_Arc[i]);
+	}
+
+	for (int i = 0; i < petri1.p_num; i++)
+	{
+		for (int j = 0; j < petri1.p_num - i - 1; j++)
+		{
+			if (petri1.place[j].id_num > petri1.place[j + 1].id_num)
+			{
+				Place tmp(petri1.place[j]);
+				//tmp = petri.place[j];
+				petri1.place[j] = petri1.place[j + 1];
+				petri1.place[j + 1] = tmp;
+			}
+		}
 	}
 }
 
@@ -390,6 +434,27 @@ string find_relateP(C_Petri petri, string transition)
 	return "";
 }
 
+void slice_pre_process(C_Petri petri, vector<string> &change_places)
+{
+	string fun_P;
+	vector<string> call_P;
+	vector<string> done;
+	for (unsigned int i = 0; i < change_places.size(); i++)
+	{
+		fun_P = petri.get_fun_P(change_places[i]);
+		if (fun_P == "")
+			continue;
+		if (exist_in(done, fun_P))
+			continue;
+		else
+			done.push_back(fun_P);
+		call_P = petri.get_call_P(fun_P);
+		if (call_P.size() == 0)
+			continue;
+		else
+			change_places.insert(change_places.end(), call_P.begin(), call_P.end());
+	}
+}
 
 //输入：petri网以及初始变化库所
 //返回：经过变化影响分析后的petri网
@@ -410,11 +475,11 @@ C_Petri changeAnalyse(C_Petri &petri, vector<string> change_places)
 
 	//change_T.insert(change_T.end(), formula_T.begin(), formula_T.end());
 
-
- 	back_forward_slicing(petri, change_places, change_P, change_T, change_Arc);
+	slice_pre_process(petri, change_places);
+	back_forward_slicing(petri, change_places, change_P, change_T, change_Arc);
 
 	post_process(petri, change_P, change_T, change_Arc);
-	sort_change(change_P, change_T);
+	//sort_change(change_P, change_T);
 	C_Petri petri1;
 	initial_changeAnalyse_cpn(petri1, petri, change_P, change_T, change_Arc);
 	return petri1;

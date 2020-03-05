@@ -196,6 +196,7 @@ gtree *replicate_tree(gtree *root)
 		newRoot->place = root->place;
 		newRoot->child = newChild;
 		newRoot->next = newNext;
+		
 		newRoot->contain_call = root->contain_call;
 		newRoot->contain_call_flag = root->contain_call_flag;
 	}
@@ -390,6 +391,7 @@ void change_call_enter(C_Petri &petri, vector<string> source, vector<string> tar
 
 string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 {
+
 	bool isfirst, islast, inside;
 	int position1 = add.first;
 	int position2 = add.second;
@@ -410,6 +412,10 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 	//gtree *first_statement2 = t2;
 	for (int i = 0; i < position2 - 1; i++)
 		t2 = t2->parent->next;
+
+	string current_P = find_P_name(petri, t1->place);
+	vector<string> current_T = petri.get_control_T(current_P);
+	int current = petri.get_current_P_num(current_T[0]);
 
 	if (position1 == 0)
 	{
@@ -477,7 +483,26 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 
 	//处理新语句的cpn构建
 	string new_place = get_gen_P();
-	ast_to_cpn(petri, newtree);//直接对statement进行建模
+	//string new_T = get_gen_T();
+
+	
+
+	ast_to_cpn(petri, newtree, current);//直接对statement进行建模
+
+	//按id_num冒泡排序
+	for (int i = 0; i < petri.p_num; i++)
+	{
+		for (int j = 0; j < petri.p_num - i - 1; j++)
+		{
+			if (petri.place[j].id_num > petri.place[j + 1].id_num)
+			{
+				Place tmp(petri.place[j]);
+				//tmp = petri.place[j];
+				petri.place[j] = petri.place[j + 1];
+				petri.place[j + 1] = tmp;
+			}
+		}
+	}
 
 	//这里处理函数调用语句新建的第一个库所不是语句的控制库所的问题
 	vector<string> temp_enter = petri.get_enter_P(new_place);
@@ -668,6 +693,10 @@ string operate_del(C_Petri &petri, Mapping m, pair<int, int> del)
 		else
 			next_tree = last_tree->parent->next;
 	}
+	if (next_tree != NULL && judge_expression_statement(next_tree))
+	{
+		next_tree = next_tree->parent->next;
+	}
 
 	string father_place;
 	if (father_tree->type == FUNCTION_DEFINITION)
@@ -834,7 +863,7 @@ string operate_add_declare(C_Petri &petri, Mapping m, pair<int, int> add)
 	//int position1 = add.first;
 	int position2 = add.second;
 	gtree *t2;
-
+	int current;
 	//t1 = m.map1;
 	//while (t1->type != DECLARATION)
 	//	t1 = t1->child;
@@ -844,11 +873,27 @@ string operate_add_declare(C_Petri &petri, Mapping m, pair<int, int> add)
 	t2 = m.map2;
 	while (t2->type != DECLARATION)
 		t2 = t2->child;
+	current = m.map1->record_P_num;
 	//gtree *first_statement2 = t2;
 	for (int i = 0; i < position2 - 1; i++)
 		t2 = t2->parent->next;
 	string new_place = get_gen_P();
-	ast_to_cpn(petri, t2);
+	ast_to_cpn(petri, t2, current);
+
+	//按id_num冒泡
+	for (int i = 0; i < petri.p_num; i++)
+	{
+		for (int j = 0; j < petri.p_num - i-1; j++)
+		{
+			if (petri.place[j].id_num > petri.place[j + 1].id_num)
+			{
+				Place tmp(petri.place[j]);
+				//tmp = petri.place[j];
+				petri.place[j] = petri.place[j + 1];
+				petri.place[j + 1] = tmp;
+			}
+		}
+	}
 	return new_place;
 }
 

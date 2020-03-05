@@ -472,7 +472,7 @@ void initial_changeAnalyse_cpn(C_Petri &petri1, C_Petri &petri, vector<string> c
 
 void create_CPN(C_Petri &petri, gtree *tree)
 {
-	ast_to_cpn(petri, tree);
+	ast_to_cpn(petri, tree, 0);
 
 	initializing(petri);
 }
@@ -636,14 +636,14 @@ int main()
 
 	string filename, new_filename;
 	get_names(origin_dirname + "*", filelist);
-	//compare("zero_sum1.c", "zero_sum1 - new.c");
-	for (unsigned int i = 0; i < filelist.size(); i++)
+	compare("bAnd_arctan_Pade1.c", "bAnd_arctan_Pade1 - new.c");
+	/*for (unsigned int i = 0; i < filelist.size(); i++)
 	{
 		new_filename = filelist[i];
 		filename = new_filename;
 		string_replace(filename, " - new", "");
 		compare(filename, new_filename);
-	}
+	}*/
 	//get_names(origin_dirname + "*", filelist);
 	//ifstream out;
 	//for (unsigned int i = 0; i < filelist.size(); i++)

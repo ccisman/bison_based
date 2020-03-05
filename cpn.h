@@ -26,7 +26,7 @@ public:
 	int sourceNum = 0;
 	int targetNum = 0;
 	bool sourceP;//false代表源节点是变迁
-
+	int type;//记录弧的类型，1代表只允许反向找,2代表正反都不允许,3代表只允许正向T->P,4代表只允许正向P->T，6代表while的回指弧
 //	int weight = 1;//记录弧上的权值
 
 	Arc(string s, string t, string v, bool s_P);
@@ -49,15 +49,19 @@ public:
 	int n_decimal;//decimal数量
 	bool controlP;//区分控制库所还是变量库所
 	bool ispoint;//表示是否为指针
+	//int current;//表示当前位置，用于区分作用域
 	vector<string> false_exit;
 
 	vector<string> enter;//标记开始变迁
 	vector<string> exit;//标记结尾变迁
 	vector<string> enter_P;//标记入口库所（包含函数调用的语句入口库所为()库所)
 	vector<string> control_T;//标记库所对应的控制变迁
+	vector<string> call_P;//函数begin库所中包含所有调用它的库所
+	string fun_P;//存放所在函数的begin库所
+	bool global;//全局变量标志
 //	vector<string> c_transition;//记录条件语句和循环语句的控制变迁
 
-	int call_flag;//用于一些特殊标记,1代表while语句条件内有函数调用
+	int call_flag;//用于一些特殊标记,1代表内有函数调用,2代表_v库所
 	vector<string> information;//while语句控制库所若有函数调用，存放_c和_()的库所名，用于循环
 	//bool call_last;//函数调用上一语句
 
@@ -152,6 +156,14 @@ public:
 	void set_control_T(string p_name, vector<string> control_T);
 	vector<string> get_control_T(string p_name);
 	void clear_enter(string p_name);
+	void set_arc_type(string source, string target, int type);
+	int get_arc_type(string source, string target);
+	void add_call_P(string p_name, string call_P);
+	vector<string> get_call_P(string p_name);
+	void set_fun_P(string p_name, string fun_P);
+	string get_fun_P(string p_name);
+	void set_global(string p_name);
+	bool get_global(string p_name);
 	void release();
 };
 
@@ -168,6 +180,6 @@ void SplitString(const string& s, vector<string>& v, const string& c);
 
 void splitExpression(string &s, vector<string>& v);
 
-void ast_to_cpn(C_Petri &petri, gtree *p);
+void ast_to_cpn(C_Petri &petri, gtree *p, int addition);//addition为0表示直接构建，其余表示程序变化时构建
 
 void reset_gen_cpn();

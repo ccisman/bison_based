@@ -87,6 +87,15 @@ bool judge_return_statement(gtree *statement1)
 	return false;
 }
 
+bool judge_expression_statement(gtree *statement1)
+{
+	if (statement1->type == STATEMENT && statement1->child->type == EXPRESSION_STATEMENT && statement1->child->child->type == EXPRESSION
+		&& statement1->child->child->child->type == ASSIGNMENT_EXPRESSION && statement1->child->child->child->child->type == CONDITIONAL_EXPRESSION
+		&& !judge_call_statement(statement1))
+		return true;
+	return false;
+}
+
 void TraverseTree2(gtree *p)//对表达式进行操作
 {
 	if (p == NULL)return;
@@ -223,27 +232,29 @@ void TraverseTree2(gtree *p)//对表达式进行操作
 	}
 	else if (p->type == STATEMENT)
 	{
-	if (p->child->type == SELECTION_STATEMENT || p->child->type == ITERATION_STATEMENT)
-		p->place = p->child->place;
-	else if (p->child->type == EXPRESSION_STATEMENT)
-	{
-		if (judge_assign_statement(p))
-			p->place = p->child->child->child->place;
-		else if (judge_call_statement(p))
+		if (p->child->type == SELECTION_STATEMENT || p->child->type == ITERATION_STATEMENT)
+			p->place = p->child->place;
+		else if (p->child->type == EXPRESSION_STATEMENT)
 		{
-			gtree *temp = p, *temp_postfix_expression = NULL;
-			while (temp->type != PRIMARY_EXPRESSION)
+			if (judge_assign_statement(p))
+				p->place = p->child->child->child->place;
+			else if (judge_call_statement(p))
 			{
-				if (temp->type == POSTFIX_EXPRESSION && temp_postfix_expression == NULL)
-					temp_postfix_expression = temp;
-				temp = temp->child;
+				gtree *temp = p, *temp_postfix_expression = NULL;
+				while (temp->type != PRIMARY_EXPRESSION)
+				{
+					if (temp->type == POSTFIX_EXPRESSION && temp_postfix_expression == NULL)
+						temp_postfix_expression = temp;
+					temp = temp->child;
+				}
+				p->place = temp->place + "_call";
+				temp_postfix_expression->place = temp->place + "_call";
 			}
-			p->place = temp->place + "_call";
-			temp_postfix_expression->place = temp->place + "_call";
+			else
+				p->place = p->child->child->child->place;
 		}
-	}
-	else if (p->child->type == JUMP_STATEMENT)
-		p->place = p->child->place;
+		else if (p->child->type == JUMP_STATEMENT)
+			p->place = p->child->place;
 	}
 	else if (p->type == INIT_DECLARATOR)
 	{
@@ -384,6 +395,13 @@ vector<AST_change> compare_AST(gtree *tree1, gtree *tree2)
 	{
 
 		if (M[i].map1->type == STATEMENT_LIST && M[i].map1->parent->type == STATEMENT_LIST)
+		{
+			Mapping temp_m;
+			temp_m.map1 = M[i].map1->child;
+			temp_m.map2 = M[i].map2->child;
+			M.push_back(temp_m);
+		}
+		if (M[i].map1->type == DECLARATION_LIST && M[i].map1->parent->type == DECLARATION_LIST)
 		{
 			Mapping temp_m;
 			temp_m.map1 = M[i].map1->child;

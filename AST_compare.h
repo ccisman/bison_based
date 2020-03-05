@@ -3,7 +3,7 @@
 #include"tree.h"
 #include"cpn.h"
 #include<vector>
-#define minHeight 13
+#define minHeight 4
 
 
 
