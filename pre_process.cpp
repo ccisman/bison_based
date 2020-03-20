@@ -222,60 +222,68 @@ void trans_some_function(string &s)
 	string err = "extern void __VERIFIER_error() __attribute__ ((__noreturn__));";
 	string err1 = "extern void __VERIFIER_error();";
 	string ass = "void __VERIFIER_assert(int cond) { if (!(cond)) { ERROR: __VERIFIER_error(); } return; }";
-	string ass1 = "void __VERIFIER_assert(int cond) {\n\
+	string ass1 = 
+		"void __VERIFIER_assert(int cond) {\n\
 		if (!(cond)) {\n\
-		ERROR: __VERIFIER_error();\n\
+			ERROR: __VERIFIER_error();\n\
 		}\n\
-	return;\n\
-}";
+		return;\n\
+		}";
 	
 	string assum = "extern void __VERIFIER_assume(int expression);";
 
-	string newassum="void __VERIFIER_assume(int expression)\n\
-{\n\
-	if (expression == 0)\n\
-	{\n\
-		__VERIFIER_error();\n\
-	}\n\
-}\n";
+	string newassum=
+		"void __VERIFIER_assume(int expression)\n\
+		{\n\
+			if (expression == 0)\n\
+			{\n\
+				__VERIFIER_error();\n\
+			}\n\
+		}\n";
 
-	string newerr = "void __VERIFIER_error()\n\
-{\n\
-	return;\n\
-}\n";
-	string newass = "void __VERIFIER_assert(int cond)\n\
-{\n\
-	if (cond == 0)\n\
-	{\n\
-		__VERIFIER_error();\n\
-	}\n\
-}\n";
+	string newerr = 
+		"void __VERIFIER_error()\n\
+		{\n\
+			return;\n\
+		}\n";
+	string newass = 
+		"void __VERIFIER_assert(int cond)\n\
+		{\n\
+			if (cond == 0)\n\
+			{\n\
+			__VERIFIER_error();\n\
+			}\n\
+		}\n";
 	
 	string nondet_int = "extern int __VERIFIER_nondet_int();";
-	string newnondet_int = "int __VERIFIER_nondet_int()\n\
-{\n\
-	nondet_num_int = nondet_num_int - 1;\n\
-	return nondet_num_int;\n\
-}\n";
+	string newnondet_int = 
+		"int __VERIFIER_nondet_int()\n\
+		{\n\
+			nondet_num_int = nondet_num_int - 1;\n\
+			return nondet_num_int;\n\
+		}\n";
 	string nondet_short = "extern short __VERIFIER_nondet_short();";
 	string nondet_short1 = "extern short __VERIFIER_nondet_short(void);";
-	string newnondet_short = "short __VERIFIER_nondet_short()\n\
-{\n\
-	nondet_num_short = nondet_num_short - 1;\n\
-	return nondet_num_short;\n\
-}\n";
+	string newnondet_short = 
+		"short __VERIFIER_nondet_short()\n\
+		{\n\
+			nondet_num_short = nondet_num_short - 1;\n\
+			return nondet_num_short;\n\
+		}\n";
 	string nondet_long = "extern long __VERIFIER_nondet_long();";
-	string newnondet_long = "long __VERIFIER_nondet_long()\n\
-{\n\
-	nondet_num_long = nondet_num_long - 1;\n\
-	return nondet_num_long;\n\
-}\n";
+	string newnondet_long = 
+		"long __VERIFIER_nondet_long()\n\
+		{\n\
+			nondet_num_long = nondet_num_long - 1;\n\
+			return nondet_num_long;\n\
+		}\n";
 	string nondet_double = "extern double __VERIFIER_nondet_double();";
-	string newnondet_double = "double __VERIFIER_nondet_double()\n\
-{\n\
-	nondet_num_double = nondet_num_double - 1;\n\
-	return nondet_num_double;\n\
-}\n";
+	string newnondet_double = 
+		"double __VERIFIER_nondet_double()\n\
+		{\n\
+			nondet_num_double = nondet_num_double - 1;\n\
+			return nondet_num_double;\n\
+		}\n";
 	string_replace(s, err, newerr);
 	string_replace(s, err1, newerr);
 	//string_replace(s, ass, newass);
@@ -288,12 +296,89 @@ void trans_some_function(string &s)
 	string_replace(s, nondet_double, newnondet_double);
 	if (s.find("int nondet_num_int") == string::npos&&s.find(newnondet_int) != string::npos)
 		s = "int nondet_num_int=101;\n" + s;
-	if (s.find("int nondet_num_short") == string::npos&&(s.find(newnondet_short) != string::npos||s.find(nondet_short1)))
+	if (s.find("int nondet_num_short") == string::npos && (s.find(newnondet_short) != string::npos || s.find(nondet_short1) != string::npos))
 		s = "int nondet_num_short=101;\n" + s;
 	if (s.find("int nondet_num_long") == string::npos&&s.find(newnondet_long) != string::npos)
 		s = "int nondet_num_long=101;\n" + s;
 	if (s.find("int nondet_num_double") == string::npos&&s.find(newnondet_double) != string::npos)
 		s = "int nondet_num_double=101;\n" + s;
+}
+
+bool trans_switch(string &s)
+{
+	regex pattern("switch *\\((.*?)\\)");
+	smatch result;
+	int position;
+	int sum_num = 0, sum = 0;
+	string text, res1;
+
+	if (regex_search(s, result, pattern)) {
+		position = result.position();
+		res1 = result[1];
+		//res2 = result[2];
+		//res3 = result[3];
+	}
+	else
+		return false;
+
+	for (unsigned int i = position; i < s.length(); i++)
+	{
+		if (sum_num > 0)
+			text = text + s[i];
+		if (s[i] == '{')
+			sum_num++;
+		else if (s[i] == '}')
+		{
+			sum_num--;
+			text = text.substr(0, text.size() - 1);
+			if (sum_num == 0)
+				break;
+		}
+
+		sum++;
+	}
+	vector<string> case_list;
+
+	regex pattern1("case +(.*?):");
+	smatch result1;
+	string temp_s = text;
+	while (regex_search(temp_s, result1, pattern1))
+	{
+		case_list.push_back(result1[1]);
+		temp_s = result1.suffix().str();
+	}
+	bool default_flag = false;
+	regex pattern2("default *:");
+	smatch result2;
+	string temp_s1 = text;
+	if (regex_search(temp_s1, result2, pattern2))
+	{
+		default_flag = true;
+	}
+
+	string newtext;
+	if (case_list.size() != 0)
+		newtext = "\tif(" + res1 + "==" + case_list[0] + ")\n\t" + "goto case" + case_list[0] + ";\n";
+	for (unsigned int i = 1; i < case_list.size(); i++)
+		newtext += "\telse if(" + res1 + "==" + case_list[i] + ")\n\t" + "goto case" + case_list[i] + ";\n";
+	if (default_flag == true)
+		newtext += "\telse\n\tgoto default1;\n";
+
+	newtext = "while(1){\n" + newtext + "\n" + text + "\nbreak;\n}\n";
+	string oldtext = s.substr(position, sum + 1);
+	string_replace(s, oldtext, newtext);
+	/*cout << oldtext << endl;
+	cout << newtext << endl;*/
+}
+
+void trans_switch_all(string &s)
+{
+	string oldtext, newtext;
+	while (1)
+	{
+		if (!trans_switch(s))
+			break;
+	}
 }
 
 void pre_process(string &s)
@@ -304,5 +389,6 @@ void pre_process(string &s)
 	trans_plusplus_all(s);
 	trans_some_function(s);
 	trans_assign(s);
-	//cout << s << endl;
+	trans_switch_all(s);
+	cout << s << endl;
 }

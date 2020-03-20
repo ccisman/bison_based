@@ -160,36 +160,6 @@ int string_replace(string &s1, const string &s2, const string &s3)//在s1中找到s2
 }
 
 
-//string find_first_yuju(gtree *p)
-//{
-//	if (p == NULL) return "";
-//	if (p->type == 语句)
-//		return p->child->place;
-//	string child = find_first_yuju(p->child);
-//	string next = find_first_yuju(p->next);
-//	if (child != "")
-//		return child;
-//	if (next != "")
-//		return next;
-//	return "";
-//}
-
-//gtree* search_call(gtree *p)
-//{
-//	if (p == NULL)
-//		return NULL;
-//	else if (p->type == 函数调用语句)
-//		return p;
-//	gtree* child = search_call(p->child);
-//	if (child != NULL)
-//		return child;
-//	gtree* next = search_call(p->next);
-//	if (next != NULL)
-//		return next;
-//	return NULL;
-//}
-
-
 
 
 int find_T_exist(vector<Transition> transition, string s)//找库所中是否有v_name等于s的，并且返回有几个
@@ -286,6 +256,7 @@ void intofile_tree(gtree *tree)
 	travel_tree(tree, out, list);
 	out << "}" << endl;
 	out.close();
+	
 }
 
 void intofile(C_Petri petri)
@@ -304,7 +275,7 @@ void intofile(C_Petri petri)
 			"[shape=circle, style=\"filled\",color=\"black\",fillcolor=\"" << fillcolor << "\"]}" << endl;
 		else
 		{
-			out << petri.place[i].name << "[shape=circle]" << endl;
+			out << petri.place[i].name << "[shape=circle," << "label=\"" << petri.place[i].v_name << "\"]" << endl;
 		}
 	}
 	//out << "-----------------------------------" << endl; 
@@ -473,7 +444,7 @@ void initial_changeAnalyse_cpn(C_Petri &petri1, C_Petri &petri, vector<string> c
 void create_CPN(C_Petri &petri, gtree *tree)
 {
 	ast_to_cpn(petri, tree, 0);
-
+	process_label(petri);
 	initializing(petri);
 }
 
@@ -625,18 +596,33 @@ void compare(string filename, string new_filename)
 
 int main()
 {
-	/*gtree *tree;
+	//gtree *tree;
+	//C_Petri petri;
+	//RG rg;
+	//tree = create_tree("simple//switch.txt", false);
+	////DirectBuild(tree, "just_finish.txt", petri, rg);
+	//intofile_tree(tree);
+	//makeGraph("tree.dot", "tree.png");
+
+
+
+	gtree *tree;
 	C_Petri petri;
+	tree = create_tree("simple.txt", true);
+	intofile_tree(tree);
+	makeGraph("tree.dot", "tree.png");
+	create_CPN(petri, tree);
+	output_CPN(petri, "output");
 	RG rg;
-	tree = create_tree("test.c", true);
-	DirectBuild(tree, "just_finish.txt", petri, rg);
-	intofile_tree(tree);*/
+	rg.init_RG(petri);
+	create_RG(rg);
+	print_RG(rg, "rg//simple.txt");
 
 	vector<string> filelist;
 
 	string filename, new_filename;
 	get_names(origin_dirname + "*", filelist);
-	compare("bAnd_arctan_Pade1.c", "bAnd_arctan_Pade1 - new.c");
+	compare("goto.txt", "goto - new.txt");
 	/*for (unsigned int i = 0; i < filelist.size(); i++)
 	{
 		new_filename = filelist[i];
@@ -652,31 +638,7 @@ int main()
 	//	cout << filelist[i] << endl;
 	//}
 
-	/*C_Petri petri;
-	gtree *tree1,*tree2;
-	vector<string> change_places;
-	tree1 = create_tree("a.txt");
-	tree2 = create_tree("b.txt");
-	vector<AST_change> changes;
-	create_CPN(petri, tree1);
-	output_CPN(petri, "output");
-	RG rg;
-	rg.init_RG(petri);
-	create_RG(rg);
-	print_RG(rg);
-	
-	changes = compare_AST(tree1, tree2);
-	change_places = evolution(petri, changes);
-	string main_begin = find_P_name(petri, "main begin");
-	change_places.push_back(main_begin);
 
-	C_Petri petri1;
-	petri1 = changeAnalyse(petri, change_places);
-	output_CPN(petri1, "output");
-	RG rg1;
-	rg1.init_RG(petri1);
-	create_RG(rg1);
-	print_RG(rg1);*/
 
 }
 

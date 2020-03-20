@@ -49,22 +49,22 @@ public:
 	int n_decimal;//decimal数量
 	bool controlP;//区分控制库所还是变量库所
 	bool ispoint;//表示是否为指针
+	bool is_goto;//标识是否为goto
+	string goto_label;//标识goto语句的label
 	//int current;//表示当前位置，用于区分作用域
-	vector<string> false_exit;
+	vector<string> false_exit;//循环语句假出口
 
 	vector<string> enter;//标记开始变迁
 	vector<string> exit;//标记结尾变迁
 	vector<string> enter_P;//标记入口库所（包含函数调用的语句入口库所为()库所)
 	vector<string> control_T;//标记库所对应的控制变迁
 	vector<string> call_P;//函数begin库所中包含所有调用它的库所
+	vector<string> label_after_P;//标签库所特有，记录上下文
 	string fun_P;//存放所在函数的begin库所
 	bool global;//全局变量标志
-//	vector<string> c_transition;//记录条件语句和循环语句的控制变迁
+	string pre_executed_P;
 
-	int call_flag;//用于一些特殊标记,1代表内有函数调用,2代表_v库所
-	vector<string> information;//while语句控制库所若有函数调用，存放_c和_()的库所名，用于循环
-	//bool call_last;//函数调用上一语句
-
+public:
 	Place(string n, string v_n, string colorset_t, bool c_P);
 	void set_Place_value(int num);
 	void set_Place_value(double decimal);
@@ -140,12 +140,6 @@ public:
 	vector<string> enable_T(); //返回网内所有可发生的变迁
 	vector<string> find_all_place(string t_name);//找变迁的所有前驱库所
 
-	int get_call_flag(string name);
-	void set_call_flag(string name, int flag);
-	vector<string> get_information(string name);
-	void Add_information(string name, string information);
-	//bool get_call_last(string name);
-	//void set_call_last(string name, bool call_last);
 	int get_current_P_num(string T);
 	void set_point_flag(string p_name);
 	bool get_point_flag(string p_name);
@@ -164,6 +158,10 @@ public:
 	string get_fun_P(string p_name);
 	void set_global(string p_name);
 	bool get_global(string p_name);
+	void set_pre_executed_P(string p_name, string pre_executed_P);
+	string get_pre_executed_P(string p_name);
+	void add_label_P(string p_name, string call_P);
+	vector<string> get_label_P(string p_name);
 	void release();
 };
 
@@ -183,3 +181,5 @@ void splitExpression(string &s, vector<string>& v);
 void ast_to_cpn(C_Petri &petri, gtree *p, int addition);//addition为0表示直接构建，其余表示程序变化时构建
 
 void reset_gen_cpn();
+
+void process_label(C_Petri &petri);

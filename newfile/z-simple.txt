@@ -1,0 +1,10 @@
+struct petri
+{
+int a;
+int b;
+char c;
+}p;
+
+int main(){
+return 0;
+}

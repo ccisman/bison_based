@@ -25,21 +25,14 @@ bool judge_while_P(C_Petri petri, string place)
 	exit(1);
 }
 
-//string create_sentence(string sentence1, int gen_if_num,int gen_while_num,int gen_break_num,int gen_fun_num,int gen_P_num)
-//{
-//	string place = "P" + to_string(gen_P_num);
-//	sentence1 = sentence1 + '#';
-//	gtree *temp_tree = create_tree(sentence1, 语句, gen_if_num, gen_while_num, gen_break_num, gen_fun_num);
-//	declaration(temp_tree, "");
 
-//	return place;
-//}
 
 void delete_last_executed(C_Petri &petri, string _P1)
 {
 	//	string _P1 = find_P_name(petri, v_name);
 	vector<string> v1 = petri.get_exit(_P1);
-	
+	if (v1.size() == 0)
+		return;
 	bool flag = false;
 	for (int i = 0; i < petri.arcnum; i++)
 	{
@@ -75,13 +68,16 @@ void delete_last_executed(C_Petri &petri, string _P1)
 	}
 }
 
+//内部语句前向弧构建，将P_last和P_next执行弧添加上，并返回执行库所名
 string add_executed(C_Petri &petri, string P_last, string P_next)
 {
+	vector<string> v1 = petri.get_exit(P_last);
+	if (v1.size() == 0)
+		return "";
+	
 	string P1 = gen_P();
 	petri.Add_Place(P1, "executedP", "", true, false, 0, 0, "", 0, false);
 	string P2 = P_next;
-	vector<string> v1 = petri.get_exit(P_last);
-
 	vector<string> v2 = petri.get_enter(P2);
 
 	for (unsigned int j = 0; j < v1.size(); j++)
@@ -96,10 +92,13 @@ string add_executed(C_Petri &petri, string P_last, string P_next)
 	return P1;
 }
 
+//外部语句前向弧构建，将P_last和P_next执行弧添加上
 void add_executed_1(C_Petri &petri, string P_last, string P_next)
 {
 
 	vector<string> v1 = petri.get_exit(P_last);
+	if (v1.size() == 0)
+		return;
 
 	//	vector<string> v2 = petri.get_enter(P2);
 	vector<string> enter_P = petri.get_enter_P(P_next);
@@ -234,6 +233,8 @@ void delete_all_arc()
 
 void back_executed(C_Petri &petri, vector<string> last_T, vector<string> new_place_exit)//将last_T的出口变迁对应的所有执行弧用new_place_exit的出口变迁代替
 {
+	if (last_T.size() == 0)
+		return;
 	for (int i = 0; i < petri.arcnum; i++)
 	{
 		if (petri.arc[i].V == "executed")
@@ -255,6 +256,8 @@ void back_executed(C_Petri &petri, vector<string> last_T, vector<string> new_pla
 
 void pre_executed_1(C_Petri &petri, vector<string> next_T, vector<string> new_place_enter)//将指向new_place_enter语句入口的所有执行弧删除，并指向下一条语句入口
 {
+	if (new_place_enter.size() == 0)
+		return;
 	for (int i = 0; i < petri.arcnum; i++)
 	{
 		if (petri.arc[i].V == "executed")
@@ -315,7 +318,7 @@ void change_exit(C_Petri &petri, string father_P, vector<string>last_T, vector<s
 void inside_add(C_Petri &petri, string father_place, gtree *father_tree, string new_place, gtree *newtree)//添加inside语句的特有弧
 {
 	vector<string> v = petri.get_enter(father_place);
-	int call_flag = petri.get_call_flag(new_place);
+	//int call_flag = petri.get_call_flag(new_place);
 	gtree *compound = newtree;
 	while (compound->type != COMPOUND_STATEMENT)
 		compound = compound->parent;
@@ -590,7 +593,7 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 				string executed_P = add_executed(petri, last_P, new_place);
 
 				//新增while语句要注意前向执行库所
-				if (newtree->child->type == ITERATION_STATEMENT)
+				if (newtree->child->type == ITERATION_STATEMENT && executed_P != "")
 				{
 					vector<string> new_exit = petri.get_exit(new_place);
 					for (unsigned int i = 0; i < new_exit.size() - 1; i++)

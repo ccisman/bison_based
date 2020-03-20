@@ -80,12 +80,36 @@ bool judge_call_statement(gtree *statement1)//判断statement1对应的是函数调用语句
 	return false;
 }
 
+bool judge_label_statement(gtree *statement1)//判断statement1对应的是标签语句
+{
+	if (statement1->type == STATEMENT && statement1->child->type == LABELED_STATEMENT)
+	{
+			return true;
+	}
+	return false;
+}
+
 bool judge_return_statement(gtree *statement1)
 {
 	if (statement1->type == STATEMENT && statement1->child->type == JUMP_STATEMENT && statement1->child->child->type == RETURN)
 		return true;
 	return false;
 }
+
+bool judge_goto_statement(gtree *statement1)
+{
+	if (statement1->type == STATEMENT && statement1->child->type == JUMP_STATEMENT && statement1->child->child->type == GOTO)
+		return true;
+	return false;
+}
+
+bool judge_break_statement(gtree *statement1)
+{
+	if (statement1->type == STATEMENT && statement1->child->type == JUMP_STATEMENT && statement1->child->child->type == BREAK)
+		return true;
+	return false;
+}
+
 
 bool judge_expression_statement(gtree *statement1)
 {
@@ -94,6 +118,16 @@ bool judge_expression_statement(gtree *statement1)
 		&& !judge_call_statement(statement1))
 		return true;
 	return false;
+}
+
+bool judge_inside_compound_statement(gtree *statement1)//
+{
+	gtree *temp = statement1;
+	while (temp && temp->type != COMPOUND_STATEMENT)
+		temp = temp->parent;
+	if (temp==NULL || temp->parent->type == FUNCTION_DEFINITION)
+		return false;
+	return true;
 }
 
 void TraverseTree2(gtree *p)//对表达式进行操作
@@ -108,7 +142,7 @@ void TraverseTree2(gtree *p)//对表达式进行操作
 		|| p->type == LOGICAL_OR_EXPRESSION || p->type == LOGICAL_AND_EXPRESSION || p->type == INCLUSIVE_OR_EXPRESSION || p->type == EXCLUSIVE_OR_EXPRESSION
 		|| p->type == AND_EXPRESSION || p->type == EQUALITY_EXPRESSION || p->type == RELATIONAL_EXPRESSION || p->type == SHIFT_EXPRESSION || p->type == ADDITIVE_EXPRESSION
 		|| p->type == MULTIPLICATIVE_EXPRESSION || p->type == CAST_EXPRESSION || (p->type == POSTFIX_EXPRESSION && !judge_call_postfix_expression(p)) || p->type == PRIMARY_EXPRESSION
-		|| p->type == UNARY_OPERATOR || p->type == DECLARATION_SPECIFIERS || p->type == ARGUMENT_EXPRESSION_LIST || p->type == ASSIGNMENT_OPERATOR)//内部变量声明place需要带有函数前缀
+		|| p->type == UNARY_OPERATOR || p->type == DECLARATION_SPECIFIERS || p->type == ARGUMENT_EXPRESSION_LIST || p->type == ASSIGNMENT_OPERATOR || p->type == CONSTANT_EXPRESSION)//内部变量声明place需要带有函数前缀
 	{
 		gtree *p1 = p->child;
 		string temp_place = "";
@@ -119,15 +153,6 @@ void TraverseTree2(gtree *p)//对表达式进行操作
 		}
 		p->place = temp_place;
 	}
-	/*else if (p->type == 函数调用语句)
-	{
-		if (p->parent->type != 语句)
-			p->place = p->child->place + "_v";
-		else
-		{
-			p->place = p->child->place + "_call";
-		}
-	}*/
 	else if (p->type == SELECTION_STATEMENT)
 	{
 		p->place = gen_sel();
@@ -139,6 +164,16 @@ void TraverseTree2(gtree *p)//对表达式进行操作
 	else if (p->type == JUMP_STATEMENT)
 	{
 		p->place = gen_jump();
+	}
+	else if (p->type == LABELED_STATEMENT)
+	{
+		gtree *p1 = p->child;
+		string temp_place = " ";
+		temp_place += p1->place;
+		if (p1->next->place != ":")
+			temp_place += p1->next->place;
+		p->place = temp_place;
+		p->parent->place = temp_place;
 	}
 	else if (p->type == STORAGE_CLASS_SPECIFIER)
 	{
@@ -293,10 +328,10 @@ void reset_gen_ast()
 	sort_num = 0;
 }
 
-gtree *&create_tree(string filename, bool flag)//flag为true代表需要预处理
+gtree *&create_tree(string filename, bool pre_process_flag)//flag为true代表需要预处理
 {
 	reset_gen_ast();
-	if (flag == true)
+	if (pre_process_flag == true)
 	{
 		//string filename = "a.txt";
 		string filename1 = "z-" + filename;
@@ -347,7 +382,7 @@ gtree *&create_tree(string filename, bool flag)//flag为true代表需要预处理
 	}
 	yyparse();
 	printtree(head);
-	if (flag == true)
+	//if (flag == true)
 		TraverseTree2(head);
 	TraverseTree3(head);
 	//Traverse(head);
@@ -366,27 +401,7 @@ void Traverse(gtree *p)//测试函数
 
 vector<AST_change> compare_AST(gtree *tree1, gtree *tree2)
 {
-	/*char content[MAX_LENGTH], content1[MAX_LENGTH];
-	ifstream fin;
-	fin.open(file1, ios::in);
-	if (!fin.is_open())
-	{
-		cout << "open failed!" << endl;
-	}
 
-	fin.read(content, MAX_LENGTH);
-	fin.close();
-
-	fin.open(file2, ios::in);
-	if (!fin.is_open())
-	{
-		cout << "open failed!" << endl;
-	}
-
-	fin.read(content1, MAX_LENGTH);
-	fin.close();*/
-
-	//reset_tree_num();
 
 
 	vector<Mapping> M;

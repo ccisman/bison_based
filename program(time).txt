@@ -1,100 +1,74 @@
+旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
+直接构建时间：1085
+变化影响分析时间：816
+
+旧文件：addsub_double_float_exact1.c	新文件：addsub_double_float_exact1 - new.c
+直接构建时间：1071
+变化影响分析时间：612
+
+旧文件：addsub_float_double_exact.c	新文件：addsub_float_double_exact - new.c
+直接构建时间：1112
+变化影响分析时间：633
+
+旧文件：arctan_Pade_bAnd.c	新文件：arctan_Pade_bAnd - new.c
+直接构建时间：189212
+变化影响分析时间：4929
+
+旧文件：bAnd2Or.c	新文件：bAnd2Or - new.c
+直接构建时间：67372
+变化影响分析时间：66593
+
+旧文件：bAndOr.c	新文件：bAndOr - new.c
+直接构建时间：324152
+变化影响分析时间：64349
+
+旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
+直接构建时间：141728
+变化影响分析时间：58216
+
+旧文件：bAnd_even.c	新文件：bAnd_even - new.c
+直接构建时间：103935
+变化影响分析时间：72768
+
 旧文件：bor_zero_sum.c	新文件：bor_zero_sum - new.c
-直接构建时间：383697
-变化影响分析时间：132504
-
-旧文件：bor_zero_sum1.c	新文件：bor_zero_sum1 - new.c
-直接构建时间：131604
-变化影响分析时间：40655
-
-旧文件：bor_zero_sum1.c	新文件：bor_zero_sum1 - new.c
-直接构建时间：132816
-变化影响分析时间：40479
-
-旧文件：bor_zero_sum1.c	新文件：bor_zero_sum1 - new.c
-直接构建时间：269182
-变化影响分析时间：40061
-
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-变化影响分析时间：668
-
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-变化影响分析时间：653
-
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-变化影响分析时间：661
-
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：1
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-变化影响分析时间：7928
+直接构建时间：353203
+旧文件：bor_zero_sum.c	新文件：bor_zero_sum - new.c
+直接构建时间：360151
+变化影响分析时间：123090
 
 旧文件：evenOdd.c	新文件：evenOdd - new.c
-直接构建时间：0
-变化影响分析时间：8144
+直接构建时间：22525
+变化影响分析时间：8479
 
-旧文件：evenOdd1.c	新文件：evenOdd1 - new.c
-直接构建时间：0
-变化影响分析时间：8002
+旧文件：even_bAnd.c	新文件：even_bAnd - new.c
+直接构建时间：132156
+变化影响分析时间：4684
+
+旧文件：Odd_even.c	新文件：Odd_even - new.c
+直接构建时间：22591
+变化影响分析时间：8328
+
+旧文件：zero_sum_bor.c	新文件：zero_sum_bor - new.c
+直接构建时间：259477
+变化影响分析时间：39021
 
 旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
 旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：0
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：0
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：0
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：1
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：0
-旧文件：bAnd_arctan_Pade1.c	新文件：bAnd_arctan_Pade1 - new.c
-直接构建时间：205099
-变化影响分析时间：4149
+旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
+直接构建时间：64245
+变化影响分析时间：32985
+
+旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
+旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
+直接构建时间：160049
+变化影响分析时间：72715
+
+旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
+直接构建时间：155382
+变化影响分析时间：67318
+
+旧文件：goto.c	新文件：goto - new.c
+旧文件：goto.txt	新文件：goto - new.txt
+直接构建时间：385
+变化影响分析时间：43047
 

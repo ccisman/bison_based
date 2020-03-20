@@ -1,4 +1,5 @@
 int nondet_num_short=101;
+int nondet_num_int=101;
 
 void __VERIFIER_error()
 {
@@ -13,17 +14,23 @@ short __VERIFIER_nondet_short()
 	return nondet_num_short;
 }
 
+int __VERIFIER_nondet_int()
+{
+	nondet_num_int = nondet_num_int - 1;
+	return nondet_num_int;
+}
+
 
 short SIZE;
 
-int bor (int x[10])
+int bor (int x[100])
 {
   int i;
   long long res;
   res = x[0];
   if(1>0){
 i = 1;
-while( i < 10){
+while( i < 100){
     res = res | x[i];
    i;i=i+1;
 }
@@ -33,7 +40,7 @@ while( i < 10){
 
 int main()
 {
-	int x[10];
+	int x[100];
 	int temp;
 	int ret;
 	int ret2;
@@ -74,8 +81,8 @@ while( i < SIZE){
 	
   if(1>0){
 int i = 0;
-while( i < 10){
-     x[i] = __VERIFIER_nondet_short();
+while( i < 100){
+     x[i] = __VERIFIER_nondet_int();
    i;i=i+1;
 }
 }
@@ -87,12 +94,12 @@ while( i < 10){
   temp=x[0];
   if(1>0){
 int i =0 ;
-while( i<10-1){
+while( i<100-1){
      x[i] = x[i+1];
    i;i=i+1;
 }
 }
-  x[10-1] = temp;
+  x[100-1] = temp;
   ret5 = bor(x);
 
   if(ret != ret2 || ret !=ret5){ 

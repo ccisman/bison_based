@@ -49,7 +49,7 @@ int main(void) {
   
   unsigned int y = 0;
   while (__VERIFIER_nondet_short()) {
-    y =y + 2;
+    y =y + 3;
   }
   __VERIFIER_assert(!(x % 2));
   
@@ -74,9 +74,9 @@ while( i<100-1){
 }
 }
   x[100-1] = temp;
-  
+  ret5 = bAnd(x);
 
-  if(ret != ret2 ){ 
+  if(ret != ret2 || ret !=ret5){ 
     __VERIFIER_error();
   }
 

@@ -18,7 +18,7 @@ using namespace std;
 //};
 
 static string dirname = ".\\rg\\";
-static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\combine_test\\";
+static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\test7\\";
 static string newfile_dirname = ".\\newfile\\";
 
 class gtree
@@ -37,8 +37,19 @@ public:
 	string contain_call;//存放包含的函数调用语句V_name
 	bool contain_call_flag;
 	int record_P_num;
+	string label_P;//记录前向的label库所，用于goto语句的连接
 
-
+	gtree()
+	{
+		num = -1;
+		place = "";
+		next = child = parent = NULL;
+		type = -1;
+		contain_call = "";
+		contain_call_flag = false;
+		record_P_num = 0;
+		label_P = "";
+	}
 	void init(int root);//初始化
 	void expand(int num, gtree *t, int sum);
 	void cnode(int syn, int syn_1, gtree *t);
@@ -58,5 +69,9 @@ bool judge_assign_statement(gtree *statement1);
 bool judge_call_postfix_expression(gtree *postfix_expression);
 bool judge_call_statement(gtree *statement1);
 bool judge_return_statement(gtree *statement1);
+bool judge_goto_statement(gtree *statement1);
+bool judge_break_statement(gtree *statement1);
 bool judge_expression_statement(gtree *statement1);
+bool judge_label_statement(gtree *statement1);
 void pre_process(string &s);
+bool judge_inside_compound_statement(gtree *statement1);

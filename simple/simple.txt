@@ -1,0 +1,15 @@
+int x=0;
+int y=0;
+int z=1;
+int main(){
+x=1;
+y=2;
+switch(x)
+{
+case 1:x=2;
+	break;
+default:x=4;
+	break;
+}
+return 0;
+}
