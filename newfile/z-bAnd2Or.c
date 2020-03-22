@@ -1,16 +1,15 @@
-int nondet_num_short=101;
 int nondet_num_int=101;
 
 void __VERIFIER_error()
-{
-	return;
-}
+		{
+			return;
+		}
 
 int __VERIFIER_nondet_int()
-{
-	nondet_num_int = nondet_num_int - 1;
-	return nondet_num_int;
-}
+		{
+			nondet_num_int = nondet_num_int - 1;
+			return nondet_num_int;
+		}
 
 
 int bAnd (int x[100])

@@ -1,10 +1,9 @@
 int nondet_num_double=101;
-int nondet_num_short=101;
 int nondet_num_int=101;
 void __VERIFIER_error()
-{
-	return;
-}
+		{
+			return;
+		}
 
 /* Example from "Towards an industrial use of FLUCTUAT on safety-critical 
    avionics software" by Delmas, Goubault, Putot, Souryis, Tekkal,
@@ -15,26 +14,26 @@ void __VERIFIER_error()
 
 
 double __VERIFIER_nondet_double()
-{
-	nondet_num_double = nondet_num_double - 1;
-	return nondet_num_double;
-}
+		{
+			nondet_num_double = nondet_num_double - 1;
+			return nondet_num_double;
+		}
 
 void __VERIFIER_assume(int expression)
-{
-	if (expression == 0)
-	{
-		__VERIFIER_error();
-	}
-}
+		{
+			if (expression == 0)
+			{
+				__VERIFIER_error();
+			}
+		}
 
 void __VERIFIER_assert(int cond) { if (!(cond)) {  __VERIFIER_error(); } return; }
 
 int __VERIFIER_nondet_int()
-{
-	nondet_num_int = nondet_num_int - 1;
-	return nondet_num_int;
-}
+		{
+			nondet_num_int = nondet_num_int - 1;
+			return nondet_num_int;
+		}
 
 
 const double Pi=3.141592653589793238;

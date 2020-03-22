@@ -1,8 +1,7 @@
-int nondet_num_short=101;
 void __VERIFIER_error()
-{
-	return;
-}
+		{
+			return;
+		}
 
 /* Rounding addition and subtraction in single-precision floats. */
 

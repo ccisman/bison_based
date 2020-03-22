@@ -1373,6 +1373,14 @@ void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä
 			vector<string> enter_P = petri.get_enter_P(_P);
 			bool sourceP = false;
 
+			if (enter_P.size() == 0)
+			{
+				if (tr->parent->next->type == STATEMENT)
+					tr = tr->parent->next;
+				else
+					break;
+				continue;
+			}
 			for (unsigned int i = 0; i < enter_P.size(); i++)
 				petri.Add_Arc(T, enter_P[i], V, sourceP);
 			if (enter_P[0] != _P)

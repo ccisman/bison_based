@@ -606,7 +606,7 @@ int main()
 
 
 
-	gtree *tree;
+	/*gtree *tree;
 	C_Petri petri;
 	tree = create_tree("simple.txt", true);
 	intofile_tree(tree);
@@ -616,20 +616,20 @@ int main()
 	RG rg;
 	rg.init_RG(petri);
 	create_RG(rg);
-	print_RG(rg, "rg//simple.txt");
+	print_RG(rg, "rg//simple.txt");*/
 
 	vector<string> filelist;
 
 	string filename, new_filename;
 	get_names(origin_dirname + "*", filelist);
-	compare("goto.txt", "goto - new.txt");
-	/*for (unsigned int i = 0; i < filelist.size(); i++)
+	//compare("goto.txt", "goto - new.txt");
+	for (unsigned int i = 0; i < filelist.size(); i++)
 	{
 		new_filename = filelist[i];
 		filename = new_filename;
 		string_replace(filename, " - new", "");
 		compare(filename, new_filename);
-	}*/
+	}
 	//get_names(origin_dirname + "*", filelist);
 	//ifstream out;
 	//for (unsigned int i = 0; i < filelist.size(); i++)

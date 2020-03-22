@@ -2,23 +2,23 @@ int nondet_num_short=101;
 int nondet_num_int=101;
 
 void __VERIFIER_error()
-{
-	return;
-}
+		{
+			return;
+		}
 
 extern void __VERIFIER_assume(int);
 void __VERIFIER_assert(int cond) { if(!(cond)) {  __VERIFIER_error(); } }
 short __VERIFIER_nondet_short()
-{
-	nondet_num_short = nondet_num_short - 1;
-	return nondet_num_short;
-}
+		{
+			nondet_num_short = nondet_num_short - 1;
+			return nondet_num_short;
+		}
 
 int __VERIFIER_nondet_int()
-{
-	nondet_num_int = nondet_num_int - 1;
-	return nondet_num_int;
-}
+		{
+			nondet_num_int = nondet_num_int - 1;
+			return nondet_num_int;
+		}
 
 
 short SIZE;
