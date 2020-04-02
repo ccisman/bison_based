@@ -72,7 +72,7 @@
 //#line 1 "hello.y"
 
 #include<iostream>
-#define YYSTYPE struct gtree*
+#define YYSTYPE class gtree*
 #include "tree.h"
 #include <stdio.h>
 
@@ -81,136 +81,9 @@ void insert(gtree *parent, gtree *child);
 gtree* newNode(std::string s, int type);
 extern int yylex();//这行yylex是改为C++之后加上的
 int yyerror(char *s);
+void type_add(gtree *p);
 
-enum item1 {
-	PRIMARY_EXPRESSION = 400, 
-	POSTFIX_EXPRESSION,
-	ARGUMENT_EXPRESSION_LIST,
-	UNARY_EXPRESSION,
-	UNARY_OPERATOR,
-	CAST_EXPRESSION,
-	MULTIPLICATIVE_EXPRESSION,
-	ADDITIVE_EXPRESSION,
-	SHIFT_EXPRESSION,
-	RELATIONAL_EXPRESSION,
-	EQUALITY_EXPRESSION,
-	AND_EXPRESSION,
-	EXCLUSIVE_OR_EXPRESSION,
-	INCLUSIVE_OR_EXPRESSION,
-	LOGICAL_AND_EXPRESSION,
-	LOGICAL_OR_EXPRESSION,
-	CONDITIONAL_EXPRESSION,
-	ASSIGNMENT_EXPRESSION,
-	ASSIGNMENT_OPERATOR,
-	EXPRESSION,
-	CONSTANT_EXPRESSION,
-	DECLARATION,
-	DECLARATION_SPECIFIERS,
-	INIT_DECLARATOR_LIST,
-	INIT_DECLARATOR,
-	STORAGE_CLASS_SPECIFIER,
-	TYPE_SPECIFIER,
-	STRUCT_OR_UNION_SPECIFIER,
-	STRUCT_OR_UNION,
-	STRUCT_DECLARATION_LIST,
-	STRUCT_DECLARATION,
-	SPECIFIER_QUALIFIER_LIST,
-	STRUCT_DECLARATOR_LIST,
-	STRUCT_DECLARATOR,
-	ENUM_SPECIFIER,
-	ENUMERATOR_LIST,
-	ENUMERATOR,
-	TYPE_QUALIFIER,
-	DECLARATOR,
-	DIRECT_DECLARATOR,
-	POINTER,
-	TYPE_QUALIFIER_LIST,
-	PARAMETER_TYPE_LIST,
-	PARAMETER_LIST,
-	PARAMETER_DECLARATION,
-	IDENTIFIER_LIST,
-	TYPE_NAME,
-	ABSTRACT_DECLARATOR,
-	DIRECT_ABSTRACT_DECLARATOR,
-	INITIALIZER,
-	INITIALIZER_LIST,
-	STATEMENT,
-	LABELED_STATEMENT,
-	COMPOUND_STATEMENT,
-	DECLARATION_LIST,
-	STATEMENT_LIST,
-	EXPRESSION_STATEMENT,
-	SELECTION_STATEMENT,
-	ITERATION_STATEMENT,
-	JUMP_STATEMENT,
-	TRANSLATION_UNIT,
-	EXTERNAL_DECLARATION,
-	FUNCTION_DEFINITION
-};
 
-#define PRIMARY_EXPRESSION 400
-#define POSTFIX_EXPRESSION 401
-#define ARGUMENT_EXPRESSION_LIST 402
-#define UNARY_EXPRESSION 403
-#define UNARY_OPERATOR 404
-#define CAST_EXPRESSION 405
-#define MULTIPLICATIVE_EXPRESSION 406
-#define ADDITIVE_EXPRESSION 407
-#define SHIFT_EXPRESSION 408
-#define RELATIONAL_EXPRESSION 409
-#define EQUALITY_EXPRESSION 410
-#define AND_EXPRESSION 411
-#define EXCLUSIVE_OR_EXPRESSION 412
-#define INCLUSIVE_OR_EXPRESSION 413
-#define LOGICAL_AND_EXPRESSION 414
-#define LOGICAL_OR_EXPRESSION 415
-#define CONDITIONAL_EXPRESSION 416
-#define ASSIGNMENT_EXPRESSION 417
-#define ASSIGNMENT_OPERATOR 418
-#define EXPRESSION 419
-#define CONSTANT_EXPRESSION 420
-#define DECLARATION 421
-#define DECLARATION_SPECIFIERS 422
-#define INIT_DECLARATOR_LIST 423
-#define INIT_DECLARATOR 424
-#define STORAGE_CLASS_SPECIFIER 425
-#define TYPE_SPECIFIER 426
-#define STRUCT_OR_UNION_SPECIFIER 427
-#define STRUCT_OR_UNION 428
-#define STRUCT_DECLARATION_LIST 429
-#define STRUCT_DECLARATION 430
-#define SPECIFIER_QUALIFIER_LIST 431
-#define STRUCT_DECLARATOR_LIST 432
-#define STRUCT_DECLARATOR 433
-#define ENUM_SPECIFIER 434
-#define ENUMERATOR_LIST 435
-#define ENUMERATOR 436
-#define TYPE_QUALIFIER 437
-#define DECLARATOR 438
-#define DIRECT_DECLARATOR 439
-#define POINTER 440
-#define TYPE_QUALIFIER_LIST 441
-#define PARAMETER_TYPE_LIST 442
-#define PARAMETER_LIST 443
-#define PARAMETER_DECLARATION 444
-#define IDENTIFIER_LIST 445
-#define TYPE_NAME 446
-#define ABSTRACT_DECLARATOR 447
-#define DIRECT_ABSTRACT_DECLARATOR 448
-#define INITIALIZER 449
-#define INITIALIZER_LIST 450
-#define STATEMENT 451
-#define LABELED_STATEMENT 452
-#define COMPOUND_STATEMENT 453
-#define DECLARATION_LIST 454
-#define STATEMENT_LIST 455
-#define EXPRESSION_STATEMENT 456
-#define SELECTION_STATEMENT 457
-#define ITERATION_STATEMENT 458
-#define JUMP_STATEMENT 459
-#define TRANSLATION_UNIT 460
-#define EXTERNAL_DECLARATION 461
-#define FUNCTION_DEFINITION 462
 /* Line 189 of yacc.c  */
 //#line 85 "y.tab.cpp"
 
@@ -326,7 +199,7 @@ enum yytokentype {
 #define AND_ASSIGN 280
 #define XOR_ASSIGN 281
 #define OR_ASSIGN 282
-//#define TYPE_NAME 283
+#define TYPE_NAME 283
 #define TYPEDEF 284
 #define EXTERN 285
 #define STATIC 286
@@ -362,7 +235,69 @@ enum yytokentype {
 #define REMAIN 316
 
 
-
+#define PRIMARY_EXPRESSION 400
+#define POSTFIX_EXPRESSION 401
+#define ARGUMENT_EXPRESSION_LIST 402
+#define UNARY_EXPRESSION 403
+#define UNARY_OPERATOR 404
+#define CAST_EXPRESSION 405
+#define MULTIPLICATIVE_EXPRESSION 406
+#define ADDITIVE_EXPRESSION 407
+#define SHIFT_EXPRESSION 408
+#define RELATIONAL_EXPRESSION 409
+#define EQUALITY_EXPRESSION 410
+#define AND_EXPRESSION 411
+#define EXCLUSIVE_OR_EXPRESSION 412
+#define INCLUSIVE_OR_EXPRESSION 413
+#define LOGICAL_AND_EXPRESSION 414
+#define LOGICAL_OR_EXPRESSION 415
+#define CONDITIONAL_EXPRESSION 416
+#define ASSIGNMENT_EXPRESSION 417
+#define ASSIGNMENT_OPERATOR 418
+#define EXPRESSION 419
+#define CONSTANT_EXPRESSION 420
+#define DECLARATION 421
+#define DECLARATION_SPECIFIERS 422
+#define INIT_DECLARATOR_LIST 423
+#define INIT_DECLARATOR 424
+#define STORAGE_CLASS_SPECIFIER 425
+#define TYPE_SPECIFIER 426
+#define STRUCT_OR_UNION_SPECIFIER 427
+#define STRUCT_OR_UNION 428
+#define STRUCT_DECLARATION_LIST 429
+#define STRUCT_DECLARATION 430
+#define SPECIFIER_QUALIFIER_LIST 431
+#define STRUCT_DECLARATOR_LIST 432
+#define STRUCT_DECLARATOR 433
+#define ENUM_SPECIFIER 434
+#define ENUMERATOR_LIST 435
+#define ENUMERATOR 436
+#define TYPE_QUALIFIER 437
+#define DECLARATOR 438
+#define DIRECT_DECLARATOR 439
+#define POINTER 440
+#define TYPE_QUALIFIER_LIST 441
+#define PARAMETER_TYPE_LIST 442
+#define PARAMETER_LIST 443
+#define PARAMETER_DECLARATION 444
+#define IDENTIFIER_LIST 445
+#define type_name 446
+#define ABSTRACT_DECLARATOR 447
+#define DIRECT_ABSTRACT_DECLARATOR 448
+#define INITIALIZER 449
+#define INITIALIZER_LIST 450
+#define STATEMENT 451
+#define LABELED_STATEMENT 452
+#define COMPOUND_STATEMENT 453
+#define DECLARATION_LIST 454
+#define STATEMENT_LIST 455
+#define EXPRESSION_STATEMENT 456
+#define SELECTION_STATEMENT 457
+#define ITERATION_STATEMENT 458
+#define JUMP_STATEMENT 459
+#define TRANSLATION_UNIT 460
+#define EXTERNAL_DECLARATION 461
+#define FUNCTION_DEFINITION 462
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef int YYSTYPE;
@@ -376,7 +311,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 247 "y.tab.cpp"
+//#line 247 "y.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1818,7 +1753,7 @@ YYSTYPE *yyvaluep;
 
 	switch (yytype)
 	{
-
+	case 1:
 	default:
 		break;
 	}
@@ -2874,7 +2809,8 @@ yyreduce:
 	insert(p, (yyvsp[(1) - (3)]));
 	insert(p, (yyvsp[(2) - (3)]));
 	insert(p, (yyvsp[(3) - (3)]));
-	(yyval) = p; }
+	(yyval) = p; 
+	type_add(p); }
 	break;
 
 	case 78:
@@ -3652,7 +3588,7 @@ yyreduce:
 	{p = newNode("type_name", TYPE_NAME);
 	insert(p, (yyvsp[(1) - (2)]));
 	insert(p, (yyvsp[(2) - (2)]));
-	(yyval) = p; }
+	(yyval) = p;}
 	break;
 
 	case 157:
@@ -4472,7 +4408,6 @@ yyabortlab:
 /* Line 1675 of yacc.c  */
 //#line 1091 "hello.y"
 
-#include <stdio.h>
 
 
 extern char yytext[];
@@ -4488,12 +4423,16 @@ int yyerror(char *s)
 }
 
 extern FILE *yyin;
+#include<vector>
+#include"y.tab.h"
 
-void insert(struct gtree *parent, struct gtree *child)
+
+void insert(gtree *parent, gtree *child)
 {
-	struct gtree *p;
+	gtree *p;
 	if (child == NULL)
 		return;
+
 	if (parent->No_Child == 0)
 	{
 		parent->child = child;
@@ -4513,7 +4452,7 @@ void insert(struct gtree *parent, struct gtree *child)
 	}
 }
 
-void printtree(struct gtree* t)
+void printtree(gtree* t)
 {
 	if (t == NULL)
 		return;
@@ -4522,16 +4461,51 @@ void printtree(struct gtree* t)
 	printtree(t->next);
 }
 
-/*int main()
+void type_add(gtree *p)
 {
-	FILE *fp = fopen("a.txt", "r");
-	if (fp)
-		yyin = fp;
+	gtree *type_specifier = p->child->child;
+	
+	if (type_specifier->type != STORAGE_CLASS_SPECIFIER)
+		return;
+	if (type_specifier->child->type != TYPEDEF)
+		return;
 
-	yyparse();
+	gtree *init_declarator_list = p->child->next;
+	if (init_declarator_list->type != INIT_DECLARATOR_LIST)
+		return;
 
-	//printf("first:%s",head->child->place);
-	printtree(head);
-	getchar();
-	return 1;
-}*/
+	string origin_name;
+	
+	type_specifier = type_specifier->next->child;
+	while (type_specifier->type != TYPE_SPECIFIER)
+		type_specifier = type_specifier->next->child;
+
+	if (type_specifier->child->type != STRUCT_OR_UNION_SPECIFIER && type_specifier->child->type != ENUM_SPECIFIER)
+		origin_name = type_specifier->child->place;
+	else
+	{
+		if (type_specifier->child->child->next->type == IDENTIFIER)
+			origin_name =type_specifier->child->child->next->place;
+		else
+			return;
+	}
+	gtree *init_declarator;
+	aka temp;
+	while (init_declarator_list->type == INIT_DECLARATOR_LIST)
+	{
+		if (init_declarator_list->child->type == INIT_DECLARATOR)
+			init_declarator = init_declarator_list->child;
+		else
+			init_declarator = init_declarator_list->child->next->next;
+
+		//pointer不考虑因为别名不能是指针
+		while (init_declarator->type != IDENTIFIER)
+			init_declarator = init_declarator->child;
+		temp.origin_name = origin_name;
+		temp.aka_name = init_declarator->place;
+		temp.level = now_level;
+		type_array.push_back(temp);
+
+		init_declarator_list = init_declarator_list->child;
+	}
+}

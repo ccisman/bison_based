@@ -22,6 +22,7 @@ using namespace std;
 
 int sort_num = 0;
 int gen_sel_num, gen_iter_num, gen_jump_num, gen_fun_num;
+vector<aka> type_array;//±ğÃû±í
 
 string gen_sel()
 {

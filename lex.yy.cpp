@@ -2188,24 +2188,26 @@ void count()
 
 int check_type()
 {
-	/*
-	* pseudo code --- this is what it should check
-	*
-	*	if (yytext == type_name)
-	*		return(TYPE_NAME);
-	*
-	*	return(IDENTIFIER);
-	*/
+	
+	//* pseudo code --- this is what it should check
+	for (unsigned int i = 0; i < type_array.size(); i++)
+		if (yytext == type_array[i].aka_name)
+			return(TYPE_NAME);
+	return(IDENTIFIER);
+	
 
 	/*
 	*	it actually will only return IDENTIFIER
 	*/
 
-	return(IDENTIFIER);
+	//return(IDENTIFIER);
 }
+
+int now_level = 1;
 
 gtree* newNode(std::string node_name, int type)
 {
+	
 	gtree *p = new gtree;
 	if (p == NULL)
 	{
@@ -2221,5 +2223,19 @@ gtree* newNode(std::string node_name, int type)
 	p->next = NULL;
 	p->parent = NULL;
 	p->type = type;
+	if (node_name == "{")
+		now_level++;
+	else if (node_name == "}")
+	{
+		for (int i = int(type_array.size() - 1); i >= 0; i--)
+		{
+			if (type_array[i].level == now_level)
+				type_array.pop_back();
+			else
+				break;
+		}
+		now_level--;
+	}
+
 	return p;
 }

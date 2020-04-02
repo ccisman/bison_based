@@ -3,8 +3,17 @@ struct petri
 int a;
 int b;
 char c;
-}p;
+};
+
+int fun()
+{
+typedef struct petri pet;
+pet p1;
+}
 
 int main(){
+
+int pet;
+
 return 0;
 }

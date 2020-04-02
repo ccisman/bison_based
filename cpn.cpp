@@ -1818,23 +1818,30 @@ void process_declarator(gtree *declarator, C_Petri &petri, string tag, string ba
 
 void process_declaration(gtree *declaration, C_Petri &petri, string base,int current)
 {
-	if (declaration->child->next->type != INIT_DECLARATOR_LIST)
+	/*if (declaration->child->next->type != INIT_DECLARATOR_LIST)
 	{
 		cout << "空定义，只有类型没有变量名!" << endl;
 		exit(1);
-	}
+	}*/
 	gtree *init_declarator = declaration->child->next;
-	tag = declaration->child->place;
-	while (init_declarator->type != INIT_DECLARATOR)
-		init_declarator = init_declarator->child;
-
-	process_declarator(init_declarator->child, petri, tag, base, false, current);
-	gtree *temp;
-	while (init_declarator->parent->next != NULL && init_declarator->parent->next->type == REMAIN && init_declarator->parent->next->place == ",")
+	if (declaration->child->type == STORAGE_CLASS_SPECIFIER)
 	{
-		init_declarator = init_declarator->parent;
-		temp = init_declarator->next->next;
-		process_declarator(temp->child, petri, tag, base, false, current);
+
+	}
+	else
+	{
+		tag = declaration->child->place;
+		while (init_declarator->type != INIT_DECLARATOR)
+			init_declarator = init_declarator->child;
+
+		process_declarator(init_declarator->child, petri, tag, base, false, current);
+		gtree *temp;
+		while (init_declarator->parent->next != NULL && init_declarator->parent->next->type == REMAIN && init_declarator->parent->next->place == ",")
+		{
+			init_declarator = init_declarator->parent;
+			temp = init_declarator->next->next;
+			process_declarator(temp->child, petri, tag, base, false, current);
+		}
 	}
 }
 

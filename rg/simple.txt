@@ -1,45 +1,12 @@
-可达图节点共有14个
+可达图节点共有3个
 如下所示
 
 0
-(x,1,0 )    (y,1,0 )    (z,1,1 )    (main begin,1,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,0,)    (x=2,0,)    (jump2,0,)    ( default,0,)    (x=4,0,)    (jump3,0,)    (jump4,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
+(p,1,)    (main begin,1,)    (main end,0,)    (main_v,1,-842150451 )    (jump0,0,)    
 后继节点:1    经过变迁:T0    
 1
-(x,1,0 )    (y,1,0 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,1,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,0,)    (x=2,0,)    (jump2,0,)    ( default,0,)    (x=4,0,)    (jump3,0,)    (jump4,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
+(p,1,)    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (jump0,1,)    
 后继节点:2    经过变迁:T1    
 2
-(x,1,1 )    (y,1,0 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,1,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,0,)    (x=2,0,)    (jump2,0,)    ( default,0,)    (x=4,0,)    (jump3,0,)    (jump4,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:3    经过变迁:T2    
-3
-(x,1,1 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,1,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,0,)    (x=2,0,)    (jump2,0,)    ( default,0,)    (x=4,0,)    (jump3,0,)    (jump4,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:4    经过变迁:T3    
-4
-(x,1,1 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,1,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,1,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:5    经过变迁:T6    
-5
-(x,1,1 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,1,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,1,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:6    经过变迁:T8    
-6
-(x,1,1 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,2,)    (x=2,0,)    (jump2,2,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:7    经过变迁:T10    
-7
-(x,1,1 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,1,)    (jump2,2,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:8    经过变迁:T11    
-8
-(x,1,2 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,2,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:9    经过变迁:T12    
-9
-(x,1,2 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,1,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
-后继节点:10    经过变迁:T5    
-10
-(x,1,2 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,1,)    (y=3,0,)    (jump5,0,)    
-后继节点:11    经过变迁:T17    
-11
-(x,1,2 )    (y,1,2 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,1,)    (jump5,0,)    
-后继节点:12    经过变迁:T19    
-12
-(x,1,2 )    (y,1,3 )    (z,1,1 )    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,1,)    
-后继节点:13    经过变迁:T20    
-13
-(x,1,2 )    (y,1,3 )    (z,1,1 )    (main begin,0,)    (main end,1,)    (main_v,1,0 )    (x=1,0,)    (y=2,0,)    (iter0,0,)    (iter0 end,0,)    (sel0,0,)    (jump0,0,)    (jump1,0,)    ( case1,1,)    (x=2,0,)    (jump2,1,)    ( default,2,)    (x=4,0,)    (jump3,1,)    (jump4,1,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (executedP,0,)    (sel1,0,)    (y=3,0,)    (jump5,0,)    
+(p,1,)    (main begin,0,)    (main end,1,)    (main_v,1,0 )    (jump0,0,)    
 后继节点:
