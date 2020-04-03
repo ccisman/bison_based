@@ -594,6 +594,8 @@ void compare(string filename, string new_filename)
 	out.close();
 }
 
+
+
 int main()
 {
 	//gtree *tree;
@@ -605,17 +607,17 @@ int main()
 	//makeGraph("tree.dot", "tree.png");
 
 	
-	gtree *tree;
+	/*gtree *tree;
 	C_Petri petri;
 	tree = create_tree("simple.txt", true);
 	intofile_tree(tree);
 	makeGraph("tree.dot", "tree.png");
-	//create_CPN(petri, tree);
-	//output_CPN(petri, "output");
-	//RG rg;
-	//rg.init_RG(petri);
-	//create_RG(rg);
-	//print_RG(rg, "rg//simple.txt");
+	create_CPN(petri, tree);
+	output_CPN(petri, "output");
+	RG rg;
+	rg.init_RG(petri);
+	create_RG(rg);
+	print_RG(rg, "rg//simple.txt");*/
 
 	vector<string> filelist;
 

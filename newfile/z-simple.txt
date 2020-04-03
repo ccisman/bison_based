@@ -1,19 +1,20 @@
-struct petri
-{
-int a;
-int b;
-char c;
-};
 
-int fun()
-{
-typedef struct petri pet;
-pet p1;
-}
 
 int main(){
 
-int pet;
+int pet,sum;
+pet=1;
+if(pet!=1)
+sum=2;
+else
+{
+sum=3;
+{
+sum=4;
+sum=5;
+}
+}
+
 
 return 0;
 }

@@ -19,7 +19,7 @@ void find_previous_P(C_Petri &petri, string T, vector<string> &v)//, vector<stri
 	//vector<string> v, v1;
 	for (int i = 0; i < petri.arcnum; i++)
 	{
-		if (petri.arc[i].sourceP == true && petri.arc[i].target == T && petri.arc[i].V != "executed" && petri.arc[i].V != "executed#")
+		if (petri.arc[i].sourceP == true && petri.arc[i].target == T )//&& petri.arc[i].V != "executed" && petri.arc[i].V != "executed#")
 		{
 			/*if (exist_arc(petri, petri.arc[i].target, petri.arc[i].source, petri.arc[i].V))
 				v1.push_back(petri.arc[i].source);
@@ -28,7 +28,7 @@ void find_previous_P(C_Petri &petri, string T, vector<string> &v)//, vector<stri
 				continue;
 				v.push_back(petri.arc[i].source);
 		}
-		else if (petri.arc[i].sourceP == true && petri.arc[i].target == T && (petri.arc[i].V == "executed" || petri.arc[i].V == "executed#"))
+		/*else if (petri.arc[i].sourceP == true && petri.arc[i].target == T && (petri.arc[i].V == "executed" || petri.arc[i].V == "executed#"))
 		{
 			for (int j = 0; j < petri.p_num; j++)
 			{
@@ -39,7 +39,7 @@ void find_previous_P(C_Petri &petri, string T, vector<string> &v)//, vector<stri
 						break;
 					}
 			}
-		}
+		}*/
 
 	}
 	return ;

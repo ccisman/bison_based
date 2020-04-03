@@ -2995,6 +2995,39 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//addition为0表示直接构建
 				break;
 		}
 	}
+	else if (p->type == COMPOUND_STATEMENT && p->parent->type == STATEMENT && p->parent->parent->type == STATEMENT_LIST)
+	{
+		p->parent->place = p->place;
+		P1 = gen_P();
+		control_P = true;
+		t = false;
+		V_name = p->place;
+		tag = "";
+		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
+
+		int current;
+		if (addition == 0)
+			current = gen_P_num;
+		else
+			current = addition;
+		string T1 = gen_T();
+		control_T = false;
+		s = V_name;
+		petri.Add_Transition(T1, control_T, s, current);
+
+		petri.Add_Arc(P1, T1, "", true);
+		inside_block(petri, p, T1);
+		petri.Add_Place_enter(P1, T1);
+		vector<string> v;
+		v.push_back(T1);
+		petri.set_control_T(P1, v);//设置控制变迁
+		v = get_statement_exit(p->parent, petri);
+		petri.Add_Place_exit(P1, v);
+		vector<string> temp_v;
+		temp_v.push_back(P1);
+		petri.set_enter_P(P1, temp_v);
+		
+	}
 	//else if (judge_break_statement(p))
 	//{
 	//	//继承处理即可

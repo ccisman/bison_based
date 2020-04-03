@@ -1,12 +1,30 @@
-可达图节点共有3个
+可达图节点共有9个
 如下所示
 
 0
-(p,1,)    (main begin,1,)    (main end,0,)    (main_v,1,-842150451 )    (jump0,0,)    
+(main begin,1,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,-842150451 )    (fun0@sum,1,-842150451 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
 后继节点:1    经过变迁:T0    
 1
-(p,1,)    (main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (jump0,1,)    
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,-842150451 )    (fun0@sum,1,-842150451 )    (pet=1,1,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
 后继节点:2    经过变迁:T1    
 2
-(p,1,)    (main begin,0,)    (main end,1,)    (main_v,1,0 )    (jump0,0,)    
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,-842150451 )    (pet=1,0,)    (sel0,1,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
+后继节点:3    经过变迁:T3    
+3
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,-842150451 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,1,)    (sum=4,0,)    (sum=5,0,)    (fun2,1,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
+后继节点:4    经过变迁:T5    
+4
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,3 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,1,)    (executedP,0,)    (executedP,1,)    (jump0,0,)    
+后继节点:5    经过变迁:T8    
+5
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,3 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,1,)    (sum=5,1,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
+后继节点:6    经过变迁:T6    
+6
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,4 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,1,)    (fun2,0,)    (executedP,1,)    (executedP,0,)    (jump0,0,)    
+后继节点:7    经过变迁:T7    
+7
+(main begin,0,)    (main end,0,)    (main_v,1,-842150451 )    (fun0@pet,1,1 )    (fun0@sum,1,5 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,1,)    
+后继节点:8    经过变迁:T9    
+8
+(main begin,0,)    (main end,1,)    (main_v,1,0 )    (fun0@pet,1,1 )    (fun0@sum,1,5 )    (pet=1,0,)    (sel0,0,)    (sum=2,0,)    (sum=3,0,)    (sum=4,0,)    (sum=5,0,)    (fun2,0,)    (executedP,0,)    (executedP,0,)    (jump0,0,)    
 后继节点:

@@ -1,99 +1,37 @@
 旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-直接构建时间：1420
-变化影响分析时间：845
+直接构建时间：1463
+变化影响分析时间：908
 
 旧文件：addsub_double_float_exact1.c	新文件：addsub_double_float_exact1 - new.c
-直接构建时间：1149
-变化影响分析时间：623
-
-旧文件：addsub_float_double_exact.c	新文件：addsub_float_double_exact - new.c
-直接构建时间：1151
-变化影响分析时间：655
-
-旧文件：arctan_Pade_bAnd.c	新文件：arctan_Pade_bAnd - new.c
-旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-直接构建时间：1148
-变化影响分析时间：6940
-
-旧文件：addsub_double_float_exact1.c	新文件：addsub_double_float_exact1 - new.c
-直接构建时间：1140
-变化影响分析时间：1382
-
-旧文件：addsub_float_double_exact.c	新文件：addsub_float_double_exact - new.c
-直接构建时间：1162
-变化影响分析时间：1422
-
-旧文件：arctan_Pade_bAnd.c	新文件：arctan_Pade_bAnd - new.c
-旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-直接构建时间：1139
-变化影响分析时间：1574
-
-旧文件：addsub_double_float_exact1.c	新文件：addsub_double_float_exact1 - new.c
-直接构建时间：1129
-变化影响分析时间：1499
-
-旧文件：addsub_float_double_exact.c	新文件：addsub_float_double_exact - new.c
 直接构建时间：1174
-变化影响分析时间：1677
-
-旧文件：arctan_Pade_bAnd.c	新文件：arctan_Pade_bAnd - new.c
-直接构建时间：214933
-变化影响分析时间：21673
-
-旧文件：bAnd2Or.c	新文件：bAnd2Or - new.c
-直接构建时间：80238
-旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-直接构建时间：1158
-变化影响分析时间：836
-
-旧文件：addsub_double_float_exact1.c	新文件：addsub_double_float_exact1 - new.c
-直接构建时间：1121
-变化影响分析时间：612
+变化影响分析时间：668
 
 旧文件：addsub_float_double_exact.c	新文件：addsub_float_double_exact - new.c
-直接构建时间：1140
-变化影响分析时间：644
+直接构建时间：1172
+变化影响分析时间：665
 
 旧文件：arctan_Pade_bAnd.c	新文件：arctan_Pade_bAnd - new.c
-直接构建时间：217578
-变化影响分析时间：5163
+直接构建时间：216959
+变化影响分析时间：5232
 
 旧文件：bAnd2Or.c	新文件：bAnd2Or - new.c
-直接构建时间：80149
-变化影响分析时间：85169
+直接构建时间：80148
+变化影响分析时间：79340
 
 旧文件：bAndOr.c	新文件：bAndOr - new.c
-直接构建时间：413621
-变化影响分析时间：83044
+直接构建时间：382933
+变化影响分析时间：75844
 
 旧文件：bAnd_arctan_Pade.c	新文件：bAnd_arctan_Pade - new.c
-直接构建时间：176510
-变化影响分析时间：75391
+直接构建时间：161753
+变化影响分析时间：69644
 
 旧文件：bAnd_even.c	新文件：bAnd_even - new.c
-直接构建时间：129730
-变化影响分析时间：4326
+直接构建时间：120373
+变化影响分析时间：3911
 
 旧文件：bor_zero_sum.c	新文件：bor_zero_sum - new.c
-直接构建时间：465696
-变化影响分析时间：144101
+直接构建时间：420653
+变化影响分析时间：146313
 
 旧文件：evenOdd.c	新文件：evenOdd - new.c
-直接构建时间：25249
-变化影响分析时间：9447
-
-旧文件：even_bAnd.c	新文件：even_bAnd - new.c
-直接构建时间：148408
-变化影响分析时间：5549
-
-旧文件：Odd_even.c	新文件：Odd_even - new.c
-直接构建时间：25305
-变化影响分析时间：1204
-
-旧文件：zero_sum_bor.c	新文件：zero_sum_bor - new.c
-直接构建时间：297779
-变化影响分析时间：45155
-
-旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-旧文件：addsub_double_float_exact.c	新文件：addsub_double_float_exact - new.c
-直接构建时间：1438
