@@ -13,6 +13,8 @@ using namespace std;
 
 //const string colorset[] = { "int","char","float","double","short","long" };
 
+extern bool execute_flag;
+
 class Arc
 {
 public:

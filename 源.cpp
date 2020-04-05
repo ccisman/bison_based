@@ -523,11 +523,13 @@ void compare(string filename, string new_filename)
 		exit(1);
 	}
 	out << "旧文件：" << filename << "\t" << "新文件：" << new_filename << endl;
-	clock_t start, finish;
+	clock_t start, finish, temp;
 
 	gtree *tree1 = create_tree(filename,true);
+	//gtree *tree1_noexecute = create_tree(filename, true);
 	//intofile_tree(tree1);
 	gtree *tree2 = create_tree(new_filename, true);
+	//gtree *tree2_noexecute = create_tree(new_filename, true);
 	C_Petri petri, petri_new;
 	RG rg, rg_new;
 	start = clock();
@@ -536,50 +538,88 @@ void compare(string filename, string new_filename)
 	//************************模型检测
 	model_check(petri_new, rg_new);
 	finish = clock();
-
-	out << "直接构建时间：" << (finish - start) << endl;
+	out << "可达图节点个数：" << rg_new.rgnode.size() << endl;
+	out << "直接构建时间：" << (finish - start) / 1000.0 << "秒" << endl;
 	rg_new.release();
 	petri_new.release();
 	//************************直接构建结束
-
+	execute_flag = false;
 	DirectBuild(tree1, filename, petri, rg);
 
+
+	C_Petri petri_afterevolution;
+	
 	//************************转换LTL公式
 	//char originXMLfile[50] = "formulaC.xml";
 	//char desXMLfile[50] = "NewFormulaC.xml";
 	//xml_trans_C(petri, originXMLfile, desXMLfile);
 
 
-
-
-
-	//************************模型演化部分
 	vector<string> change_places;
-	//	vector<string> array_this_sentence, array_this_sentence_after, array_father_sentence, array_last_sentence, array_next_sentence, array_next_father_sentence, array_next_next_sentence;
-	vector<int> array_flag;
+	vector<AST_change> changes;
+	string main_begin;
+	C_Petri petri1;
+	//不带执行弧的结果
 	start = clock();
 
+	changes = compare_AST(tree1, tree2);
 	
 
-	vector<AST_change> changes = compare_AST(tree1, tree2);
-
-	start = clock();
 	change_places = evolution(petri, changes);
-
-	//output_CPN(petri, "output");
-
-	//RG rg1(petri); //定义可达图
-	//create_RG(rg1);
-	//print_RG(rg1);
 
 
 	//************************变化影响分析部分
 
-	string main_begin = find_P_name(petri, "main begin");
+	main_begin = find_P_name(petri, "main begin");
 	change_places.push_back(main_begin);
 
-	C_Petri petri1;
+	temp = clock() - start;
+
+	petri_afterevolution.arc = petri.arc;
+	petri_afterevolution.arcnum = petri.arcnum;
+	petri_afterevolution.place = petri.place;
+	petri_afterevolution.p_num = petri.p_num;
+	petri_afterevolution.transition = petri.transition;
+	petri_afterevolution.t_num = petri.t_num;
+	
 	petri1 = changeAnalyse(petri, change_places);
+
+	output_CPN(petri1, "output");
+
+	RG rg_noexecute(petri1); //定义可达图
+	create_RG(rg_noexecute);
+	print_RG(rg_noexecute, dirname + "changeAnalyse-" + filename);
+	model_check(petri1, rg_noexecute);
+	finish = clock();
+	out << "可达图节点个数：" << rg_noexecute.rgnode.size() << endl;
+	out << "不带执行弧变化影响分析时间：" << (finish - start) / 1000.0 << "秒" << endl;
+
+	//带执行弧的变化影响分析
+	execute_flag = true;
+	//************************模型演化部分
+	
+	//	vector<string> array_this_sentence, array_this_sentence_after, array_father_sentence, array_last_sentence, array_next_sentence, array_next_father_sentence, array_next_next_sentence;
+
+	start = clock();
+
+	//changes = compare_AST(tree1, tree2);
+
+
+	//change_places = evolution(petri, changes);
+
+	////output_CPN(petri, "output");
+
+	////RG rg1(petri); //定义可达图
+	////create_RG(rg1);
+	////print_RG(rg1);
+
+
+	////************************变化影响分析部分
+
+	//main_begin = find_P_name(petri, "main begin");
+	//change_places.push_back(main_begin);
+
+	petri1 = changeAnalyse(petri_afterevolution, change_places);
 	
 	output_CPN(petri1, "output");
 
@@ -588,9 +628,11 @@ void compare(string filename, string new_filename)
 	print_RG(rg2, dirname + "changeAnalyse-" + filename);
 	model_check(petri1, rg2);
 	finish = clock();
-
-	out << "变化影响分析时间：" << (finish - start) << endl;
+	out << "可达图节点个数：" << rg2.rgnode.size() << endl;
+	out << "变化影响分析时间：" << (finish - start + temp) / 1000.0 << "秒" << endl;
 	out << endl;
+
+
 	out.close();
 }
 
@@ -623,7 +665,7 @@ int main()
 
 	string filename, new_filename;
 	get_names(origin_dirname + "*", filelist);
-	//compare("goto.txt", "goto - new.txt");
+	//compare("Odd&even.c", "Odd&even - new.c");
 	for (unsigned int i = 0; i < filelist.size(); i++)
 	{
 		new_filename = filelist[i];

@@ -51,7 +51,7 @@ void find_afterward_P(C_Petri &petri, string T,vector<string> &v)//,vector<strin
 	for (int i = 0; i < petri.arcnum; i++)
 	{
 		
-		if (petri.arc[i].sourceP == false && petri.arc[i].source == T && petri.arc[i].V != "executed" && petri.arc[i].V != "executed#")
+		if (petri.arc[i].sourceP == false && petri.arc[i].source == T && (execute_flag == false || (petri.arc[i].V != "executed" && petri.arc[i].V != "executed#")))
 		{
 			/*if (exist_arc(petri, petri.arc[i].target, petri.arc[i].source, petri.arc[i].V))
 				v1.push_back(petri.arc[i].target);
@@ -93,7 +93,8 @@ vector<string> forward_exist_T(C_Petri &petri, vector<string> change_T, string p
 			{
 				if (exist_in(change_T, petri.arc[i].source))
 				{
-					T.push_back(petri.arc[i].source);
+					if (!exist_in(T, petri.arc[i].source))
+						T.push_back(petri.arc[i].source);
 					//					break;
 				}
 				else
@@ -163,7 +164,7 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 					if (!exist_in(T1, petri.arc[j].target))//不在T1内
 					{
 
-						if (petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#")//不是执行弧
+						if (execute_flag == false ||( petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#"))//不是执行弧
 						{
 							
 							/*for (int k = 0; k < petri.p_num; k++)
@@ -208,7 +209,7 @@ void back_forward_slicing(C_Petri &petri, vector<string> place, vector<string> &
 						continue;
 					if (!exist_in(T1, petri.arc[j].source))//不在T1内
 					{
-						if (petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#")//不是执行弧
+						if (execute_flag == false ||( petri.arc[j].V != "executed"&&petri.arc[j].V != "executed#"))//不是执行弧
 						{
 							//不能是token不改变的库所
 							/*for (int k = 0; k < petri.p_num; k++)
@@ -299,7 +300,7 @@ void post_process(C_Petri &petri, vector<string> change_P, vector<string> change
 		{
 			for (unsigned j = 0; j < change_Arc.size(); j++)
 			{
-				if (change_Arc[j].sourceP == false && change_Arc[j].target == change_P[i] && change_Arc[j].V == "executed")
+				if (change_Arc[j].sourceP == false && change_Arc[j].target == change_P[i] && change_Arc[j].type != 6)
 				{
 					flag = true;
 					break;

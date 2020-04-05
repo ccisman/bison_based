@@ -4,6 +4,8 @@
 
 string colorset[] = { "int","char","float","double","string" };
 
+bool execute_flag = false;
+
 int Arc::total_num = 0;
 int Place::total_num = 0;
 int Transition::total_num = 0;
@@ -1404,7 +1406,9 @@ void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä
 
 				
 				petri.set_pre_executed_P(_P, newP);
+
 				V = "executed";
+
 				sourceP = false;
 				for (unsigned int i = 0; i < last.size(); i++)
 					petri.Add_Arc(last[i], newP, V, sourceP);
@@ -1502,6 +1506,7 @@ void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨
 				for (unsigned int i = 0; i < last.size(); i++)
 				{
 					V = "executed";
+
 					sourceP = false;
 					for (unsigned int j = 0; j < now.size(); j++)
 						petri.Add_Arc(last[i], now[j], V, sourceP);
@@ -2153,7 +2158,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 			petri.Add_Place_enter(P1, v);
 			petri.set_control_T(P1, v);//ÉèÖÃ¿ØÖÆ±äÇ¨
-			if (p->type == ITERATION_STATEMENT)
+			if (p->type == ITERATION_STATEMENT)//Ñ­»·Óï¾äµÄend¿âËù
 			{
 				string P2 = gen_P();
 				V_name = p->place + " end";
@@ -2163,6 +2168,9 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				petri.Add_Transition(T3, false, V_name, current);
 				petri.Add_Arc(P2, T3, "", true);
 				petri.Add_Arc(T2, P2, "", false);
+				vector<string> temp_v;
+				temp_v.push_back(P2);
+				petri.set_enter_P(P2, temp_v);
 			}
 		}
 		else if (p->type == ASSIGNMENT_EXPRESSION && p->child->next != NULL)
@@ -2580,7 +2588,9 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			
 			for (unsigned int i = 0; i < v.size(); i++)
 			{
-				petri.Add_Arc(v[i], func_end, "executed", false);
+
+				V = "executed";
+				petri.Add_Arc(v[i], func_end, V, false);
 				if (func_v != "")
 				{
 					petri.Add_Arc(v[i], func_v, "0", false);

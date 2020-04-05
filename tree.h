@@ -18,7 +18,7 @@ using namespace std;
 //};
 
 static string dirname = ".\\rg\\";
-static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\combine_test\\";
+static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\test7\\";
 static string newfile_dirname = ".\\newfile\\";
 
 class gtree
