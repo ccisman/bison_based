@@ -58,7 +58,7 @@ string find_P_name_1(C_Petri petri, string v_name, int current);
 
 string gen_P();
 
-vector<string> evolution(C_Petri &petri, vector<AST_change> changes);
+vector<string> evolution(C_Petri &petri, vector<AST_change> &changes);
 
 bool exist_in(vector<string> v, string s);
 

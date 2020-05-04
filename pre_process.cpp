@@ -7,6 +7,7 @@ using namespace std;
 
 
 //pre-process
+static string init_num = "101";
 
 extern int string_replace(string &s1, const string &s2, const string &s3);
 
@@ -295,13 +296,13 @@ void trans_some_function(string &s)
 	string_replace(s, nondet_short1, newnondet_short);
 	string_replace(s, nondet_double, newnondet_double);
 	if (s.find("int nondet_num_int") == string::npos&&s.find(newnondet_int) != string::npos)
-		s = "int nondet_num_int=101;\n" + s;
+		s = "int nondet_num_int=" + init_num + ";\n" + s;
 	if (s.find("int nondet_num_short") == string::npos && (s.find(newnondet_short) != string::npos || s.find(nondet_short1) != string::npos))
-		s = "int nondet_num_short=101;\n" + s;
+		s = "int nondet_num_short=" + init_num + ";\n" + s;
 	if (s.find("int nondet_num_long") == string::npos&&s.find(newnondet_long) != string::npos)
-		s = "int nondet_num_long=101;\n" + s;
+		s = "int nondet_num_long=" + init_num + ";\n" + s;
 	if (s.find("int nondet_num_double") == string::npos&&s.find(newnondet_double) != string::npos)
-		s = "int nondet_num_double=101;\n" + s;
+		s = "int nondet_num_double=" + init_num + ";\n" + s;
 }
 
 bool trans_switch(string &s)

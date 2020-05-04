@@ -1026,7 +1026,7 @@ string C_Petri::get_fun_P(string p_name)
 		}
 	}
 	cout << "get_fun_P error!" << endl;
-	exit(1);
+	//exit(1);
 }
 
 void C_Petri::set_pre_executed_P(string p_name, string executed_P)
@@ -3026,7 +3026,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//addition为0表示直接构建
 		petri.Add_Transition(T1, control_T, s, current);
 
 		petri.Add_Arc(P1, T1, "", true);
-		inside_block(petri, p, T1);
+		inside_block1(petri, p, T1);
 		petri.Add_Place_enter(P1, T1);
 		vector<string> v;
 		v.push_back(T1);
@@ -3046,6 +3046,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//addition为0表示直接构建
 	//{
 	//	//继承处理即可
 	//}
+
 	//处理标签
 	if (p->type == STATEMENT && p->label_P != "")
 	{

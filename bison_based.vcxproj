@@ -41,7 +41,7 @@
     <ClCompile Include="tinyxmlparser.cpp" />
     <ClCompile Include="xml2ltl.cpp" />
     <ClCompile Include="y.tab.cpp" />
-    <ClCompile Include="源.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST_compare.h" />

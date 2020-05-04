@@ -108,7 +108,15 @@ public:
 
 public:
 	C_Petri();
-
+	void operator=(C_Petri p1)
+	{
+		arc = p1.arc;
+		arcnum = p1.arcnum;
+		place = p1.place;
+		p_num = p1.p_num;
+		transition = p1.transition;
+		t_num = p1.t_num;
+	}
 	void Add_Place(Place p);
 	void Add_Place(string name, string v_name, string colorset_tag, bool controlP, bool t, int n, double dec, string s, int array_size, bool ispoint);//t=true±Ì æ”–≥ı º÷µ
 
@@ -184,4 +192,4 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition);//additionŒ™0±Ì æ÷±Ω”ππΩ
 
 void reset_gen_cpn();
 
-void process_label(C_Petri &petri);
+void process_label(C_Petri &petri);//¥¶¿Ì±Í«©”Ôæ‰

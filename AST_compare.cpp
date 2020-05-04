@@ -560,8 +560,8 @@ void add_change(vector<pair<int, int>> moves, int last_first, int last_second, i
 		while (last_second != now_second)
 		{
 			if (!exist_inmoves(moves, now_second - 1, false))
-				add.push_back(make_pair(last_first - 1, now_second - 1));
-			now_second--;
+				add.push_back(make_pair(last_first - 1, last_second));
+			last_second++;
 		}
 	}
 	else
