@@ -1,6 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include"cpn.h"
 #include"y.tab.h"
+#include"v_table.h"
+#include<fstream>
 
 string colorset[] = { "int","char","float","double","string" };
 
@@ -10,6 +12,7 @@ int Arc::total_num = 0;
 int Place::total_num = 0;
 int Transition::total_num = 0;
 
+vector<V_Table *> v_tables;//variable tables
 
 Arc::Arc(string s, string t, string v, bool s_P)
 {
@@ -1159,6 +1162,11 @@ void reset_gen_cpn()
 {
 	gen_P_num = 0;
 	gen_T_num = 0;
+	for (unsigned int i = 0; i < v_tables.size(); i++)
+	{
+		delete v_tables[i];
+	}
+	v_tables.clear();
 }
 int find_P_exist(vector<Place> place, string s)//找库所中是否有v_name等于s的，并且返回有几个
 {
@@ -1209,7 +1217,7 @@ string find_P_name(C_Petri petri, string v_name)//通过变量名v_name找库所名name
 		vector<string> v;
 		SplitString(s, v, "@");
 
-		int pos = v.size() - 1;
+		int pos = (v.size() - 1);
 		if (pos >= 0 && v[pos] == v_name)
 			return petri.place[i].name;
 	}
@@ -1680,33 +1688,6 @@ gtree* find_last_sentence(gtree *node, bool &flag, bool &flag1)//node指向stateme
 
 }
 
-//gtree* find_next_sentence(gtree *node)//node指向语句节点，返回找到的下一句具体语句节点的指针,若返回NULL表示该语句为函数中最后一句
-//{
-//	gtree *p = node;
-//
-//	if (p->parent->type == 循环语句)
-//	{
-//		return p->parent;
-//	}
-//	else if (p->parent->type == 语句列 && p->parent->parent->parent->type == 循环语句)
-//	{
-//		return p->parent->parent->parent;
-//	}
-//	while (p->next == NULL)
-//	{
-//		if (p->parent->type == 语句列)
-//		{
-//			if (p->parent->parent->type == 复合语句)
-//				return NULL;
-//			else
-//				p = p->parent->parent->parent->parent;
-//		}
-//		else
-//			p = p->parent->parent;
-//	}
-//	return p->next->child;
-//}
-
 bool judge_inside(gtree *temp_statement)
 {
 	if (temp_statement->parent->type == SELECTION_STATEMENT || temp_statement->parent->type == ITERATION_STATEMENT)
@@ -1811,6 +1792,24 @@ void process_declarator(gtree *declarator, C_Petri &petri, string tag, string ba
 
 		string _P = gen_P();
 		petri.Add_Place(_P, V_name, tag, control_P, t, n1, d, s, array_size, ispoint);
+
+		gtree *compound = declarator;
+		string table_name;
+		while (compound != NULL && compound->type != COMPOUND_STATEMENT)
+			compound = compound->parent;
+		if (compound == NULL)
+			table_name = "global";
+		else
+			table_name = compound->place;
+		for (unsigned int i = 0; i < v_tables.size(); i++)
+		{
+			if (table_name == v_tables[i]->name)
+			{
+				v_tables[i]->insert(V_name, _P);
+				break;
+			}
+		}
+
 		if (current != 0)
 		{
 			for (unsigned int i = 0; i < petri.p_num; i++)
@@ -2263,7 +2262,12 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//addition为0表示直接构建
 		petri.set_fun_P(P1, last_fun);
 
 	}
-	
+	else if (p->type == COMPOUND_STATEMENT)
+	{
+		V_Table *table = new V_Table(p->place);
+		v_tables.push_back(table);
+	}
+
 	ast_to_cpn(petri, p->child, addition);
 	
 	if (p->type == ASSIGNMENT_EXPRESSION && p->parent->type == EXPRESSION && p->child->type != CONDITIONAL_EXPRESSION)
@@ -3060,9 +3064,151 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//addition为0表示直接构建
 	ast_to_cpn(petri, p->next, addition);
 }
 
+void initializing(C_Petri &petri)//初始化petri网，main_begin赋上token，连接main_begin和main_v
+{
+	///初始给main的token赋值
+	for (int i = 0; i < petri.p_num; i++)
+	{
+		if (petri.place[i].v_name == "main begin")
+		{
+			petri.place[i].token_num = 1;
+			break;
+		}
+	}
+
+	string main_v = find_P_name(petri, "main_v");
+	vector<string> main_exit_T = petri.get_exit(find_P_name(petri, "main begin"));
+	for (unsigned int i = 0; i < main_exit_T.size(); i++)
+		petri.Add_Arc(main_exit_T[i], main_v, "", false);
+}
+
+void intofile(C_Petri petri)
+{
+	ofstream out;
+	out.open("output.txt", ios::out);
+	//out << "Place:" << endl;
+	//out << "-----------------------------------" << endl;
+
+	string fillcolor = "chartreuse";
+	for (int i = 0; i < petri.p_num; i++)
+	{
+		if (petri.place[i].controlP == false)
+			out << "subgraph cluster_" << petri.place[i].name << "{label=\"" <<
+			petri.place[i].v_name << "\"color=\"white\"" << petri.place[i].name <<
+			"[shape=circle, style=\"filled\",color=\"black\",fillcolor=\"" << fillcolor << "\"]}" << endl;
+		else
+		{
+			out << petri.place[i].name << "[shape=circle," << "label=\"" << petri.place[i].v_name << "\"]" << endl;
+		}
+	}
+	//out << "-----------------------------------" << endl; 
+	//out << "Transition:" << endl;
+	//out << "-----------------------------------" << endl;
+	for (int i = 0; i < petri.t_num; i++)
+	{
+		out << petri.transition[i].name << "[shape=box]" << endl;
+	}
+	//out << "-----------------------------------" << endl;
+	//out << "Arc:" << endl;
+	//out << "-----------------------------------" << endl;
+
+	for (int i = 0; i < petri.arcnum; i++)
+	{
+		if (petri.arc[i].V != "#" && petri.arc[i].V != "executed#" && petri.arc[i].V != "executed")//隐式弧
+			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "}" << endl;
+		else if (petri.arc[i].V == "executed" || petri.arc[i].V == "relation")
+			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "[style=\"dashed\"]}" << endl;
+	}
+	out.close();
+}
+
+
+void readGraph(string input, string output) //.txt 转 .dot
+{
+
+	const char* in = input.data();
+	const char* ou = output.data();
+
+	ifstream fin;
+	fin.open(in, ios::in);
+
+	ofstream fout;
+	fout.open(ou, ios::out);
+
+	fout << "digraph G{" << endl << "rankdir = LR" << endl;
+	string s;
+	while (getline(fin, s))
+	{
+		if (s[0] != '{') {
+			fout << s << '\n';
+			continue;
+		}
+
+		string u, v, lable;
+		int n = s.length();
+		int i = 1;
+		//cout << s << n << endl;
+		while (s[i] != ',') i++;
+		//cout << i << endl;
+		u += s.substr(1, i - 1);
+		//cout << u << endl;
+		int j = n - 2;
+		while (s[j] != ',') j--;
+		//cout << j << endl;
+		v += s.substr(j + 1, n - 1 - j - 1);
+		//cout << v << endl;
+		//lable = s.substr(i + 1, j - i - 1);
+
+		string edge = "";
+		edge += u;
+		edge += "->";
+		edge += v;
+		//edge += "[label=\"";
+		//edge += lable;
+		//edge += "\"];";
+		fout << edge << endl;
+	}
+	fout << "}" << endl;
+	fin.close();
+	fout.close();
+}
+
+void makeGraph(string inputname, string outputname) //生成png图片
+{
+	string s = "";
+	s += "dot -Tpng ";
+	s += inputname;
+	s += " -o ";
+	s += outputname;
+	const char* cmd = s.data();
+	const char* iname = inputname.data();
+	system(cmd);
+}
+
+void create_CPN(C_Petri &petri, gtree *tree)
+{
+	V_Table *table = new V_Table("global");
+	v_tables.push_back(table);
+	ast_to_cpn(petri, tree, 0);
+	process_label(petri);
+	initializing(petri);
+}
+
+void output_CPN(C_Petri petri, string filePrefix)
+{
+	intofile(petri);
+
+	readGraph(filePrefix + ".txt", filePrefix + ".dot");
+	makeGraph(filePrefix + ".dot", filePrefix + ".png");
+}
+
 void C_Petri::release()
 {
-	place.clear();
-	transition.clear();
-	arc.clear();
+	for (int i = 0; i < p_num; i++)
+	{
+		if (place[i].n_num > 0)
+			delete[] place[i].num;
+		if (place[i].n_decimal > 0)
+			delete[] place[i].decimal;
+	}
 }

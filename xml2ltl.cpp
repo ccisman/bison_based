@@ -159,7 +159,7 @@ void GetLTLC(TiXmlElement *p, ofstream &outltl)
 			}
 			outltl << ")";
 		}
-		else if (mValue == "integer-constant")
+		else if (nValue == "integer-constant")
 		{
 			outltl << n->GetText();
 		}

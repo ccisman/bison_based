@@ -57,6 +57,7 @@
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
     <ClInclude Include="tree.h" />
+    <ClInclude Include="v_table.h" />
     <ClInclude Include="xml2ltl.h" />
     <ClInclude Include="y.tab.h" />
   </ItemGroup>

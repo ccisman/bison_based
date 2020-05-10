@@ -15,6 +15,10 @@
 #include"RG.h"
 #include"AST_compare.h"
 
+string rg_dirname = ".\\rg\\";
+string rg_sliceOnly_dirname = ".\\rg_sliceOnly\\";
+string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\combine_test\\";
+string newfile_dirname = ".\\newfile\\";
 
 #define keywordNum 20
 
@@ -189,160 +193,8 @@ void intofile_tree(gtree *tree)
 	
 }
 
-void intofile(C_Petri petri)
-{
-	ofstream out;
-	out.open("output.txt", ios::out);
-	//out << "Place:" << endl;
-	//out << "-----------------------------------" << endl;
-
-	string fillcolor = "chartreuse";
-	for (int i = 0; i < petri.p_num; i++)
-	{
-		if (petri.place[i].controlP == false)
-			out << "subgraph cluster_" << petri.place[i].name << "{label=\"" <<
-			petri.place[i].v_name << "\"color=\"white\"" << petri.place[i].name <<
-			"[shape=circle, style=\"filled\",color=\"black\",fillcolor=\"" << fillcolor << "\"]}" << endl;
-		else
-		{
-			out << petri.place[i].name << "[shape=circle," << "label=\"" << petri.place[i].v_name << "\"]" << endl;
-		}
-	}
-	//out << "-----------------------------------" << endl; 
-	//out << "Transition:" << endl;
-	//out << "-----------------------------------" << endl;
-	for (int i = 0; i < petri.t_num; i++)
-	{
-		out << petri.transition[i].name << "[shape=box]" << endl;
-	}
-	//out << "-----------------------------------" << endl;
-	//out << "Arc:" << endl;
-	//out << "-----------------------------------" << endl;
-
-	for (int i = 0; i < petri.arcnum; i++)
-	{
-		if (petri.arc[i].V != "#" && petri.arc[i].V != "executed#" && petri.arc[i].V != "executed")//隐式弧
-			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "}" << endl;
-		else if (petri.arc[i].V == "executed" || petri.arc[i].V == "relation")
-			out << "{" << petri.arc[i].source << "," << petri.arc[i].target << "[style=\"dashed\"]}" << endl;
-	}
-	out.close();
-}
 
 
-void readGraph(string input, string output) //.txt 转 .dot
-{
-
-	const char* in = input.data();
-	const char* ou = output.data();
-
-	ifstream fin;
-	fin.open(in, ios::in);
-
-	ofstream fout;
-	fout.open(ou, ios::out);
-
-	fout << "digraph G{" << endl << "rankdir = LR" << endl;
-	string s;
-	while (getline(fin, s))
-	{
-		if (s[0] != '{') {
-			fout << s << '\n';
-			continue;
-		}
-
-		string u, v, lable;
-		int n = s.length();
-		int i = 1;
-		//cout << s << n << endl;
-		while (s[i] != ',') i++;
-		//cout << i << endl;
-		u += s.substr(1, i - 1);
-		//cout << u << endl;
-		int j = n - 2;
-		while (s[j] != ',') j--;
-		//cout << j << endl;
-		v += s.substr(j + 1, n - 1 - j - 1);
-		//cout << v << endl;
-		//lable = s.substr(i + 1, j - i - 1);
-
-		string edge = "";
-		edge += u;
-		edge += "->";
-		edge += v;
-		//edge += "[label=\"";
-		//edge += lable;
-		//edge += "\"];";
-		fout << edge << endl;
-	}
-	fout << "}" << endl;
-	fin.close();
-	fout.close();
-}
-
-void makeGraph(string inputname, string outputname) //生成png图片
-{
-	string s = "";
-	s += "dot -Tpng ";
-	s += inputname;
-	s += " -o ";
-	s += outputname;
-	const char* cmd = s.data();
-	const char* iname = inputname.data();
-	system(cmd);
-}
-
-void create_RG(RG &rg)
-{
-	stack<int> newNode;
-	newNode.push(0);
-	while (!newNode.empty())
-	{
-		int node_id = newNode.top();
-		newNode.pop();
-		rg.add_next(node_id, newNode);
-	}
-}
-
-void print_RG(RG rg, string filename)
-{
-	ofstream fout;
-	fout.open(filename, ios::out);
-	fout << "可达图节点共有" << rg.node_num << "个" << endl;
-	fout << "如下所示" << endl;
-	fout << endl;
-	for (int i = 0; i < rg.node_num; i++)
-	{
-		//cout << i << endl;
-		fout << i << endl;
-		for (unsigned int j = 0; j < rg.rgnode[i].m.size(); j++)
-		{
-			int n_n = rg.rgnode[i].m[j].n_n;
-			//cout << "(" << rg.petri.place[j].v_name << "," << rg.rgnode[i].m[j].token_num << ",";
-			fout << "(" << rg.petri.place[j].v_name << "," << rg.rgnode[i].m[j].token_num << ",";
-			for (int k = 0; k < n_n; k++)
-			{
-				//cout << rg.rgnode[i].m[j].n[k] << " ";
-				fout << rg.rgnode[i].m[j].n[k] << " ";
-			}
-			//cout << ")    ";
-			fout << ")    ";
-		}
-		//cout << endl;
-		fout << endl;
-		//cout << "后继节点:";
-		fout << "后继节点:";
-		for (unsigned int j = 0; j < rg.rgnode[i].next.size(); j++)
-		{
-			//cout << rg.rgnode[i].next[j].num << "    经过变迁:" << rg.rgnode[i].next[j].T << "    ";
-			fout << rg.rgnode[i].next[j].num << "    经过变迁:" << rg.rgnode[i].next[j].T << "    ";
-		}
-		//cout << endl;
-		fout << endl;
-	}
-
-	fout.close();
-}
 
 
 //evolution部分结束
@@ -351,40 +203,9 @@ void print_RG(RG rg, string filename)
 
 bool exist_in(vector<string> v, string s);
 
-void initializing(C_Petri &petri)//初始化petri网，main_begin赋上token，连接main_begin和main_v
-{
-	///初始给main的token赋值
-	for (int i = 0; i < petri.p_num; i++)
-	{
-		if (petri.place[i].v_name == "main begin")
-		{
-			petri.place[i].token_num = 1;
-			break;
-		}
-	}
-
-	string main_v = find_P_name(petri, "main_v");
-	vector<string> main_exit_T = petri.get_exit(find_P_name(petri, "main begin"));
-	for (unsigned int i = 0; i < main_exit_T.size(); i++)
-		petri.Add_Arc(main_exit_T[i], main_v, "", false);
-}
 
 void initial_changeAnalyse_cpn(C_Petri &petri1, C_Petri &petri, vector<string> change_P, vector<string> change_T, vector<Arc> &change_Arc);
 
-void create_CPN(C_Petri &petri, gtree *tree)
-{
-	ast_to_cpn(petri, tree, 0);
-	process_label(petri);
-	initializing(petri);
-}
-
-void output_CPN(C_Petri petri, string filePrefix)
-{
-	intofile(petri);
-
-	readGraph(filePrefix + ".txt", filePrefix + ".dot");
-	makeGraph(filePrefix + ".dot", filePrefix + ".png");
-}
 
 void onlybuildCPN(gtree *tree,string new_filename, C_Petri &petri)
 {
@@ -408,7 +229,7 @@ void get_names(string dirname, vector<string> &filelist)
 	long fHandle;
 	if ((fHandle = _findfirst(dirname.c_str(), &fa)) == -1L)//这里可以改成需要的目录 
 	{
-		printf("当前目录下没有txt文件\n");
+		printf("当前目录下没有new.c文件\n");
 		return;
 	}
 	else
@@ -421,34 +242,29 @@ void get_names(string dirname, vector<string> &filelist)
 
 }
 
-//void adjust_del(vector<AST_change> &changes)
-//{
-//	for (unsigned int i = 0; i < changes.size(); i++)
-//	{
-//		for (unsigned int j = 0; j < changes[i].move.size(); j++)
-//		{
-//
-//		}
-//		for (unsigned int j = 0; j < changes[i].add.size(); j++)
-//		{
-//			for (unsigned int k = 0; k < changes[i].del.size(); k++)
-//			{
-//				if (changes[i].del[k].first > changes[i].add[j].first)
-//					changes[i].del[k].first++;
-//			}
-//		}
-//		for (unsigned int j = 0; j < changes[i].del.size(); j++)
-//		{
-//			for (unsigned int k = 0; k < changes[i].del.size(); k++)
-//			{
-//				if (changes[i].del[k].first > changes[i].del[j].first)
-//					changes[i].del[k].first--;
-//			}
-//		}
-//		
-//
-//	}
-//}
+vector<string> get_criteria(C_Petri petri, string filename)
+{
+	vector<string> result;
+	string xml = filename;
+	xml.replace(xml.find("new.c"), 5, "LTL.xml");
+
+	char xml1[100], xml2[100];
+	strcpy(xml1, xml.c_str());
+	xml.replace(xml.find("LTL.xml"), 7, "LTL1.xml");
+	strcpy(xml2, xml.c_str());
+
+	xml_trans_C(petri, xml1, xml2, result);
+	for (int i = 0; i < petri.p_num; i++)
+	{
+		string temp = petri.place[i].v_name;
+		if (temp == "main begin")
+		{
+			result.push_back(petri.place[i].name);
+			break;
+		}
+	}
+	return result;
+}
 
 //功能：构建CPN以及生成可达图
 //输入：语法树tree
@@ -517,7 +333,7 @@ void compare(string filename, string new_filename)
 	DirectBuild(tree2,  new_filename, petri_new, rg_new);
 	
 	//************************模型检测
-	model_check(petri_new, rg_new);
+	//model_check(petri_new, rg_new);
 	finish = clock();
 	out << "可达图节点个数：" << rg_new.rgnode.size() << endl;
 	out << "库所个数:" << rg_new.petri.p_num << endl;
@@ -565,19 +381,19 @@ void compare(string filename, string new_filename)
 	petri_afterevolution.transition = petri.transition;
 	petri_afterevolution.t_num = petri.t_num;
 	
-	petri1 = changeAnalyse(petri, change_places);
-
-	output_CPN(petri1, "output");
-
-	RG rg_noexecute(petri1); //定义可达图
-	create_RG(rg_noexecute);
-	print_RG(rg_noexecute, rg_dirname + "changeAnalyse-" + filename);
-	model_check(petri1, rg_noexecute);
-	finish = clock();
-	out << "可达图节点个数：" << rg_noexecute.rgnode.size() << endl;
-	out << "库所个数:" << rg_noexecute.petri.p_num << endl;
-	out << "变迁个数:" << rg_noexecute.petri.t_num << endl;
-	out << "不带执行弧变化影响分析时间：" << (finish - start + temp) / 1000.0 << "秒" << endl;
+	//petri1 = changeAnalyse(petri, change_places);
+	//
+	//output_CPN(petri1, "output");
+	//
+	//RG rg_noexecute(petri1); //定义可达图
+	//create_RG(rg_noexecute);
+	//print_RG(rg_noexecute, rg_dirname + "changeAnalyse-" + filename);
+	////model_check(petri1, rg_noexecute);
+	//finish = clock();
+	//out << "可达图节点个数：" << rg_noexecute.rgnode.size() << endl;
+	//out << "库所个数:" << rg_noexecute.petri.p_num << endl;
+	//out << "变迁个数:" << rg_noexecute.petri.t_num << endl;
+	//out << "不带执行弧变化影响分析时间：" << (finish - start + temp) / 1000.0 << "秒" << endl;
 
 	//带执行弧的变化影响分析
 	execute_flag = true;
@@ -611,7 +427,9 @@ void compare(string filename, string new_filename)
 	RG rg2(petri1); //定义可达图
 	create_RG(rg2);
 	print_RG(rg2, rg_dirname + "changeAnalyse-" + filename);
-	model_check(petri1, rg2);
+	//model_check(petri1, rg2);
+	rg2.release();
+
 	finish = clock();
 	out << "可达图节点个数：" << rg2.rgnode.size() << endl;
 	out << "库所个数:" << rg2.petri.p_num << endl;
@@ -619,6 +437,7 @@ void compare(string filename, string new_filename)
 	out << "变化影响分析时间：" << (finish - start + temp) / 1000.0 << "秒" << endl;
 	out << endl;
 
+	petri.release();
 
 	out.close();
 }
@@ -659,7 +478,7 @@ void compare1(string filename, string new_filename)
 	print_RG(rg_new, rg_sliceOnly_dirname + new_filename);
 
 	//************************模型检测
-	model_check(petri_new, rg_new);
+	//model_check(petri_new, rg_new,);
 	finish = clock();
 
 	out << "可达图节点个数：" << rg_new.rgnode.size() << endl;
@@ -725,7 +544,7 @@ void compare1(string filename, string new_filename)
 	RG rg_noexecute(petri1); //定义可达图
 	create_RG(rg_noexecute);
 	print_RG(rg_noexecute, rg_sliceOnly_dirname + "changeAnalyseNE-" + filename);
-	model_check(petri1, rg_noexecute);
+	//model_check(petri1, rg_noexecute);
 	finish = clock();
 	out << "可达图节点个数：" << rg_noexecute.rgnode.size() << endl;
 	out << "库所个数:" << rg_noexecute.petri.p_num << endl;
@@ -743,7 +562,7 @@ void compare1(string filename, string new_filename)
 	RG rg_executed(petri1); //定义可达图
 	create_RG(rg_executed);
 	print_RG(rg_executed, rg_sliceOnly_dirname + "changeAnalyseE-" + filename);
-	model_check(petri1, rg_executed);
+	//model_check(petri1, rg_executed);
 	finish = clock();
 	out << "可达图节点个数：" << rg_executed.rgnode.size() << endl;
 	out << "库所个数:" << rg_executed.petri.p_num << endl;

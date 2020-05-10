@@ -1,4 +1,5 @@
 #include"RG.h"
+#include<fstream>
 
 bool array_compare(int *a1, int *a2, int n)
 {
@@ -299,8 +300,71 @@ void RG::add_next(int node_id, stack<int> &newnode)
 	}
 }
 
+void create_RG(RG &rg)
+{
+	stack<int> newNode;
+	newNode.push(0);
+	while (!newNode.empty())
+	{
+		int node_id = newNode.top();
+		newNode.pop();
+		rg.add_next(node_id, newNode);
+	}
+}
+
+void print_RG(RG rg, string filename)
+{
+	ofstream fout;
+	fout.open(filename, ios::out);
+	fout << "可达图节点共有" << rg.node_num << "个" << endl;
+	fout << "如下所示" << endl;
+	fout << endl;
+	for (int i = 0; i < rg.node_num; i++)
+	{
+		//cout << i << endl;
+		fout << i << endl;
+		for (unsigned int j = 0; j < rg.rgnode[i].m.size(); j++)
+		{
+			int n_n = rg.rgnode[i].m[j].n_n;
+			//cout << "(" << rg.petri.place[j].v_name << "," << rg.rgnode[i].m[j].token_num << ",";
+			fout << "(" << rg.petri.place[j].v_name << "," << rg.rgnode[i].m[j].token_num << ",";
+			for (int k = 0; k < n_n; k++)
+			{
+				//cout << rg.rgnode[i].m[j].n[k] << " ";
+				fout << rg.rgnode[i].m[j].n[k] << " ";
+			}
+			//cout << ")    ";
+			fout << ")    ";
+		}
+		//cout << endl;
+		fout << endl;
+		//cout << "后继节点:";
+		fout << "后继节点:";
+		for (unsigned int j = 0; j < rg.rgnode[i].next.size(); j++)
+		{
+			//cout << rg.rgnode[i].next[j].num << "    经过变迁:" << rg.rgnode[i].next[j].T << "    ";
+			fout << rg.rgnode[i].next[j].num << "    经过变迁:" << rg.rgnode[i].next[j].T << "    ";
+		}
+		//cout << endl;
+		fout << endl;
+	}
+
+	fout.close();
+}
+
 void RG::release()
 {
+	for (unsigned int i = 0; i < rgnode.size(); i++)
+	{
+		for (unsigned int j = 0; j < rgnode[i].m.size(); j++)
+		{
+			if (rgnode[i].m[j].n_n > 0)
+				delete[] rgnode[i].m[j].n;
+
+			if (rgnode[i].m[j].n_dec > 0)
+				delete[] rgnode[i].m[j].dec;
+		}
+	}
 	rgnode.clear();
 	petri.release();
 }

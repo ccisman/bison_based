@@ -18,11 +18,12 @@
 #include "xml2ltl.h"
 #include "SBA.h"
 
-int model_check(C_Petri petri,RG rg)
+int model_check(C_Petri petri, RG rg, string filename1)
 {
 	//公式解析
-	char filename[50] = "formulaC.xml";  //C公式
-	char filenameF[50] = "formulaF.xml"; //F公式
+	char filename[100];  //C公式
+	//char filenameF[100]; //F公式
+	strcpy(filename, filename1.c_str());
 
 	//***************************************************************
 	//C公式
@@ -52,7 +53,7 @@ int model_check(C_Petri petri,RG rg)
 		//cout << form << endl;
 		cout << endl;
 		//lexer
-		Lexer *lex = new Lexer(form, S.length());
+		Lexer *lex = new Lexer(form, int(S.length()));
 		//syntax analysis
 		Syntax_Tree *ST;
 		ST = new Syntax_Tree;
@@ -113,113 +114,113 @@ int model_check(C_Petri petri,RG rg)
 	}
 
 	//***************************************************************
-	//F公式
-	ifstream infileF(filenameF, ios::in);
-	if (!infileF)
-		return 0;
-	Reachability = false;
-	convertf(filenameF);
+	////F公式
+	//ifstream infileF(filenameF, ios::in);
+	//if (!infileF)
+	//	return 0;
+	//Reachability = false;
+	//convertf(filenameF);
 
-	ifstream readF("formulaF.txt", ios::in);
-	if (!readF) {
-		cout << "error!";
-		getchar();
-		exit(-1);
-	}
+	//ifstream readF("formulaF.txt", ios::in);
+	//if (!readF) {
+	//	cout << "error!";
+	//	getchar();
+	//	exit(-1);
+	//}
 
-	while (getline(readF, propertyid, ':')) {
+	//while (getline(readF, propertyid, ':')) {
 
-		cout << propertyid << ':';
-		getline(readF, S);
-		strcpy_s(form, S.c_str());
-		//cout << form << endl;
-		cout << endl;
-		//lexer
-		Lexer *lex = new Lexer(form, S.length());
-		//syntax analysis
-		Syntax_Tree *ST;
-		ST = new Syntax_Tree;
-		formula_stack Ustack;
-		ST->reverse_polish(*lex);
-		ST->build_tree();
-		cout << "The syntax tree of unsimplified formula￡o" << endl;
-		ST->print_syntax_tree(ST->root, 0);
-		//LTL formula rewrite
-		ST->simplify_LTL(ST->root->left);
-		/*cout << endl;
-		cout << "The syntax tree of simplified formula￡o" << endl;
-		ST.print_syntax_tree(ST.root, 0);*/
-		//syntax tree convert
-		ST->negconvert(ST->root->left, Ustack);
-		delete lex;
-		/*cout << endl;
-		cout << "The converted formula￡o" << endl;
-		cout << ST.root->left->formula << endl;
-		cout << endl;*/
-		//ê?3?U×óê?
-		/*cout << "The subformulas of LTL whose main operator is \'U\'￡o" << endl;
-		vector<STNode>::iterator Uiter;
-		for (Uiter = Ustack.loc.begin(); Uiter != Ustack.loc.end(); Uiter++)
-		{
-			cout << (*Uiter)->formula << endl;
-		}
-		cout << endl;*/
-		//TGBA
-		TGBA *Tgba;
-		Tgba = new TGBA;
-		Tgba->CreatTGBA(Ustack, ST->root->left);
-		Tgba->SimplifyStates();
-		delete ST;
-		//cout << endl;
-		//11?ìTBA
-		TBA *tba;
-		tba = new TBA;
-		tba->CreatTBA(*Tgba, Ustack);
-		delete Tgba;
-		string filename = propertyid + ".txt";
-		tba->PrintBuchi(filename);
-		/*cout << "Please check the file" + filename + ". In this file you can see the Buchi automata related to the LTL formula!";
-		cout << endl;*/
-		//11?ìSBA
-		SBA sba;
+	//	cout << propertyid << ':';
+	//	getline(readF, S);
+	//	strcpy_s(form, S.c_str());
+	//	//cout << form << endl;
+	//	cout << endl;
+	//	//lexer
+	//	Lexer *lex = new Lexer(form, int(S.length()));
+	//	//syntax analysis
+	//	Syntax_Tree *ST;
+	//	ST = new Syntax_Tree;
+	//	formula_stack Ustack;
+	//	ST->reverse_polish(*lex);
+	//	ST->build_tree();
+	//	cout << "The syntax tree of unsimplified formula￡o" << endl;
+	//	ST->print_syntax_tree(ST->root, 0);
+	//	//LTL formula rewrite
+	//	ST->simplify_LTL(ST->root->left);
+	//	/*cout << endl;
+	//	cout << "The syntax tree of simplified formula￡o" << endl;
+	//	ST.print_syntax_tree(ST.root, 0);*/
+	//	//syntax tree convert
+	//	ST->negconvert(ST->root->left, Ustack);
+	//	delete lex;
+	//	/*cout << endl;
+	//	cout << "The converted formula￡o" << endl;
+	//	cout << ST.root->left->formula << endl;
+	//	cout << endl;*/
+	//	//ê?3?U×óê?
+	//	/*cout << "The subformulas of LTL whose main operator is \'U\'￡o" << endl;
+	//	vector<STNode>::iterator Uiter;
+	//	for (Uiter = Ustack.loc.begin(); Uiter != Ustack.loc.end(); Uiter++)
+	//	{
+	//		cout << (*Uiter)->formula << endl;
+	//	}
+	//	cout << endl;*/
+	//	//TGBA
+	//	TGBA *Tgba;
+	//	Tgba = new TGBA;
+	//	Tgba->CreatTGBA(Ustack, ST->root->left);
+	//	Tgba->SimplifyStates();
+	//	delete ST;
+	//	//cout << endl;
+	//	//11?ìTBA
+	//	TBA *tba;
+	//	tba = new TBA;
+	//	tba->CreatTBA(*Tgba, Ustack);
+	//	delete Tgba;
+	//	string filename = propertyid + ".txt";
+	//	tba->PrintBuchi(filename);
+	//	/*cout << "Please check the file" + filename + ". In this file you can see the Buchi automata related to the LTL formula!";
+	//	cout << endl;*/
+	//	//11?ìSBA
+	//	SBA sba;
 
-		sba.CreatSBA(*tba);
-		sba.Simplify();
-		sba.Compress();
-		delete tba;
+	//	sba.CreatSBA(*tba);
+	//	sba.Simplify();
+	//	sba.Compress();
+	//	delete tba;
 
 
-		//生成交自动机 并搜索
-		Product_Automata *product = new Product_Automata;
-		product->ModelChecker(petri, rg, sba, propertyid);
-		delete product;
-	}
+	//	//生成交自动机 并搜索
+	//	Product_Automata *product = new Product_Automata;
+	//	product->ModelChecker(petri, rg, sba, propertyid);
+	//	delete product;
+	//}
 }
 
-void GetLTLC(C_Petri &petri,  TiXmlElement *p)
+void GetLTLC(C_Petri &petri, TiXmlElement *p, vector<string> &criteria)
 {
 	string value = p->Value();
 	if (value == "all-paths")
 	{
-		GetLTLC(petri,  p->FirstChildElement());
+		GetLTLC(petri, p->FirstChildElement(), criteria);
 	}
 	else if (value == "globally")
 	{
-//		outltl << "[](";
-		GetLTLC(petri, p->FirstChildElement());
-//		outltl << ")";
+		//		outltl << "[](";
+		GetLTLC(petri, p->FirstChildElement(), criteria);
+		//		outltl << ")";
 	}
 	else if (value == "finally")
 	{
-//		outltl << "<>(";
-		GetLTLC(petri, p->FirstChildElement());
-//		outltl << ")";
+		//		outltl << "<>(";
+		GetLTLC(petri, p->FirstChildElement(), criteria);
+		//		outltl << ")";
 	}
 	else if (value == "next")
 	{
-//		outltl << "X(";
-		GetLTLC(petri, p->FirstChildElement());
-//		outltl << ")";
+		//		outltl << "X(";
+		GetLTLC(petri, p->FirstChildElement(), criteria);
+		//		outltl << ")";
 	}
 	else if (value == "until")
 	{
@@ -238,11 +239,11 @@ void GetLTLC(C_Petri &petri,  TiXmlElement *p)
 			cerr << "Error in XML file! The element until\'s second child is not reach!" << endl;
 			exit(-1);
 		}
-//		outltl << "(";
-		GetLTLC(petri, m->FirstChildElement());
-//		outltl << ")U(";
-		GetLTLC(petri, n->FirstChildElement());
-//		outltl << ")";
+		//		outltl << "(";
+		GetLTLC(petri, m->FirstChildElement(), criteria);
+		//		outltl << ")U(";
+		GetLTLC(petri, n->FirstChildElement(), criteria);
+		//		outltl << ")";
 	}
 	else if (value == "integer-le")
 	{
@@ -251,17 +252,18 @@ void GetLTLC(C_Petri &petri,  TiXmlElement *p)
 		n = m->NextSiblingElement();
 		string mValue = m->Value();
 		string nValue = n->Value();
-//		outltl << "{";
+		//		outltl << "{";
 		if (mValue == "tokens-count")
 		{
-//			outltl << "token-count(";
+			//			outltl << "token-count(";
 			TiXmlElement *left = m->FirstChildElement();
 			while (left != NULL)
 			{
-				
-//				outltl << left->GetText() << ",";
+
+				//				outltl << left->GetText() << ",";
 				string temp = left->GetText();
 				temp = find_P_name(petri, temp);
+				criteria.push_back(temp);
 				if (temp == "")
 					break;
 				char variable[50];
@@ -269,26 +271,54 @@ void GetLTLC(C_Petri &petri,  TiXmlElement *p)
 				left->FirstChild()->SetValue(variable);
 				left = left->NextSiblingElement();
 			}
-//			outltl << ")";
+			//			outltl << ")";
+		}
+		else if (mValue == "variable")
+		{
+			//			outltl << "token-count(";
+
+						//				outltl << left->GetText() << ",";
+			string temp = m->GetText();
+			temp = find_P_name(petri, temp);
+			criteria.push_back(temp);
+			if (temp == "")
+			{
+				cout << "error in MC!" << endl;
+				exit(-1);
+			}
+			char variable[50];
+			strcpy(variable, temp.c_str());
+			m->SetValue("tokens-count");
+			m->Clear();
+			TiXmlElement *pNewNode = new TiXmlElement("place");
+			pNewNode->SetValue("place");
+			m->LinkEndChild(pNewNode);
+
+			TiXmlText *pValue = new TiXmlText(variable);
+			pNewNode->LinkEndChild(pValue);
+
+
+			//			outltl << ")";
 		}
 		else if (mValue == "integer-constant")
 		{
-//			outltl << m->GetText();
+			//			outltl << m->GetText();
 		}
 		else {
 			cerr << "Error in XML file about the element integer-le!" << endl;
 			exit(-1);
 		}
-//		outltl << "<=";
+		//		outltl << "<=";
 		if (nValue == "tokens-count")
 		{
-//			outltl << "token-count(";
+			//			outltl << "token-count(";
 			TiXmlElement *right = n->FirstChildElement();
 			while (right != NULL)
 			{
-//				outltl << right->GetText() << ",";
+				//				outltl << right->GetText() << ",";
 				string temp = right->GetText();
 				temp = find_P_name(petri, temp);
+				criteria.push_back(temp);
 				if (temp == "")
 					break;
 				char variable[50];
@@ -296,21 +326,41 @@ void GetLTLC(C_Petri &petri,  TiXmlElement *p)
 				right->FirstChild()->SetValue(variable);
 				right = right->NextSiblingElement();
 			}
-//			outltl << ")";
+			//			outltl << ")";
 		}
-		else if (mValue == "integer-constant")
+		else if (nValue == "variable")
 		{
-//			outltl << n->GetText();
+			string temp = n->GetText();
+			temp = find_P_name(petri, temp);
+			criteria.push_back(temp);
+			if (temp == "")
+			{
+				cout << "error in MC!" << endl;
+				exit(-1);
+			}
+			char variable[50];
+			strcpy(variable, temp.c_str());
+			n->SetValue("tokens-count");
+			TiXmlElement *pNewNode = new TiXmlElement("place");
+			pNewNode->SetValue(variable);
+			n->LinkEndChild(pNewNode);
+
+			TiXmlText *pValue = new TiXmlText(variable);
+			pNewNode->LinkEndChild(pValue);
+		}
+		else if (nValue == "integer-constant")
+		{
+			//			outltl << n->GetText();
 		}
 		else {
 			cerr << "Error in XML file about the element integer-le!" << endl;
 			exit(-1);
 		}
-//		outltl << "}";
+		//		outltl << "}";
 	}
 }
 
-void xml_trans_C(C_Petri petri, char *filename, char *to_file)
+void xml_trans_C(C_Petri petri, char *filename, char *to_file, vector<string> &criteria)
 {
 
 	//ofstream outltl("FormulaC.txt", ios::out);
@@ -331,7 +381,7 @@ void xml_trans_C(C_Petri petri, char *filename, char *to_file)
 		TiXmlElement *id = p->FirstChildElement("id");
 
 		TiXmlElement *formula = p->FirstChildElement("formula");
-		GetLTLC(petri, formula->FirstChildElement());
+		GetLTLC(petri, formula->FirstChildElement(), criteria);
 
 		p = p->NextSiblingElement();
 	}

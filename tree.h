@@ -17,10 +17,7 @@ using namespace std;
 //	项, 因子, 语句, 赋值语句, 条件语句, 条件, 循环语句, 情况语句, 情况表, 情况子语句, 缺省, 函数调用语句, 值参数表, 语句列, 读语句, 写语句, 返回语句, 条件组, 子项, break语句
 //};
 
-static string rg_dirname = ".\\rg\\";
-static string rg_sliceOnly_dirname = ".\\rg_sliceOnly\\";
-static string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\test7\\";
-static string newfile_dirname = ".\\newfile\\";
+
 
 class gtree
 {

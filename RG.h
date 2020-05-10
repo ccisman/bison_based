@@ -56,6 +56,10 @@ public:
 
 string find_P_name_1(C_Petri petri, string v_name, int current);
 
-int model_check(C_Petri petri, RG rg);
+int model_check(C_Petri petri, RG rg, string filename);
 
-void xml_trans_C(C_Petri petri, char *filenameC, char *to_file);
+void xml_trans_C(C_Petri petri, char *filenameC, char *to_file,vector<string> &result);
+
+void create_RG(RG &rg);
+
+void print_RG(RG rg, string filename);

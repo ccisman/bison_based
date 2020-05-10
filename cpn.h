@@ -5,7 +5,7 @@
 #include<map>
 #include<stack>
 #include<sstream>
-
+#include"v_table.h"
 
 #include"tree.h"
 using namespace std;
@@ -175,6 +175,7 @@ public:
 	void release();
 };
 
+extern vector<V_Table *> v_tables;
 
 string find_P_name(C_Petri petri, string v_name);
 string find_T_name(C_Petri petri, string v_name);
@@ -193,3 +194,13 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition);//additionŒ™0±Ì æ÷±Ω”ππΩ
 void reset_gen_cpn();
 
 void process_label(C_Petri &petri);//¥¶¿Ì±Í«©”Ôæ‰
+
+void readGraph(string input, string output);
+
+void makeGraph(string inputname, string outputname);
+
+void intofile(C_Petri petri);
+
+void create_CPN(C_Petri &petri, gtree *tree);
+
+void output_CPN(C_Petri petri, string filePrefix);
