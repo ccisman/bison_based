@@ -1393,8 +1393,8 @@ void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä
 			}
 			for (unsigned int i = 0; i < enter_P.size(); i++)
 				petri.Add_Arc(T, enter_P[i], V, sourceP);
-			if (enter_P[0] != _P)
-				petri.Add_Arc(T, _P, V, sourceP);
+			/*if (enter_P[0] != _P)
+				petri.Add_Arc(T, _P, V, sourceP);*/
 			//int flag = petri.get_call_flag(_P);
 
 			now = petri.get_enter(_P);
@@ -2376,8 +2376,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				vector<string> enter_P = petri.get_enter_P(statement_P);
 				for (unsigned int i = 0; i < enter_P.size(); i++)
 					petri.Add_Arc(T, enter_P[i], "", false);
-				if (enter_P[0] != statement_P)
-					petri.Add_Arc(T, statement_P, "", false);
+				/*if (enter_P[0] != statement_P)
+					petri.Add_Arc(T, statement_P, "", false);*/
 			}
 
 			string t3;
@@ -2394,8 +2394,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 					vector<string> enter_P = petri.get_enter_P(statement_P);
 					for (unsigned int i = 0; i < enter_P.size(); i++)
 						petri.Add_Arc(T1, enter_P[i], "", false);
-					if (enter_P[0] != statement_P)
-						petri.Add_Arc(T1, statement_P, "", false);
+					/*if (enter_P[0] != statement_P)
+						petri.Add_Arc(T1, statement_P, "", false);*/
 				}
 			}
 			sourceP = true;
@@ -2508,8 +2508,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				vector<string> enter_P = petri.get_enter_P(statement_P);
 				for (unsigned int i = 0; i < enter_P.size(); i++)
 					petri.Add_Arc(T, enter_P[i], "", false);
-				if (enter_P[0] != statement_P)
-					petri.Add_Arc(T, statement_P, "", false);
+				/*if (enter_P[0] != statement_P)
+					petri.Add_Arc(T, statement_P, "", false);*/
 			}
 
 			sourceP = true;
@@ -2624,8 +2624,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		this_func_name = find_func->place;
 		last_func = find_P_name(petri, this_func_name + " begin");
 
-		//ÅĞ¶ÏÊÇ·ñÊÇÓï¾ä¿éÖĞ
-		string inside = "";
+		
+		//string inside = "";
 		gtree *temp_statement = p, *temp_expression = NULL;
 		bool flag_condition = false;
 
@@ -2636,10 +2636,10 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			temp_statement = temp_statement->parent;
 		}
 		string statement_vname = temp_statement->place;
-		if (judge_inside(temp_statement))
+		/*if (judge_inside(temp_statement))
 			inside = "in";
 		else
-			inside = "";
+			inside = "";*/
 
 		//
 		gtree *temp_primary_expression = p;
@@ -2648,7 +2648,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 		string temp_identifier = temp_primary_expression->child->place;
 
-		
+
 		if (temp_expression->parent->type == SELECTION_STATEMENT || temp_expression->parent->type == ITERATION_STATEMENT)
 			flag_condition = true;
 		//bool last_father_flag, flag_else;
@@ -2662,7 +2662,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		V_name = temp_identifier + "()";
 
 		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
-		
+
 		petri.set_fun_P(P1, last_func);//()¿âËùÒ²Òª¼Ófun_P
 
 		T = gen_T();
@@ -2675,22 +2675,22 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		sourceP = true;
 		petri.Add_Arc(P1, T, V, sourceP);
 		string P3;
-		if (inside == "")
-		{
+		//if (inside == "")
+		//{
 			//¹¹Ôì¿ØÖÆ¿âËù
-			P3 = gen_P();
-			control_P = true;
-			t = false;
-			V_name = temp_identifier + "()_c";
+		P3 = gen_P();
+		control_P = true;
+		t = false;
+		V_name = temp_identifier + "()_c";
 
-			petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 0, false);
-		}
+		petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 0, false);
+		//}
 
 		//½«º¯Êıµ÷ÓÃ½á¹¹Àï¿âËù¼ÓÈë±»µ÷ÓÃº¯ÊıbeginÖĞ
 		string call_fun_begin = find_P_name(petri, temp_identifier + " begin");
 		petri.add_call_P(call_fun_begin, P1);
-		if (inside == "")
-			petri.add_call_P(call_fun_begin, P3);
+		//if (inside == "")
+		petri.add_call_P(call_fun_begin, P3);
 
 		//whileÓï¾ä½«()ºÍ()_c¿âËùÌí¼Ó½øinformationÓÃÓÚÑ­»·
 		//if (temp_expression->parent->type == ITERATION_STATEMENT && flag_condition == true)
@@ -2737,19 +2737,19 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			string T1 = gen_T();
 			//vector<string> v;
 			//v.push_back(T);//ÕâÀïÈë¿Ú¿âËù±äÎª ()¿âËù
-			if (inside == "")
-			{
-				vector<string> temp_v;
-				temp_v.push_back(P1);
-				temp_v.push_back(P3);
-				petri.set_enter_P(new_place, temp_v);
-			}
-			else
-			{
-				vector<string> temp_v;
-				temp_v.push_back(P1);
-				petri.set_enter_P(new_place, temp_v);
-			}
+			//if (inside == "")
+			//{
+			vector<string> temp_v;
+			temp_v.push_back(P1);
+			temp_v.push_back(P3);
+			petri.set_enter_P(new_place, temp_v);
+			//}
+			//else
+			//{
+			//temp_v.clear();
+			//temp_v.push_back(P1);
+			//petri.set_enter_P(new_place, temp_v);
+			//}
 			control_T = false;
 			petri.Add_Transition(T1, control_T, V_name, current);
 			petri.Add_Arc(new_place, T1, "", true);
@@ -2762,11 +2762,11 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			//Ôö¼Ó¹ØÏµ»¡
 			//petri.Add_Arc(T1, P1, "relation", false);
 			petri.Add_Arc(P1, T1, "relation", true);
-			if (inside == "")
-			{
-				//petri.Add_Arc(T1, P3, "relation", false);
-				petri.Add_Arc(P3, T1, "relation", true);
-			}
+			//if (inside == "")
+			//{
+			petri.Add_Arc(T1, P3, "relation", false);
+			petri.Add_Arc(P3, T1, "relation", true);
+			//}
 		}
 		else
 		{
@@ -2776,38 +2776,39 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				temp_statement->contain_call_flag = true;
 			}
 			string statement_P = find_P_name(petri, statement_vname);
-			if (inside == "")
-			{
+			//if (inside == "")
+			//{
 				vector<string> temp_v;
 				temp_v.push_back(P1);
 				temp_v.push_back(P3);
 				petri.set_enter_P(statement_P, temp_v);
 				petri.clear_enter(statement_P);
 				petri.Add_Place_enter(statement_P, T);
-			}
-			else
+			//}
+			/*else
 			{
 				vector<string> temp_v;
 				temp_v.push_back(P1);
 				petri.set_enter_P(statement_P, temp_v);
 				petri.clear_enter(statement_P);
 				petri.Add_Place_enter(statement_P, T);
-			}
+			}*/
 			//Ôö¼Ó¹ØÏµ»¡
 			vector<string> control_T = petri.get_control_T(statement_P);
 			for (unsigned int i = 0; i < control_T.size(); i++)
 			{
 				//petri.Add_Arc(control_T[i], P1, "relation", false);
 				petri.Add_Arc(P1, control_T[i], "relation", true);
+				petri.Add_Arc(P3, control_T[i], "relation", true);
 			}
-			if (inside == "")
-			{
+			/*if (inside == "")
+			{*/
 				for (unsigned int i = 0; i < control_T.size(); i++)
 				{
-					//petri.Add_Arc(control_T[i], P3, "relation", false);
-					petri.Add_Arc(P3, control_T[i], "relation", true);
+					petri.Add_Arc(control_T[i], P3, "relation", false);
+					
 				}
-			}
+			//}
 			//temp_statement->contain_call = temp_expression->child->place;
 		}
 
@@ -2818,21 +2819,21 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 		//¹¹Ôì·µ»Ø±äÇ¨
 		string T2 = "";
-		if (inside == "")
-		{
-			T2 = gen_T();
-			control_T = false;
-			s = temp_identifier + " end";
-			petri.Add_Transition(T2, control_T, s, current);
-			string temp_P = find_P_name(petri, s);
+		/*if (inside == "")
+		{*/
+		T2 = gen_T();
+		control_T = false;
+		s = temp_identifier + " end";
+		petri.Add_Transition(T2, control_T, s, current);
+		string temp_P = find_P_name(petri, s);
 
-			V = "";
-			sourceP = true;
-			petri.Add_Arc(temp_P, T2, V, sourceP);
-			petri.Add_Arc(P3, T2, V, sourceP);
-			petri.set_arc_type(P3, T2, 4);
-			petri.set_arc_type(temp_P, T2, 5);
-		}
+		V = "";
+		sourceP = true;
+		petri.Add_Arc(temp_P, T2, V, sourceP);
+		petri.Add_Arc(P3, T2, V, sourceP);
+		petri.set_arc_type(P3, T2, 4);
+		petri.set_arc_type(temp_P, T2, 5);
+		//}
 
 		string temp_s = temp_identifier + " begin";
 		string P4 = find_P_name(petri, temp_s);
@@ -2874,7 +2875,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 						string p_name = find_P_name_1(petri, V, petri.get_current_P_num(T));
 						V = p_name;
 					}
-					
+
 					sourceP = false;
 					petri.Add_Arc(T, petri.place[i].name, V, sourceP);
 					sourceP = true;
@@ -2896,42 +2897,42 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		///Ìø×ªÌø»Ø´¦Àí
 
 				//Ìø»Ø²¿·Ö
-		string temp_P = temp_identifier + " end";
+		//string temp_P = temp_identifier + " end";
 		//last_call = find_T_name(petri, temp_P);
 
-		if (inside == "")
-		{
-			string T1 = find_T_name(petri, temp_P);
+		/*if (inside == "")
+		{*/
+		//string T1 = find_T_name(petri, temp_P);
 
-			string  P2;
-			//temp_place = temp_p->child->place;
-			P2 = find_P_name(petri, temp_statement->place);
-			V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
-			sourceP = false;
-			petri.Add_Arc(T1, P2, V, sourceP);
-			petri.set_arc_type(T1, P2, 1);//º¯Êıµ÷ÓÃ·µ»Ø»¡
-			string_replace(temp_P, " end", " begin");
+		string  P2;
+		//temp_place = temp_p->child->place;
+		P2 = find_P_name(petri, temp_statement->place);
+		V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
+		sourceP = false;
+		petri.Add_Arc(T2, P2, V, sourceP);
+		petri.set_arc_type(T2, P2, 1);//º¯Êıµ÷ÓÃ·µ»Ø»¡
+		//string_replace(temp_P, " end", " begin");
 
-		}
-		else
-		{
-			//Á¬½Óend¿âËùµ½Óï¾äµÄcontrol_T
-
-
-
-			string P2 = find_P_name(petri, temp_statement->place);
-			string P3 = find_P_name(petri, temp_P);
-			vector<string> v1 = petri.get_control_T(P2);
-			for (unsigned k = 0; k < v1.size(); k++)
-			{
-				V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
-				sourceP = true;
-				petri.Add_Arc(P3, v1[k], V, sourceP);
-				petri.set_arc_type(P3, v1[k], 1);
-			}
+		//}
+		//else
+		//{
+		//	//Á¬½Óend¿âËùµ½Óï¾äµÄcontrol_T
 
 
-		}
+
+		//	string P2 = find_P_name(petri, temp_statement->place);
+		//	string P3 = find_P_name(petri, temp_P);
+		//	vector<string> v1 = petri.get_control_T(P2);
+		//	for (unsigned k = 0; k < v1.size(); k++)
+		//	{
+		//		V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
+		//		sourceP = true;
+		//		petri.Add_Arc(P3, v1[k], V, sourceP);
+		//		petri.set_arc_type(P3, v1[k], 1);
+		//	}
+
+
+		//}
 
 	}
 	else if (judge_return_statement(p))//

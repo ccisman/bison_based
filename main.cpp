@@ -17,7 +17,7 @@
 
 string rg_dirname = ".\\rg\\";
 string rg_sliceOnly_dirname = ".\\rg_sliceOnly\\";
-string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\combine_test\\";
+string origin_dirname = "D:\\学习资料\\项目资料\\petri建模\\test7\\";
 string newfile_dirname = ".\\newfile\\";
 
 #define keywordNum 20
@@ -289,7 +289,7 @@ void DirectBuild(gtree *tree, string new_filename, C_Petri &petri, RG &rg)
 	//RG rg(petri); //定义可达图
 	rg.init_RG(petri);
 	create_RG(rg);
-	//print_RG(rg, dirname + new_filename);
+	print_RG(rg, rg_dirname + new_filename);
 }
 
 //功能：输出语法树
@@ -428,7 +428,7 @@ void compare(string filename, string new_filename)
 	create_RG(rg2);
 	print_RG(rg2, rg_dirname + "changeAnalyse-" + filename);
 	//model_check(petri1, rg2);
-	rg2.release();
+	
 
 	finish = clock();
 	out << "可达图节点个数：" << rg2.rgnode.size() << endl;
@@ -436,7 +436,7 @@ void compare(string filename, string new_filename)
 	out << "变迁个数:" << rg2.petri.t_num << endl;
 	out << "变化影响分析时间：" << (finish - start + temp) / 1000.0 << "秒" << endl;
 	out << endl;
-
+	rg2.release();
 	petri.release();
 
 	out.close();
@@ -576,7 +576,7 @@ void compare1(string filename, string new_filename)
 
 int main()
 {
-
+	//out_tree("1.txt");
 	vector<string> filelist;
 
 	string filename, new_filename;

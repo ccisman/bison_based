@@ -914,9 +914,13 @@ void copy_P(C_Petri &petri, string P1, string P2)
 				if (petri.place[j].name == P2)
 				{
 					petri.place[j].v_name = petri.place[i].v_name;
-					petri.place[j].num = petri.place[i].num;
+					petri.place[j].num = new int[petri.place[i].n_num];
+					for (int k = 0; k < petri.place[i].n_num; k++)
+						petri.place[j].num[k] = petri.place[i].num[k];
 					petri.place[j].n_num = petri.place[i].n_num;
-					petri.place[j].decimal = petri.place[i].decimal;
+					petri.place[j].decimal = new double[petri.place[i].n_decimal];
+					for (int k = 0; k < petri.place[i].n_decimal; k++)
+						petri.place[j].decimal[k] = petri.place[i].decimal[k];
 					petri.place[j].n_decimal = petri.place[i].n_decimal;
 					petri.place[j].str = petri.place[i].str;
 					return;
