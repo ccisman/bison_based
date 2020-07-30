@@ -576,7 +576,13 @@ void compare1(string filename, string new_filename)
 
 int main()
 {
-	//out_tree("1.txt");
+	//out_tree("strucRed.txt");
+
+	string filename1 = "strucRed.txt";
+	gtree *tree = create_tree(filename1, true);
+	C_Petri cpn;
+	onlybuildCPN(tree, filename1, cpn);
+
 	vector<string> filelist;
 
 	string filename, new_filename;

@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<string>
+#include<vector>
 
 using namespace std;
 #define MAX_LENGTH 3000
@@ -36,6 +37,7 @@ public:
 	bool contain_call_flag;
 	int record_P_num;
 	string label_P;//记录前向的label库所，用于goto语句的连接
+	vector<pair<string,string>> para;//for compound node:para places' name
 
 	gtree()
 	{

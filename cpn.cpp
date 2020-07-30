@@ -13,6 +13,7 @@ int Place::total_num = 0;
 int Transition::total_num = 0;
 
 vector<V_Table *> v_tables;//variable tables
+int v_tables_count = 0;
 
 Arc::Arc(string s, string t, string v, bool s_P)
 {
@@ -53,11 +54,11 @@ void Place::set_Place_value(string s)
 	token_num = 1;
 }
 
-Transition::Transition(string n, bool c_T, int current)
+Transition::Transition(string n, bool c_T, int cur)
 {
 	name = n;
 	controlT = c_T;
-	current_P_num = current;
+	current = cur;
 	id_num = total_num++;
 }
 
@@ -73,7 +74,8 @@ void Transition::set_V_Transition_value(string str)
 
 C_Petri::C_Petri()
 {
-
+	place.reserve(1000);
+	transition.reserve(1000);
 }
 
 void C_Petri::Add_Arc(Arc a)
@@ -86,6 +88,7 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 {
 	int sourceid, targetid;
 	Arc a(source, target, V, sourceP);
+	bool rewrite = false;
 	for (vector<Arc>::iterator it = arc.begin(); it != arc.end(); it++)
 	{
 		if (it->source == source && it->target == target)
@@ -102,10 +105,13 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 				//cout << "¸²¸Ç±ß" << source << "-->" << target << endl;
 				arc.erase(it);
 				arcnum--;
+				rewrite = true;
 				break;
 			}
 		}
 	}
+	Place *p = NULL;
+	Transition *t = NULL;
 
 	if (sourceP)
 	{
@@ -115,6 +121,7 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 			if (place[i].name == source)
 			{
 				sourceid = place[i].id_num;
+				p = &place[i];
 				break;
 			}
 		}
@@ -128,6 +135,7 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 			if (transition[j].name == target)
 			{
 				targetid = transition[j].id_num;
+				t = &transition[j];
 				break;
 			}
 		}
@@ -135,6 +143,13 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 		{
 			cout << "can't find target:" << target << endl;
 			exit(1);
+		}
+		if (rewrite == false && V != "relation")
+		{
+			p->consumer.push_back(t);
+			p->consumer_V.push_back(V);
+			t->producer.push_back(p);
+			t->producer_V.push_back(V);
 		}
 	}
 	else
@@ -145,6 +160,7 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 			if (place[i].name == target)
 			{
 				targetid = place[i].id_num;
+				p = &place[i];
 				break;
 			}
 		}
@@ -158,13 +174,21 @@ void C_Petri::Add_Arc(string source, string target, string V, bool sourceP)
 			if (transition[j].name == source)
 			{
 				sourceid = transition[j].id_num;
+				t = &transition[j];
 				break;
 			}
 		}
 		if (j == t_num)
 		{
 			cout << "can't find source!" << endl;
-			//exit(1);
+			exit(1);
+		}
+		if (rewrite == false && V != "relation")
+		{
+			p->producer.push_back(t);
+			p->producer_V.push_back(V);
+			t->consumer.push_back(p);
+			t->consumer_V.push_back(V);
 		}
 	}
 	a.sourceNum = sourceid;
@@ -394,11 +418,25 @@ bool C_Petri::get_global(string p_name)
 
 bool C_Petri::is_enable(string t_name)
 {
-	vector<string> all_P;
-	all_P = find_all_place(t_name);
-	for (unsigned int i = 0; i < all_P.size(); i++)
+	//vector<Place *> all_P;
+	//all_P = find_all_place(t_name);
+	Transition *t = NULL;
+	for (int i = 0; i < t_num; i++)
 	{
-		for (int j = 0; j < p_num; j++)
+		if (transition[i].name == t_name)
+		{
+			t = &transition[i];
+			break;
+		}
+	}
+	if (t == NULL)
+	{
+		cout << "is_enable error" << endl;
+		exit(-1);
+	}
+	for (unsigned int i = 0; i < t->producer.size(); i++)
+	{
+		/*for (int j = 0; j < p_num; j++)
 		{
 			if (place[j].name == all_P[i])
 			{
@@ -407,7 +445,9 @@ bool C_Petri::is_enable(string t_name)
 					return false;
 				}
 			}
-		}
+		}*/
+		if (t->producer_V[i] != "relation"&& t->producer[i]->token_num < 1)
+			return false;
 	}
 
 	string guard_Expression;
@@ -429,7 +469,7 @@ bool C_Petri::is_enable(string t_name)
 	}
 	else
 	{
-			return true;
+		return true;
 	}
 
 }
@@ -516,18 +556,17 @@ int is_operator(string s, int pos)//ÅĞ¶ÏÊÇ·ñÎªÔËËã·û£¬·µ»Ø1±íÊ¾µ¥×Ö·ûÔËËã·û£¬·µ»
 	return 0;
 }
 
-double process_get_value(vector<Place> place, int pos, int current,int array_num)
+double process_get_value(vector<Place> &place, Place *&temp_p1, int array_num)
 {
-	Place *temp_p1 = &place[pos];
 	while (temp_p1->ispoint == true)
 	{
 		if (temp_p1->str == "")
 		{
-			cout << "point Î´¸³Öµ!" << endl;
+			cout << "point unassigned!" << endl;
 			exit(1);
 		}
 		//string P_num = "P" + to_string(current);
-		for (unsigned int i = 0 ; i <place.size(); i++)
+		for (unsigned int i = 0; i < place.size(); i++)
 			if (place[i].name == temp_p1->str)
 			{
 				temp_p1 = &place[i];
@@ -545,7 +584,7 @@ double process_get_value(vector<Place> place, int pos, int current,int array_num
 	}
 }
 
-double get_value(string s, vector<Place> place, int current)//Í¨¹ı±äÁ¿ÃûÑ°ÕÒ±äÁ¿¿âËùvalueµÄÖµ£¬Î´¿¼ÂÇÊı×é
+double get_value(string s, vector<Place> &place, int current)//Í¨¹ı±äÁ¿ÃûÑ°ÕÒ±äÁ¿¿âËùvalueµÄÖµ
 {
 	int position = 0;
 	int array_num = 0;
@@ -576,41 +615,53 @@ double get_value(string s, vector<Place> place, int current)//Í¨¹ı±äÁ¿ÃûÑ°ÕÒ±äÁ¿
 		ss >> temp;
 		return temp;
 	}
-	int current_1 = place.size() - 1;
-	/*for (int i = 0; i<int(place.size()); i++)
-	{
-		int p_num = atoi(place[i].name.substr(1).c_str());
-		if (p_num > current)
-		{
-			current_1 = i - 1;
-			break;
-		}
-	}*/
-	for (int i = current_1; i > 0; i--)
-	{
-		if (place[i].id_num <= current)
-		{
-			current_1 = i;
-			break;
-		}
-	}
-	for (int i = current_1; i >= 0; i--)
-	{
-		/*string name = place[i].name;
-		name = name.substr(1);
-		int name_num = atoi(name.c_str());*/
-		/*if (name_num < current)
-		{*/
-			vector<string> v;
-			SplitString(place[i].v_name, v, "@");
-			if (s == v[v.size() - 1])
-			{
-				double value = process_get_value(place, i, current, array_num);
-				return value;
-			}
-		//}
-	}
+	//int current_1 = place.size() - 1;
+	///*for (int i = 0; i<int(place.size()); i++)
+	//{
+	//	int p_num = atoi(place[i].name.substr(1).c_str());
+	//	if (p_num > current)
+	//	{
+	//		current_1 = i - 1;
+	//		break;
+	//	}
+	//}*/
+	//for (int i = current_1; i > 0; i--)
+	//{
+	//	if (place[i].id_num <= current)
+	//	{
+	//		current_1 = i;
+	//		break;
+	//	}
+	//}
+	//for (int i = current_1; i >= 0; i--)
+	//{
+	//	/*string name = place[i].name;
+	//	name = name.substr(1);
+	//	int name_num = atoi(name.c_str());*/
+	//	/*if (name_num < current)
+	//	{*/
+	//		vector<string> v;
+	//		SplitString(place[i].v_name, v, "@");
+	//		if (s == v[v.size() - 1])
+	//		{
+	//			double value = process_get_value(place, i, current, array_num);
+	//			return value;
+	//		}
+	//	//}
+	//}
 
+	string temp_P = v_tables[current]->get_place(s);
+	Place *pp;
+	for (unsigned int i = 0; i < place.size(); i++)
+	{
+		if (place[i].name == temp_P)
+		{
+			pp = &place[i];
+			double value = process_get_value(place, pp, array_num);
+			return value;
+		}
+	}
+	
 	//cout << "afterward get_value" << endl;
 
 	//for (int i = place.size() - 1; i >= current_1; i--)
@@ -791,7 +842,7 @@ double change_and_cal(string s, vector<Place> place, int current)//½«ÖĞ×ºÊ½s×ª»»
 
 bool C_Petri::guard(string booleanExpression, string T)
 {
-	return change_and_cal(booleanExpression, place, get_current_P_num(T));
+	return change_and_cal(booleanExpression, place, get_current(T));
 }//a&&b||c&&(d||e)
 
 vector<string> C_Petri::find_all_place(string t_name)
@@ -871,14 +922,14 @@ void C_Petri::delete_all_connected_arc(string place)
 	}
 }
 
-int C_Petri::get_current_P_num(string T)
+int C_Petri::get_current(string T)
 {
 	for (int i = 0; i < t_num; i++)
 	{
 		if (transition[i].name == T)
-			return transition[i].current_P_num;
+			return transition[i].current;
 	}
-	cout << "get_current_P_num error" << endl;
+	cout << "get_current error" << endl;
 	exit(1);
 }
 
@@ -1120,6 +1171,7 @@ void C_Petri::clear_enter(string p_name)
 	exit(1);
 }
 
+
 int gen_P_num = 0, gen_T_num = 0;//Éú³É¿âËùºÍ±äÇ¨ÃûµÄÏÂ±ê
 bool control_P = true;
 bool control_T = true;
@@ -1167,6 +1219,7 @@ void reset_gen_cpn()
 		delete v_tables[i];
 	}
 	v_tables.clear();
+	v_tables_count = 0;
 }
 int find_P_exist(vector<Place> place, string s)//ÕÒ¿âËùÖĞÊÇ·ñÓĞv_nameµÈÓÚsµÄ£¬²¢ÇÒ·µ»ØÓĞ¼¸¸ö
 {
@@ -1224,53 +1277,11 @@ string find_P_name(C_Petri petri, string v_name)//Í¨¹ı±äÁ¿Ãûv_nameÕÒ¿âËùÃûname
 	cout << "can't find P" << endl;
 	return "";
 }
-string find_P_name_1(C_Petri petri, string v_name, int current)//Í¨¹ı±äÁ¿Ãûv_nameÕÒ¿âËùÃûname
+string find_P_name_x(C_Petri petri, string v_name, int current)//Í¨¹ı±äÁ¿Ãûv_nameÕÒ¿âËùÃûname
 {
-	/*int current_1 = petri.place.size() - 1;
-	for (int i = 0; i<int(petri.place.size()); i++)
-	{
-		int p_num = atoi(petri.place[i].name.substr(1).c_str());
-		if (p_num > current)
-		{
-			current_1 = i - 1;
-			break;
-		}
-	}*/
-	int current_1 = petri.place.size() - 1;
-	for (int i = petri.p_num - 1; i > 0; i--)
-	{
-		if (petri.place[i].id_num <= current)
-		{
-			current_1 = i;
-			break;
-		}
-	}
-	for (int i = current_1; i >= 0; i--)
-	{
-		string s = petri.place[i].v_name;
-		vector<string> v;
-		SplitString(s, v, "@");
 
-		int pos = v.size() - 1;
-		if (pos >= 0 && v[pos] == v_name)
-			return petri.place[i].name;
-	}
+	return v_tables[current]->get_place(v_name);
 
-	/*cout << "afterward find_P_name1" << endl;
-
-	for (unsigned int i = petri.place.size() - 1; i >=current_1 ; i--)
-	{
-		string s = petri.place[i].v_name;
-		vector<string> v;
-		SplitString(s, v, "@");
-
-		int pos = v.size() - 1;
-		if (pos >= 0 && v[pos] == v_name)
-			return petri.place[i].name;
-	}*/
-
-	cout << "can't find P" << endl;
-	return "";
 }
 string find_T_name(C_Petri petri, string v_name)//Í¨¹ı±í´ïÊ½Ãûv_nameÕÒ±äÇ¨Ãûname
 {
@@ -1315,7 +1326,7 @@ bool create_connect(C_Petri &petri, string T, string express, int current)//¸ø¶¨
 				temp_c = temp[temp.size() - 1];
 				temp_s.append(1, temp_c);
 			}
-			P2 = find_P_name_1(petri, v[i], current);
+			P2 = find_P_name_x(petri, v[i], current);
 			bool is_point = petri.get_point_flag(P2);
 			if (is_point)
 				V = "";
@@ -1342,22 +1353,22 @@ bool create_connect(C_Petri &petri, string T, string express, int current)//¸ø¶¨
 	}
 	return global;
 }
-void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä££¬Óï¾äÄÚ²¿½¨Ä£²»ĞèÒª¿¼ÂÇÊÇ·ñ´æÔÚ¹ı³Ìµ÷ÓÃ
+void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement built 1
 {
 	gtree *tr;
 	int sum = 0;
 	//bool flag = false;
-	if (tree1->child->next->type == STATEMENT_LIST)//Ö»ÓĞÓï¾ä
+	if (tree1->child->next->type == STATEMENT_LIST)
 	{
 		tr = tree1->child->next;
 	}
-	else if (tree1->child->next->next->type == STATEMENT_LIST)//¼ÈÓĞÓï¾äÓÖÓĞ¶¨Òå
+	else if (tree1->child->next->next->type == STATEMENT_LIST)
 	{
 		tr = tree1->child->next->next;
 	}
 	else//Ö»ÓĞ¶¨Òå
 	{
-		cout << "Ôİ²»´¦ÀíÖ»ÓĞ¶¨ÒåµÄÇé¿ö!" << endl;
+		cout << "only have declaration!" << endl;
 		exit(1);
 	}
 	while (tr->type != STATEMENT)
@@ -1370,79 +1381,78 @@ void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä
 		now.clear();
 		/*if (tr->child->type == SELECTION_STATEMENT || tr->child->type == ITERATION_STATEMENT
 			|| judge_assign_statement(tr) || judge_call_statement(tr) || judge_return_statement(tr))*/
-		/*if(tr->type==STATEMENT)
-		{*/
+			/*if(tr->type==STATEMENT)
+			{*/
 
-			bool control_P, t;
-			int n1 = 0;
-			double d = 0.0;
-			string tag;
-			string V = "", V_name = "";
-			string s = "";
-			string _P = find_P_name(petri, tr->place);
-			vector<string> enter_P = petri.get_enter_P(_P);
-			bool sourceP = false;
+		bool control_P, t;
+		int n1 = 0;
+		double d = 0.0;
+		string tag;
+		string V = "", V_name = "";
+		string s = "";
+		string _P = find_P_name(petri, tr->place);
+		vector<string> enter_P = petri.get_enter_P(_P);
+		bool sourceP = false;
 
-			if (enter_P.size() == 0)
-			{
-				if (tr->parent->next->type == STATEMENT)
-					tr = tr->parent->next;
-				else
-					break;
-				continue;
-			}
-			for (unsigned int i = 0; i < enter_P.size(); i++)
-				petri.Add_Arc(T, enter_P[i], V, sourceP);
-			/*if (enter_P[0] != _P)
-				petri.Add_Arc(T, _P, V, sourceP);*/
-			//int flag = petri.get_call_flag(_P);
-
-			now = petri.get_enter(_P);
-			if (sum == 0)
-			{
-				sum++;
-			}
+		if (enter_P.size() == 0)
+		{
+			if (tr->parent->next->type == STATEMENT)
+				tr = tr->parent->next;
 			else
+				break;
+			continue;
+		}
+		for (unsigned int i = 0; i < enter_P.size(); i++)
+			petri.Add_Arc(T, enter_P[i], V, sourceP);
+		if (enter_P[0] != _P)
+			petri.Add_Arc(T, _P, V, sourceP);
+		//int flag = petri.get_call_flag(_P);
+
+		now = petri.get_enter(_P);
+		if (sum == 0)
+		{
+			sum++;
+		}
+		else
+		{
+			string newP = gen_P();
+			V_name = "executedP";
+			tag = "";
+			control_P = true;
+			t = false;
+			ispoint = false;
+			petri.Add_Place(newP, V_name, tag, control_P, t, n1, d, s, 0, ispoint);
+
+
+			petri.set_pre_executed_P(_P, newP);
+
+			V = "executed";
+
+			sourceP = false;
+			for (unsigned int i = 0; i < last.size(); i++)
+				petri.Add_Arc(last[i], newP, V, sourceP);
+
+			//if (tr->child->type == breakÓï¾ä)
+			//	break;
+
+
+			sourceP = true;
+			for (unsigned int i = 0; i < now.size(); i++)
+				petri.Add_Arc(newP, now[i], V, sourceP);
+			if (tr->child->type == ITERATION_STATEMENT)//while statement
 			{
-				string newP = gen_P();
-				V_name = "executedP";
-				tag = "";
-				control_P = true;
-				t = false;
-				ispoint = false;
-				petri.Add_Place(newP, V_name, tag, control_P, t, n1, d, s, 0, ispoint);
-
-				
-				petri.set_pre_executed_P(_P, newP);
-
-				V = "executed";
-
-				sourceP = false;
-				for (unsigned int i = 0; i < last.size(); i++)
-					petri.Add_Arc(last[i], newP, V, sourceP);
-
-				//breakÓï¾ä²»¼ÌĞøÁ¬
-				//if (tr->child->type == breakÓï¾ä)
-				//	break;
-
-
-				sourceP = true;
-				for (unsigned int i = 0; i < now.size(); i++)
-					petri.Add_Arc(newP, now[i], V, sourceP);
-				if (tr->child->type == ITERATION_STATEMENT)//Ñ­»·Óï¾äÇ°ÓĞÖ´ĞĞ¿âËùµÄÎÊÌâ
+				vector<string> false_exit = petri.get_false_exit(_P);
+				for (unsigned int i = 0; i < false_exit.size(); i++)
 				{
-					vector<string> false_exit = petri.get_false_exit(_P);
-					for (unsigned int i = 0; i < false_exit.size(); i++)
-					{
-						sourceP = false;
-						petri.Add_Arc(false_exit[i], newP, V, sourceP);
-					}
+					sourceP = false;
+					petri.Add_Arc(false_exit[i], newP, V, sourceP);
 				}
-
 			}
 
-			last = petri.get_exit(_P);
-			
+		}
+
+		last = petri.get_exit(_P);
+
 		//}
 		if (tr->parent->next->type == STATEMENT)
 			tr = tr->parent->next;
@@ -1452,22 +1462,22 @@ void inside_block(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä
 			break;*/
 	}
 }
-void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨Ä££¬Óï¾äÍâ²¿½¨Ä£ĞèÒª¿¼ÂÇÊÇ·ñ´æÔÚ¹ı³Ìµ÷ÓÃ
+void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement built 2
 {
 	gtree  *tr;
-	int sum = 0;//ÓÃÓÚÇø·ÖbeginÊÇ·ñÁ¬½Óµ½¿ØÖÆ¿âËù
+	int sum = 0;
 
-	if (tree1->child->next->type == STATEMENT_LIST)//Ö»ÓĞÓï¾ä
+	if (tree1->child->next->type == STATEMENT_LIST)
 	{
 		tr = tree1->child->next;
 	}
-	else if (tree1->child->next->next->type == STATEMENT_LIST)//¼ÈÓĞÓï¾äÓÖÓĞ¶¨Òå
+	else if (tree1->child->next->next->type == STATEMENT_LIST)
 	{
 		tr = tree1->child->next->next;
 	}
 	else//Ö»ÓĞ¶¨Òå
 	{
-		cout << "Ôİ²»´¦ÀíÖ»ÓĞ¶¨ÒåµÄÇé¿ö!" << endl;
+		cout << "only have declaration!" << endl;
 		exit(1);
 	}
 	while (tr->type != STATEMENT)
@@ -1482,19 +1492,19 @@ void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨
 			|| judge_assign_statement(tr) || judge_call_statement(tr) || judge_return_statement(tr))*/
 		if (tr->type == STATEMENT)
 		{
-			
+
 
 			int n1 = 0;
 			double d = 0.0;
 			string tag;
 			string V = "", V_name = "";
 			string s = "";
-			string _P = find_P_name(petri,tr->place);
+			string _P = find_P_name(petri, tr->place);
 			vector<string> enter_P = petri.get_enter_P(_P);
 			bool sourceP = false;
 
 
-			if (sum == 0)//µÚÒ»ÌõÓï¾ä¿ØÖÆ»¡
+			if (sum == 0)
 			{
 				/*if (flag_call == false)
 				{*/
@@ -1523,7 +1533,7 @@ void inside_block1(C_Petri &petri, gtree *tree1, string T)//compound_statement½¨
 			}
 			last = petri.get_exit(_P);
 		}
-		if (tr->parent->next!=NULL && tr->parent->next->type == STATEMENT)
+		if (tr->parent->next != NULL && tr->parent->next->type == STATEMENT)
 			tr = tr->parent->next;
 		else
 			break;
@@ -1746,11 +1756,11 @@ void process_declarator(gtree *declarator, C_Petri &petri, string tag, string ba
 		case '1':
 		case '5':
 		case '6':
-			n1 = int(change_and_cal(temp_s, petri.place, gen_P_num));
+			n1 = int(change_and_cal(temp_s, petri.place, current));
 			break;
 		case '3':
 		case '4':
-			d = change_and_cal(temp_s, petri.place, gen_P_num);
+			d = change_and_cal(temp_s, petri.place, current);
 			break;
 		case '2':
 			s = temp_s;
@@ -1794,28 +1804,33 @@ void process_declarator(gtree *declarator, C_Petri &petri, string tag, string ba
 		petri.Add_Place(_P, V_name, tag, control_P, t, n1, d, s, array_size, ispoint);
 
 		gtree *compound = declarator;
-		string table_name;
-		while (compound != NULL && compound->type != COMPOUND_STATEMENT)
-			compound = compound->parent;
-		if (compound == NULL)
-			table_name = "global";
-		else
-			table_name = compound->place;
-		for (unsigned int i = 0; i < v_tables.size(); i++)
+		if (declarator->parent->type == PARAMETER_DECLARATION)
 		{
-			if (table_name == v_tables[i]->name)
+			while (compound->parent->type != FUNCTION_DEFINITION)
+				compound = compound->parent;
+			while (compound->type != COMPOUND_STATEMENT)
+				compound = compound->next;
+			compound->para.push_back(make_pair(identifier->place, _P));
+		}
+		else
+		{
+			string table_name;
+			while (compound != NULL && compound->type != COMPOUND_STATEMENT)
+				compound = compound->parent;
+			if (compound == NULL)
+				table_name = "global";
+			else
+				table_name = compound->place;
+			for (unsigned int i = 0; i < v_tables.size(); i++)
 			{
-				v_tables[i]->insert(V_name, _P);
-				break;
+				if (table_name == v_tables[i]->name)
+				{
+					v_tables[i]->insert(identifier->place, _P);
+					break;
+				}
 			}
 		}
 
-		if (current != 0)
-		{
-			for (unsigned int i = 0; i < petri.p_num; i++)
-				if (petri.place[i].name == _P)
-					petri.place[i].id_num = current;
-		}
 	}
 
 }
@@ -2006,7 +2021,14 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	{
 		p->record_P_num = gen_P_num;
 	}
-	else */if (p->type == DECLARATION)
+
+	else */
+	int current;
+	if (addition == 0)
+		current = v_tables_count;
+	else
+		current = addition;
+	if (p->type == DECLARATION)
 	{
 		control_P = false;
 		//V_name = p->place;
@@ -2022,11 +2044,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	}
 	else if (p->type == FUNCTION_DEFINITION)
 	{
-		int current;
-		if (addition == 0)
-			current = gen_P_num;
-		else
-			current = addition;
+
 		string ret_tag;
 		if (p->child->type == DECLARATION_SPECIFIERS)
 		{
@@ -2101,6 +2119,17 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			control_P = false;
 			t = false;
 			petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 1, false);//·µ»ØÔİÊ±²»Ö§³ÖÖ¸Õë
+
+			string table_name;
+			table_name = "global";
+			for (unsigned int i = 0; i < v_tables.size(); i++)
+			{
+				if (table_name == v_tables[i]->name)
+				{
+					v_tables[i]->insert(V_name, P3);
+					break;
+				}
+			}
 			//petri.set_call_flag(P3, 2);//_v¿âËù
 		}
 
@@ -2112,7 +2141,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	|| p->type == SELECTION_STATEMENT || p->type == ITERATION_STATEMENT 
 	|| judge_return_statement(p) || judge_break_statement(p) || judge_goto_statement(p)||judge_label_statement(p))//¸³ÖµÓï¾ä»òÌõ¼şÓï¾ä»òÑ­»·Óï¾ä
 	{
-		
+
 		P1 = gen_P();
 		control_P = true;
 		t = false;
@@ -2137,11 +2166,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		temp_v.push_back(P1);
 		petri.set_enter_P(P1, temp_v);
 		
-		int current;
-		if (addition == 0)
-			current = gen_P_num;
-		else
-			current = addition;
+		
 
 		if (p->type == SELECTION_STATEMENT || p->type == ITERATION_STATEMENT)
 		{
@@ -2264,8 +2289,28 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	}
 	else if (p->type == COMPOUND_STATEMENT)
 	{
+		
 		V_Table *table = new V_Table(p->place);
 		v_tables.push_back(table);
+		v_tables_count++;
+		gtree *up = p->parent;
+
+		while (up != NULL && up->type != COMPOUND_STATEMENT)
+			up = up->parent;
+		for (unsigned int i = 0; i < p->para.size(); i++)
+			table->insert(p->para[i].first,p->para[i].second);
+		if (up == NULL)
+		{
+			v_tables[v_tables_count]->connect(v_tables[0]);
+		}
+		else
+		{
+			for(int i=0;i<v_tables_count;i++)
+				if (v_tables[i]->name == up->place)
+				{
+					v_tables[v_tables_count]->connect(v_tables[i]);
+				}
+		}
 	}
 
 	ast_to_cpn(petri, p->child, addition);
@@ -2290,13 +2335,13 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		petri.Add_Arc(P1, T, V, sourceP);
 
 
-		bool global = create_connect(petri, T, p->place, petri.get_current_P_num(T));
+		bool global = create_connect(petri, T, p->place, current);
 		if (global == true)
 			petri.set_global(P1);
 		gtree *identifier = p;
 		while (identifier->type != IDENTIFIER)
 			identifier = identifier->child;
-		string P2 = find_P_name(petri, identifier->place);
+		string P2 = find_P_name_x(petri, identifier->place, current);
 		//cout << "P2=" << (P2=="P0") << endl;
 
 		if (p->child->child->child->type == PRIMARY_EXPRESSION)//µÈºÅ×ó²àÖ»ÓĞÒ»¸öÖ÷±í´ïÊ½
@@ -2305,7 +2350,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			V = p->child->next->next->place + "$" + identifier->parent->parent->next->next->place;
 		bool is_point = petri.get_point_flag(P2);
 		if (is_point)
-			V = find_P_name_1(petri, p->child->next->next->place, petri.get_current_P_num(T));
+			V = find_P_name_x(petri, p->child->next->next->place, current);
 		sourceP = false;
 		petri.Add_Arc(T, P2, V, sourceP);
 		
@@ -2316,6 +2361,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	}
 	else if (p->type == SELECTION_STATEMENT)
 	{
+
 		if (p->child->type == SWITCH)//switchÓï¾äÔİ²»´¦Àí
 		{
 			cout << "switchÓï¾äÔİ²»´¦Àí!" << endl;
@@ -2342,7 +2388,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			}
 			//		petri.Add_Transition(T, control_T, s);
 			string T1 = temp_v[1];
-			bool global = create_connect(petri, T, s, petri.get_current_P_num(T));
+			bool global = create_connect(petri, T, s, current);
 			if (global == true)
 				petri.set_global(P1);
 			s = opposite_all(s);
@@ -2355,7 +2401,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				}
 			}
 			//		petri.Add_Transition(T1, control_T, s);
-			create_connect(petri, T1, s, petri.get_current_P_num(T));
+			create_connect(petri, T1, s, current);
 			string T2 = "";
 			string T3 = "";
 			//string p2 = find_first_yuju(p->child->next->next->next->next);//ÕÒifÀïÓï¾ä¿éµÄµÚÒ»¸ö±í´ïÊ½
@@ -2376,8 +2422,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				vector<string> enter_P = petri.get_enter_P(statement_P);
 				for (unsigned int i = 0; i < enter_P.size(); i++)
 					petri.Add_Arc(T, enter_P[i], "", false);
-				/*if (enter_P[0] != statement_P)
-					petri.Add_Arc(T, statement_P, "", false);*/
+				if (enter_P[0] != statement_P)
+					petri.Add_Arc(T, statement_P, "", false);
 			}
 
 			string t3;
@@ -2394,8 +2440,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 					vector<string> enter_P = petri.get_enter_P(statement_P);
 					for (unsigned int i = 0; i < enter_P.size(); i++)
 						petri.Add_Arc(T1, enter_P[i], "", false);
-					/*if (enter_P[0] != statement_P)
-						petri.Add_Arc(T1, statement_P, "", false);*/
+					if (enter_P[0] != statement_P)
+						petri.Add_Arc(T1, statement_P, "", false);
 				}
 			}
 			sourceP = true;
@@ -2415,6 +2461,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 	}
 	else if (p->type == ITERATION_STATEMENT)
 	{
+
 		if (p->child->type == DO)//switchÓï¾äÔİ²»´¦Àí
 		{
 			cout << "do while Óï¾äÔİ²»´¦Àí!" << endl;
@@ -2441,7 +2488,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				}
 			}
 			string T1 = temp_v[1];
-			bool global = create_connect(petri, T, s, petri.get_current_P_num(T));
+			bool global = create_connect(petri, T, s, current);
 			if (global == true)
 				petri.set_global(P1);
 			s = opposite_all(s);
@@ -2456,7 +2503,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 					break;
 				}
 			}
-			create_connect(petri, T1, s, petri.get_current_P_num(T));
+			create_connect(petri, T1, s, current);
 			string T2 = "";
 			string T3 = "";
 			//string p2 = find_first_yuju(p->child->next->next->next->next);//ÕÒifÀïÓï¾ä¿éµÄµÚÒ»¸ö±í´ïÊ½
@@ -2508,8 +2555,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				vector<string> enter_P = petri.get_enter_P(statement_P);
 				for (unsigned int i = 0; i < enter_P.size(); i++)
 					petri.Add_Arc(T, enter_P[i], "", false);
-				/*if (enter_P[0] != statement_P)
-					petri.Add_Arc(T, statement_P, "", false);*/
+				if (enter_P[0] != statement_P)
+					petri.Add_Arc(T, statement_P, "", false);
 			}
 
 			sourceP = true;
@@ -2605,13 +2652,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		}
 
 	}
-	else if (judge_call_postfix_expression(p))//º¯Êıµ÷ÓÃÇ°×º±í´ïÊ½
+	else if (judge_call_postfix_expression(p))
 	{
-		int current;
-		if (addition == 0)
-			current = gen_P_num;
-		else
-			current = addition;
 		bool noreturn = false;
 		//string last_sentence;
 		string last_func;
@@ -2624,8 +2666,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		this_func_name = find_func->place;
 		last_func = find_P_name(petri, this_func_name + " begin");
 
-		
-		//string inside = "";
+
+		string inside = "";
 		gtree *temp_statement = p, *temp_expression = NULL;
 		bool flag_condition = false;
 
@@ -2636,10 +2678,10 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			temp_statement = temp_statement->parent;
 		}
 		string statement_vname = temp_statement->place;
-		/*if (judge_inside(temp_statement))
+		if (judge_inside(temp_statement))
 			inside = "in";
 		else
-			inside = "";*/
+			inside = "";
 
 		//
 		gtree *temp_primary_expression = p;
@@ -2655,7 +2697,6 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 
 
-		//¹¹½¨()ºÍ()_c¿âËù
 		P1 = gen_P();
 		control_P = true;
 		t = false;
@@ -2663,7 +2704,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
 
-		petri.set_fun_P(P1, last_func);//()¿âËùÒ²Òª¼Ófun_P
+		petri.set_fun_P(P1, last_func);
 
 		T = gen_T();
 		control_T = false;
@@ -2675,41 +2716,23 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		sourceP = true;
 		petri.Add_Arc(P1, T, V, sourceP);
 		string P3;
-		//if (inside == "")
-		//{
-			//¹¹Ôì¿ØÖÆ¿âËù
-		P3 = gen_P();
-		control_P = true;
-		t = false;
-		V_name = temp_identifier + "()_c";
+		if (inside == "")
+		{
+			P3 = gen_P();
+			control_P = true;
+			t = false;
+			V_name = temp_identifier + "()_c";
 
-		petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 0, false);
-		//}
+			petri.Add_Place(P3, V_name, tag, control_P, t, n1, d, s, 0, false);
+		}
 
-		//½«º¯Êıµ÷ÓÃ½á¹¹Àï¿âËù¼ÓÈë±»µ÷ÓÃº¯ÊıbeginÖĞ
 		string call_fun_begin = find_P_name(petri, temp_identifier + " begin");
 		petri.add_call_P(call_fun_begin, P1);
-		//if (inside == "")
-		petri.add_call_P(call_fun_begin, P3);
+		if (inside == "")
+			petri.add_call_P(call_fun_begin, P3);
 
-		//whileÓï¾ä½«()ºÍ()_c¿âËùÌí¼Ó½øinformationÓÃÓÚÑ­»·
-		//if (temp_expression->parent->type == ITERATION_STATEMENT && flag_condition == true)
-		//{
 
-		//	for (int i = 0; i < petri.p_num; i++)
-		//	{
-		//		if (petri.place[i].v_name == temp_expression->parent->place)
-		//		{
-		//			//petri.place[i].call_flag = 1;//1´ú±íwhileÓï¾äÌõ¼şÄÚÓĞº¯Êıµ÷ÓÃ
-		//			petri.place[i].information.push_back(P1);
-		//			if (inside == "")
-		//				petri.place[i].information.push_back(P3);
-		//			break;
-		//		}
-		//	}
-		//}
-
-		////±íÊ¾º¯Êıµ÷ÓÃÓï¾ä
+		//call statement
 		if (flag_condition == false && temp_expression->child->type == ASSIGNMENT_EXPRESSION && temp_expression->child->child->type == CONDITIONAL_EXPRESSION && temp_statement->child->type != JUMP_STATEMENT)
 		{
 			noreturn = true;
@@ -2735,21 +2758,20 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 
 			petri.set_fun_P(new_place, last_func);
 			string T1 = gen_T();
-			//vector<string> v;
-			//v.push_back(T);//ÕâÀïÈë¿Ú¿âËù±äÎª ()¿âËù
-			//if (inside == "")
-			//{
-			vector<string> temp_v;
-			temp_v.push_back(P1);
-			temp_v.push_back(P3);
-			petri.set_enter_P(new_place, temp_v);
-			//}
-			//else
-			//{
-			//temp_v.clear();
-			//temp_v.push_back(P1);
-			//petri.set_enter_P(new_place, temp_v);
-			//}
+
+			if (inside == "")
+			{
+				vector<string> temp_v;
+				temp_v.push_back(P1);
+				temp_v.push_back(P3);
+				petri.set_enter_P(new_place, temp_v);
+			}
+			else
+			{
+				vector<string> temp_v;
+				temp_v.push_back(P1);
+				petri.set_enter_P(new_place, temp_v);
+			}
 			control_T = false;
 			petri.Add_Transition(T1, control_T, V_name, current);
 			petri.Add_Arc(new_place, T1, "", true);
@@ -2759,14 +2781,15 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			petri.set_control_T(new_place, temp);
 			petri.Add_Place_enter(new_place, T);//
 			petri.Add_Place_exit(new_place, T1);
-			//Ôö¼Ó¹ØÏµ»¡
+
+
 			//petri.Add_Arc(T1, P1, "relation", false);
 			petri.Add_Arc(P1, T1, "relation", true);
-			//if (inside == "")
-			//{
-			petri.Add_Arc(T1, P3, "relation", false);
-			petri.Add_Arc(P3, T1, "relation", true);
-			//}
+			if (inside == "")
+			{
+				//petri.Add_Arc(T1, P3, "relation", false);
+				petri.Add_Arc(P3, T1, "relation", true);
+			}
 		}
 		else
 		{
@@ -2776,64 +2799,64 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 				temp_statement->contain_call_flag = true;
 			}
 			string statement_P = find_P_name(petri, statement_vname);
-			//if (inside == "")
-			//{
+			if (inside == "")
+			{
 				vector<string> temp_v;
 				temp_v.push_back(P1);
 				temp_v.push_back(P3);
 				petri.set_enter_P(statement_P, temp_v);
 				petri.clear_enter(statement_P);
 				petri.Add_Place_enter(statement_P, T);
-			//}
-			/*else
+			}
+			else
 			{
 				vector<string> temp_v;
 				temp_v.push_back(P1);
 				petri.set_enter_P(statement_P, temp_v);
 				petri.clear_enter(statement_P);
 				petri.Add_Place_enter(statement_P, T);
-			}*/
-			//Ôö¼Ó¹ØÏµ»¡
+			}
+
+
 			vector<string> control_T = petri.get_control_T(statement_P);
 			for (unsigned int i = 0; i < control_T.size(); i++)
 			{
 				//petri.Add_Arc(control_T[i], P1, "relation", false);
 				petri.Add_Arc(P1, control_T[i], "relation", true);
-				petri.Add_Arc(P3, control_T[i], "relation", true);
 			}
-			/*if (inside == "")
-			{*/
+			if (inside == "")
+			{
 				for (unsigned int i = 0; i < control_T.size(); i++)
 				{
-					petri.Add_Arc(control_T[i], P3, "relation", false);
-					
+					//petri.Add_Arc(control_T[i], P3, "relation", false);
+					petri.Add_Arc(P3, control_T[i], "relation", true);
 				}
-			//}
+			}
 			//temp_statement->contain_call = temp_expression->child->place;
 		}
 
 
-		//½«Óï¾ä´øº¯Êıµ÷ÓÃµÄ±ê¼ÇÉèÖÃ
+
 		string temp_statement_P = find_P_name(petri, temp_statement->place);
 		//petri.set_call_flag(temp_statement_P, 1);
 
-		//¹¹Ôì·µ»Ø±äÇ¨
-		string T2 = "";
-		/*if (inside == "")
-		{*/
-		T2 = gen_T();
-		control_T = false;
-		s = temp_identifier + " end";
-		petri.Add_Transition(T2, control_T, s, current);
-		string temp_P = find_P_name(petri, s);
 
-		V = "";
-		sourceP = true;
-		petri.Add_Arc(temp_P, T2, V, sourceP);
-		petri.Add_Arc(P3, T2, V, sourceP);
-		petri.set_arc_type(P3, T2, 4);
-		petri.set_arc_type(temp_P, T2, 5);
-		//}
+		string T2 = "";
+		if (inside == "")
+		{
+			T2 = gen_T();
+			control_T = false;
+			s = temp_identifier + " end";
+			petri.Add_Transition(T2, control_T, s, current);
+			string temp_P = find_P_name(petri, s);
+
+			V = "";
+			sourceP = true;
+			petri.Add_Arc(temp_P, T2, V, sourceP);
+			petri.Add_Arc(P3, T2, V, sourceP);
+			petri.set_arc_type(P3, T2, 4);
+			petri.set_arc_type(temp_P, T2, 5);
+		}
 
 		string temp_s = temp_identifier + " begin";
 		string P4 = find_P_name(petri, temp_s);
@@ -2843,8 +2866,8 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		petri.set_arc_type(T, P4, 3);
 
 
-		//²ÎÊı´«µİ´¦Àí£¬Ôİ²»¿¼ÂÇÖØÔØ
-		gtree *temp_tree = p->child->next->next;//Öµ²ÎÊı±í->child
+
+		gtree *temp_tree = p->child->next->next;
 		if (temp_tree->type == ARGUMENT_EXPRESSION_LIST)
 		{
 			vector<string> v;
@@ -2872,7 +2895,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 					V = v[sum++];
 					if (petri.place[i].ispoint)
 					{
-						string p_name = find_P_name_1(petri, V, petri.get_current_P_num(T));
+						string p_name = find_P_name_x(petri, V, current);
 						V = p_name;
 					}
 
@@ -2882,61 +2905,56 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 					petri.Add_Arc(petri.place[i].name, T, V, sourceP);
 					petri.set_arc_type(T, petri.place[i].name, 3);
 					petri.set_arc_type(petri.place[i].name, T, 2);
-					//ÕâÀï
+
 					bool global = false;
 					if (petri.place[i].ispoint)
-						global = create_connect(petri, T, v[sum - 1], petri.get_current_P_num(T));
+						global = create_connect(petri, T, v[sum - 1], current);
 					else
-						global = create_connect(petri, T, V, petri.get_current_P_num(T));
+						global = create_connect(petri, T, V, current);
 					if (global == true)
 						petri.set_global(P1);
 				}
 			}
 		}
 
-		///Ìø×ªÌø»Ø´¦Àí
-
-				//Ìø»Ø²¿·Ö
-		//string temp_P = temp_identifier + " end";
+		//return arc
+		string temp_P = temp_identifier + " end";
 		//last_call = find_T_name(petri, temp_P);
 
-		/*if (inside == "")
-		{*/
-		//string T1 = find_T_name(petri, temp_P);
+		if (inside == "")
+		{
+			string T1 = find_T_name(petri, temp_P);
 
-		string  P2;
-		//temp_place = temp_p->child->place;
-		P2 = find_P_name(petri, temp_statement->place);
-		V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
-		sourceP = false;
-		petri.Add_Arc(T2, P2, V, sourceP);
-		petri.set_arc_type(T2, P2, 1);//º¯Êıµ÷ÓÃ·µ»Ø»¡
-		//string_replace(temp_P, " end", " begin");
+			string  P2;
+			//temp_place = temp_p->child->place;
+			P2 = find_P_name(petri, temp_statement->place);
+			V = "";
+			sourceP = false;
+			petri.Add_Arc(T1, P2, V, sourceP);
+			petri.set_arc_type(T1, P2, 1);
+			//string_replace(temp_P, " end", " begin");
 
-		//}
-		//else
-		//{
-		//	//Á¬½Óend¿âËùµ½Óï¾äµÄcontrol_T
-
-
-
-		//	string P2 = find_P_name(petri, temp_statement->place);
-		//	string P3 = find_P_name(petri, temp_P);
-		//	vector<string> v1 = petri.get_control_T(P2);
-		//	for (unsigned k = 0; k < v1.size(); k++)
-		//	{
-		//		V = "";//ÔİÊ±²»ÉèÎªÖ´ĞĞ»¡
-		//		sourceP = true;
-		//		petri.Add_Arc(P3, v1[k], V, sourceP);
-		//		petri.set_arc_type(P3, v1[k], 1);
-		//	}
+		}
+		else
+		{
+			string P2 = find_P_name(petri, temp_statement->place);
+			string P3 = find_P_name(petri, temp_P);
+			vector<string> v1 = petri.get_control_T(P2);
+			for (unsigned k = 0; k < v1.size(); k++)
+			{
+				V = "";
+				sourceP = true;
+				petri.Add_Arc(P3, v1[k], V, sourceP);
+				petri.set_arc_type(P3, v1[k], 1);
+			}
 
 
-		//}
+		}
 
 	}
 	else if (judge_return_statement(p))//
 	{
+
 		//string last_sentence;
 		string last_func;
 		gtree *find_func = p->child;
@@ -2961,7 +2979,7 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 			string last_func_v= find_P_name(petri, identifier + "_v");
 			petri.Add_Arc(T, last_func_v, expression, false);
 			petri.Add_Arc(last_func_v, T, "write", true);//_v¿âËù»¡È«²¿ÎªĞ´»¡
-			bool global = create_connect(petri, T, expression, petri.get_current_P_num(T));
+			bool global = create_connect(petri, T, expression, current);
 			P1 = find_P_name(petri, p->place);
 			if (global == true)
 				petri.set_global(P1);
@@ -3020,11 +3038,6 @@ void ast_to_cpn(C_Petri &petri, gtree *p, int addition)//additionÎª0±íÊ¾Ö±½Ó¹¹½¨
 		tag = "";
 		petri.Add_Place(P1, V_name, tag, control_P, t, n1, d, s, 0, false);
 
-		int current;
-		if (addition == 0)
-			current = gen_P_num;
-		else
-			current = addition;
 		string T1 = gen_T();
 		control_T = false;
 		s = V_name;
@@ -3189,7 +3202,7 @@ void makeGraph(string inputname, string outputname) //Éú³ÉpngÍ¼Æ¬
 void create_CPN(C_Petri &petri, gtree *tree)
 {
 	V_Table *table = new V_Table("global");
-	v_tables.push_back(table);
+	v_tables.push_back(table);//v_tables_count is 0 here
 	ast_to_cpn(petri, tree, 0);
 	process_label(petri);
 	initializing(petri);
@@ -3211,5 +3224,76 @@ void C_Petri::release()
 			delete[] place[i].num;
 		if (place[i].n_decimal > 0)
 			delete[] place[i].decimal;
+	}
+}
+
+void C_Petri::rebuildcp()
+{
+	for (int i = 0; i < p_num; i++)
+	{
+		place[i].consumer.clear();
+		place[i].consumer_V.clear();
+		place[i].producer.clear();
+		place[i].producer_V.clear();
+	}
+	for (int i = 0; i < t_num; i++)
+	{
+		transition[i].consumer.clear();
+		transition[i].consumer_V.clear();
+		transition[i].producer.clear();
+		transition[i].producer_V.clear();
+	}
+	Place *p = NULL;
+	Transition *t = NULL;
+	for (int i = 0; i < arcnum; i++)
+	{
+		if (arc[i].V == "relation" || arc[i].V == "#" || arc[i].V == "executedV")
+			continue;
+		if (arc[i].sourceP == true)
+		{
+			for (int j = 0; j < p_num; j++)
+			{
+				if (arc[i].source == place[j].name)
+				{
+					p = &place[j];
+					break;
+				}
+			}
+			for (int j = 0; j < p_num; j++)
+			{
+				if (arc[i].target == transition[j].name)
+				{
+					t = &transition[j];
+					break;
+				}
+			}
+			p->consumer.push_back(t);
+			p->consumer_V.push_back(arc[i].V);
+			t->producer.push_back(p);
+			t->producer_V.push_back(arc[i].V);
+		}
+		else
+		{
+			for (int j = 0; j < p_num; j++)
+			{
+				if (arc[i].target == place[j].name)
+				{
+					p = &place[j];
+					break;
+				}
+			}
+			for (int j = 0; j < p_num; j++)
+			{
+				if (arc[i].source == transition[j].name)
+				{
+					t = &transition[j];
+					break;
+				}
+			}
+			p->producer.push_back(t);
+			p->producer_V.push_back(arc[i].V);
+			t->consumer.push_back(p);
+			t->consumer_V.push_back(arc[i].V);
+		}
 	}
 }

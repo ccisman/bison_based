@@ -41,7 +41,7 @@ public:
 					temp_fa = temp_fa->fa;
 			}
 			std::cout << "can't find variable " << v << std::endl;
-			exit(-1);
+			//exit(-1);
 		}
 	}
 };

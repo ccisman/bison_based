@@ -418,7 +418,7 @@ string operate_add(C_Petri &petri, Mapping m, pair<int, int> add)
 
 	string current_P = find_P_name(petri, t1->place);
 	vector<string> current_T = petri.get_control_T(current_P);
-	int current = petri.get_current_P_num(current_T[0]);
+	int current = petri.get_current(current_T[0]);
 
 	if (position1 == 0)
 	{
@@ -871,17 +871,27 @@ string operate_add_declare(C_Petri &petri, Mapping m, pair<int, int> add)
 	//int position1 = add.first;
 	int position2 = add.second;
 	gtree *t2;
-	int current;
-	//t1 = m.map1;
-	//while (t1->type != DECLARATION)
-	//	t1 = t1->child;
-	////gtree *first_statement1 = t1;
-	//for (int i = 0; i < position1 - 1; i++)
-	//	t1 = t1->parent->next;
+	int current = -1;
+	
+	gtree *compound = m.map1;
+	while (compound->type != COMPOUND_STATEMENT)
+		compound = compound->parent;
+	for(int i=0;i<=v_tables_count;i++)
+		if (v_tables[i]->name == compound->place)
+		{
+			current = i;
+			break;
+		}
+	if (current == -1)
+	{
+		cout << "error in operate_add_declare" << endl;
+		exit(-1);
+	}
+
 	t2 = m.map2;
 	while (t2->type != DECLARATION)
 		t2 = t2->child;
-	current = m.map1->record_P_num;
+	
 	//gtree *first_statement2 = t2;
 	for (int i = 0; i < position2 - 1; i++)
 		t2 = t2->parent->next;

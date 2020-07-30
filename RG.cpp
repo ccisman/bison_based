@@ -71,7 +71,7 @@ void RG::init_RG(C_Petri petri1)
 	{
 		petri.arc.push_back(petri1.arc[i]);
 	}
-
+	petri.rebuildcp();
 	create_node(petri, petri1.enable_T());
 }
 
@@ -124,86 +124,74 @@ void load(vector<M> m, C_Petri &petri)
 
 void occur_T(C_Petri &petri, string T)
 {
-	for (int i = 0; i < petri.arcnum; i++)
-	{
-		if (petri.arc[i].sourceP == true && petri.arc[i].V != "#" && petri.arc[i].V != "executed#"&&petri.arc[i].V != "relation")//隐式弧
-		{
-			if (petri.arc[i].target == T)
-			{
-				string source = petri.arc[i].source;
-				for (int j = 0; j < petri.p_num; j++)
-				{
-					if (petri.place[j].name == source)
-					{
-						if (petri.place[j].controlP == true)
-						{
-							petri.place[j].token_num--;
-							if (petri.place[j].token_num < 0)
-							{
-								cout << "token_num < 0 !" << endl;
-								exit(1);
-							}
 
-						}
+	for (int i = 0; i < petri.t_num; i++)
+	{
+		if (petri.transition[i].name == T)
+		{
+			//producer
+			for (unsigned int j = 0; j < petri.transition[i].producer.size(); j++)
+			{
+				if (petri.transition[i].producer[j]->controlP == true)
+				{
+					int token_num = petri.transition[i].producer[j]->token_num--;
+					if (token_num == 0)
+					{
+						cout << "token_num < 0 !" << endl;
+						exit(-1);
 					}
+
 				}
 			}
-		}
-		else
-		{
-			if (petri.arc[i].source == T && petri.arc[i].V != "#"&&petri.arc[i].V != "executed#"&&petri.arc[i].V != "relation")
+
+			//consumer
+			for (unsigned int j = 0; j < petri.transition[i].consumer.size(); j++)
 			{
-				string target = petri.arc[i].target;
-				for (int j = 0; j < petri.p_num; j++)
+
+				if (petri.transition[i].consumer[j]->controlP == true)
+					petri.transition[i].consumer[j]->token_num++;
+				else
 				{
-					if (petri.place[j].name == target)
+					if (petri.transition[i].consumer_V[j] == "")
+						continue;
+					if (petri.transition[i].consumer[j]->ispoint == true)
 					{
-						if (petri.place[j].ispoint == true && petri.arc[i].V != "")//指针节点
+						petri.transition[i].consumer[j]->str = petri.transition[i].consumer_V[j];
+					}
+					else
+					{
+						string temp_s = petri.transition[i].consumer_V[j];
+						int position = 0;
+						for (unsigned int i = 0; i < temp_s.length(); i++)
 						{
-							int current = petri.get_current_P_num(T);
-							string arc_V = petri.arc[i].V;
-							string arc_P = arc_V;// find_P_name_1(petri, arc_V, current + 1);
-							petri.place[j].str = arc_P;
-						}
-						else if (petri.place[j].ispoint == false)
-						{
-							if (petri.arc[i].V == "executed" || petri.arc[i].V == "")
+							if (temp_s[i] == '$')
 							{
-								petri.place[j].token_num++;
+								position = i;
 								break;
 							}
-							string temp_s = petri.arc[i].V;
-							int position = 0;
-							for (unsigned int i = 0; i < temp_s.length(); i++)
-							{
-								if (temp_s[i] == '$')
-								{
-									position = i;
-									break;
-								}
-							}
-
-							int array_num = 0;
-							if (position != 0)
-							{
-								int current = petri.get_current_P_num(T);
-								array_num = int(change_and_cal(temp_s.substr(position + 1), petri.place, current));
-								temp_s = temp_s.substr(0, position);
-							}
-							
-							double value = change_and_cal(temp_s, petri.place, petri.get_current_P_num(T));
-							string temp_tag = petri.place[j].colorset_tag;
-							if (temp_tag == "")
-								temp_tag = "0";
-							if (temp_tag[temp_tag.size() - 1] == '1' || temp_tag[temp_tag.size() - 1] == '5' || temp_tag[temp_tag.size() - 1] == '6')
-								petri.place[j].num[array_num] = value;
-							else if (temp_tag[temp_tag.size() - 1] == '3' || temp_tag[temp_tag.size() - 1] == '4')
-								petri.place[j].decimal[array_num] = value;
 						}
 
+						int array_num = 0;
+						if (position != 0)
+						{
+							int current = petri.get_current(T);
+							array_num = int(change_and_cal(temp_s.substr(position + 1), petri.place, current));
+							temp_s = temp_s.substr(0, position);
+						}
+
+						double value = change_and_cal(temp_s, petri.place, petri.get_current(T));
+						string temp_tag = petri.transition[i].consumer[j]->colorset_tag;
+						if (temp_tag == "")
+							temp_tag = "0";
+						if (temp_tag[temp_tag.size() - 1] == '1' || temp_tag[temp_tag.size() - 1] == '5' || temp_tag[temp_tag.size() - 1] == '6')
+							petri.transition[i].consumer[j]->num[array_num] = int(value);
+						else if (temp_tag[temp_tag.size() - 1] == '3' || temp_tag[temp_tag.size() - 1] == '4')
+							petri.transition[i].consumer[j]->decimal[array_num] = value;
 					}
 				}
 			}
+
+			break;
 		}
 	}
 }
@@ -230,32 +218,14 @@ int RG::create_node(C_Petri petri, vector<string> T)
 		array_copy(petri.place[i].decimal, temp_m.dec, n_dec);
 		temp_M.push_back(temp_m);
 	}
-	if (rgnode.size() > 0)
-	{
-		//死循环程序不考虑
-		//for (unsigned int i = 0; i < rgnode.size(); i++)
-		//{
-		//	if (equal_M(rgnode[i].m, temp_M))
-		//	{
-		//		return rgnode[i].num;
-		//	}
-		//}
-		RGNode node;
-		node.num = node_num++;
-		node.m = temp_M;
 
-		rgnode.push_back(node);
-		return node.num;
-	}
-	else
-	{
-		RGNode node;
-		node.num = node_num++;
-		node.m = temp_M;
+	RGNode node;
+	node.num = node_num++;
+	node.m = temp_M;
 
-		rgnode.push_back(node);
-		return node.num;
-	}
+	rgnode.push_back(node);
+	return node.num;
+
 
 }
 
@@ -295,7 +265,7 @@ void RG::add_next(int node_id, stack<int> &newnode)
 		int num = create_node(petri, T);
 		next.num = num;
 		rgnode[node_id].next.push_back(next);
-		if (node_num > old_num)
+		//if (node_num > old_num)
 			newnode.push(next.num);
 	}
 }

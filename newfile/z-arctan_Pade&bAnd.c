@@ -1,5 +1,6 @@
 int nondet_num_double=101;
 int nondet_num_int=101;
+#define fun bAnd
 void __VERIFIER_error()
 		{
 			return;
@@ -101,10 +102,10 @@ while( i < 100){
 }
 }
 
-  ret = bAnd(x);
+  ret = fun(x);
 
   temp=x[0];x[0] = x[1]; x[1] = temp;
-  ret2 = bAnd(x);
+  ret2 = fun(x);
   temp=x[0];
   if(1>0){
 int i =0 ;
@@ -114,7 +115,7 @@ while( i<100-1){
 }
 }
   x[100-1] = temp;
-  ret5 = bAnd(x);
+  ret5 = fun(x);
 
   if(ret != ret2 || ret !=ret5){ 
     __VERIFIER_error();

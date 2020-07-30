@@ -15,6 +15,9 @@ using namespace std;
 
 extern bool execute_flag;
 
+class Transition;
+class Place;
+
 class Arc
 {
 public:
@@ -53,6 +56,7 @@ public:
 	bool ispoint;//表示是否为指针
 	bool is_goto;//标识是否为goto
 	string goto_label;//标识goto语句的label
+
 	//int current;//表示当前位置，用于区分作用域
 	vector<string> false_exit;//循环语句假出口
 
@@ -62,6 +66,12 @@ public:
 	vector<string> control_T;//标记库所对应的控制变迁
 	vector<string> call_P;//函数begin库所中包含所有调用它的库所
 	vector<string> label_after_P;//标签库所特有，记录上下文
+
+	vector<Transition *> producer;
+	vector<string> producer_V;
+	vector<Transition *> consumer;
+	vector<string> consumer_V;
+
 	string fun_P;//存放所在函数的begin库所
 	bool global;//全局变量标志
 	string pre_executed_P;
@@ -83,8 +93,14 @@ public:
 	string booleanExpression;//控制哨用字符串存储bool表达式
 	string v_Expression;//变量哨存放变量表达式
 //	int num = 0;
+
+	vector<Place *> producer;
+	vector<string> producer_V;
+	vector<Place *> consumer;
+	vector<string> consumer_V;
+
 	int id_num;
-	int current_P_num;
+	int current;
 	bool controlT;//区分控制哨还是变量哨
 	//bool TorF;//控制哨的值
 
@@ -150,7 +166,7 @@ public:
 	vector<string> enable_T(); //返回网内所有可发生的变迁
 	vector<string> find_all_place(string t_name);//找变迁的所有前驱库所
 
-	int get_current_P_num(string T);
+	int get_current(string T);
 	void set_point_flag(string p_name);
 	bool get_point_flag(string p_name);
 	void set_false_exit(string p_name, vector<string> false_exit);
@@ -172,10 +188,13 @@ public:
 	string get_pre_executed_P(string p_name);
 	void add_label_P(string p_name, string call_P);
 	vector<string> get_label_P(string p_name);
+	
 	void release();
+	void rebuildcp();//rebuild consumer,producer
 };
 
 extern vector<V_Table *> v_tables;
+extern int v_tables_count;
 
 string find_P_name(C_Petri petri, string v_name);
 string find_T_name(C_Petri petri, string v_name);
